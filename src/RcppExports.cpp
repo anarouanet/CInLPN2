@@ -7,8 +7,8 @@
 using namespace Rcpp;
 
 // Loglik
-double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& paraFixe, arma::vec& posfix, arma::vec& m_is, arma::mat& Mod_MatrixY, arma::mat& Mod_MatrixYprim, arma::vec& df, arma::mat& x, arma::mat& z, arma::vec& q, int nb_paraD, arma::mat& x0, arma::mat& z0, arma::vec& q0, arma::vec if_link, arma::vec& tau, arma::vec& tau_is, arma::mat& modA_mat, double DeltaT);
-RcppExport SEXP _CInLPN2_Loglik(SEXP KSEXP, SEXP nDSEXP, SEXP mappingSEXP, SEXP paraOptSEXP, SEXP paraFixeSEXP, SEXP posfixSEXP, SEXP m_isSEXP, SEXP Mod_MatrixYSEXP, SEXP Mod_MatrixYprimSEXP, SEXP dfSEXP, SEXP xSEXP, SEXP zSEXP, SEXP qSEXP, SEXP nb_paraDSEXP, SEXP x0SEXP, SEXP z0SEXP, SEXP q0SEXP, SEXP if_linkSEXP, SEXP tauSEXP, SEXP tau_isSEXP, SEXP modA_matSEXP, SEXP DeltaTSEXP) {
+double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& paraFixe, arma::vec& posfix, arma::vec& paras_k, arma::mat& sequence, unsigned int type_int, arma::vec& ind_seq_i, arma::vec& m_is, arma::mat& Mod_MatrixY, arma::mat& Mod_MatrixYprim, arma::vec& df, arma::mat& x, arma::mat& z, arma::vec& q, int nb_paraD, arma::mat& x0, arma::mat& z0, arma::vec& q0, arma::vec if_link, arma::vec& zitr, arma::vec& ide, arma::vec& tau, arma::vec& tau_is, arma::mat& modA_mat, double DeltaT);
+RcppExport SEXP _CInLPN2_Loglik(SEXP KSEXP, SEXP nDSEXP, SEXP mappingSEXP, SEXP paraOptSEXP, SEXP paraFixeSEXP, SEXP posfixSEXP, SEXP paras_kSEXP, SEXP sequenceSEXP, SEXP type_intSEXP, SEXP ind_seq_iSEXP, SEXP m_isSEXP, SEXP Mod_MatrixYSEXP, SEXP Mod_MatrixYprimSEXP, SEXP dfSEXP, SEXP xSEXP, SEXP zSEXP, SEXP qSEXP, SEXP nb_paraDSEXP, SEXP x0SEXP, SEXP z0SEXP, SEXP q0SEXP, SEXP if_linkSEXP, SEXP zitrSEXP, SEXP ideSEXP, SEXP tauSEXP, SEXP tau_isSEXP, SEXP modA_matSEXP, SEXP DeltaTSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -18,6 +18,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::vec& >::type paraOpt(paraOptSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type paraFixe(paraFixeSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type posfix(posfixSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type paras_k(paras_kSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type sequence(sequenceSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type type_int(type_intSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type ind_seq_i(ind_seq_iSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type m_is(m_isSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type Mod_MatrixY(Mod_MatrixYSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type Mod_MatrixYprim(Mod_MatrixYprimSEXP);
@@ -30,11 +34,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat& >::type z0(z0SEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type q0(q0SEXP);
     Rcpp::traits::input_parameter< arma::vec >::type if_link(if_linkSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type zitr(zitrSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type ide(ideSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type tau(tauSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type tau_is(tau_isSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type modA_mat(modA_matSEXP);
     Rcpp::traits::input_parameter< double >::type DeltaT(DeltaTSEXP);
-    rcpp_result_gen = Rcpp::wrap(Loglik(K, nD, mapping, paraOpt, paraFixe, posfix, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT));
+    rcpp_result_gen = Rcpp::wrap(Loglik(K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -270,9 +276,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// f_ord
-double f_ord(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, arma::vec& tau_i, double DeltaT, arma::mat& Yi, arma::mat& x0i, arma::colvec& alpha_mu0, arma::mat& xi, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i);
-RcppExport SEXP _CInLPN2_f_ord(SEXP LambdaiSEXP, SEXP nDSEXP, SEXP matrixPSEXP, SEXP tauSEXP, SEXP tau_iSEXP, SEXP DeltaTSEXP, SEXP YiSEXP, SEXP x0iSEXP, SEXP alpha_mu0SEXP, SEXP xiSEXP, SEXP alpha_muSEXP, SEXP G_mat_A_0_to_tau_iSEXP) {
+// f_marker
+double f_marker(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, arma::vec& tau_i, double DeltaT, arma::mat& Ytildi, arma::mat& YtildPrimi, arma::mat& x0i, arma::colvec& alpha_mu0, arma::mat& xi, arma::vec& paraSig, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::colvec& paraEtha2, arma::vec& if_link, arma::colvec& zitr, arma::mat& ide, arma::vec& paras_k, arma::vec& K2_lambda_t, arma::vec& K2_lambda);
+RcppExport SEXP _CInLPN2_f_marker(SEXP LambdaiSEXP, SEXP nDSEXP, SEXP matrixPSEXP, SEXP tauSEXP, SEXP tau_iSEXP, SEXP DeltaTSEXP, SEXP YtildiSEXP, SEXP YtildPrimiSEXP, SEXP x0iSEXP, SEXP alpha_mu0SEXP, SEXP xiSEXP, SEXP paraSigSEXP, SEXP alpha_muSEXP, SEXP G_mat_A_0_to_tau_iSEXP, SEXP paraEtha2SEXP, SEXP if_linkSEXP, SEXP zitrSEXP, SEXP ideSEXP, SEXP paras_kSEXP, SEXP K2_lambda_tSEXP, SEXP K2_lambdaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -282,13 +288,22 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::vec& >::type tau(tauSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type tau_i(tau_iSEXP);
     Rcpp::traits::input_parameter< double >::type DeltaT(DeltaTSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type Yi(YiSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Ytildi(YtildiSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type YtildPrimi(YtildPrimiSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type x0i(x0iSEXP);
     Rcpp::traits::input_parameter< arma::colvec& >::type alpha_mu0(alpha_mu0SEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type xi(xiSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type paraSig(paraSigSEXP);
     Rcpp::traits::input_parameter< arma::colvec& >::type alpha_mu(alpha_muSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type G_mat_A_0_to_tau_i(G_mat_A_0_to_tau_iSEXP);
-    rcpp_result_gen = Rcpp::wrap(f_ord(Lambdai, nD, matrixP, tau, tau_i, DeltaT, Yi, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i));
+    Rcpp::traits::input_parameter< arma::colvec& >::type paraEtha2(paraEtha2SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type if_link(if_linkSEXP);
+    Rcpp::traits::input_parameter< arma::colvec& >::type zitr(zitrSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type ide(ideSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type paras_k(paras_kSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type K2_lambda_t(K2_lambda_tSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type K2_lambda(K2_lambdaSEXP);
+    rcpp_result_gen = Rcpp::wrap(f_marker(Lambdai, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, paraEtha2, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -307,7 +322,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_CInLPN2_Loglik", (DL_FUNC) &_CInLPN2_Loglik, 22},
+    {"_CInLPN2_Loglik", (DL_FUNC) &_CInLPN2_Loglik, 28},
     {"_CInLPN2_pred", (DL_FUNC) &_CInLPN2_pred, 25},
     {"_CInLPN2_vectorise", (DL_FUNC) &_CInLPN2_vectorise, 1},
     {"_CInLPN2_KmatDiag", (DL_FUNC) &_CInLPN2_KmatDiag, 1},
@@ -323,7 +338,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_CInLPN2_matNui", (DL_FUNC) &_CInLPN2_matNui, 8},
     {"_CInLPN2_f_Yi_r_NA_by0", (DL_FUNC) &_CInLPN2_f_Yi_r_NA_by0, 1},
     {"_CInLPN2_YiNui", (DL_FUNC) &_CInLPN2_YiNui, 11},
-    {"_CInLPN2_f_ord", (DL_FUNC) &_CInLPN2_f_ord, 12},
+    {"_CInLPN2_f_marker", (DL_FUNC) &_CInLPN2_f_marker, 21},
     {"_CInLPN2_VecToMat", (DL_FUNC) &_CInLPN2_VecToMat, 3},
     {NULL, NULL, 0}
 };

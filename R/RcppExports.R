@@ -30,8 +30,8 @@
 #' @return double 
 #' @export
 #' 
-Loglik <- function(K, nD, mapping, paraOpt, paraFixe, posfix, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT) {
-    .Call(`_CInLPN2_Loglik`, K, nD, mapping, paraOpt, paraFixe, posfix, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT)
+Loglik <- function(K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT) {
+    .Call(`_CInLPN2_Loglik`, K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT)
 }
 
 #' Function that computes the predictions (marginal and subject-specific) for individuals
@@ -290,12 +290,19 @@ YiNui <- function(nD, matrixP, tau, tau_i, DeltaT, Yi, x0i, alpha_mu0, xi, alpha
 #' @param alpha_mu a vector of parameters associated to the model.matrix for the change's submodel
 #' @param G_mat_A_0_to_tau_i matrix containing  Prod(A_t)t=0,tau_i where A_t is the transition
 #' matric containing at time t
+#'  @param paraEtha2 transformation parameters
+#'  @param if_link: link function indicator, 0 if linear, 1 if splines, 2 if thresholds
+#'  @param zitr: thresholds for threshold function, in Ytildi scale
+#'  @param ide ????
+#'  @param paras_k: number of parameters for link function for each marker k
+#'  @param K2_lambda_t: vector indicating to which latent process corresponds each value of Lambdai
+#'  @param K2_lambda: vector indicating to which latent process corresponds each marker
 #' 
 #' @return a double
 #' @export
 #' 
-f_ord <- function(Lambdai, nD, matrixP, tau, tau_i, DeltaT, Yi, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i) {
-    .Call(`_CInLPN2_f_ord`, Lambdai, nD, matrixP, tau, tau_i, DeltaT, Yi, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i)
+f_marker <- function(Lambdai, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, paraEtha2, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda) {
+    .Call(`_CInLPN2_f_marker`, Lambdai, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, paraEtha2, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda)
 }
 
 #' Function that transforms a vector to a matrix

@@ -23,6 +23,7 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
   # L = number of parameters for each coefficient a of matrix A
   # K = number of outcomes
   #======================================================================================
+
   nb_paraD = nb_RE*(nb_RE+1)/2
   indexparaFixeForIden <- NULL
   # if user not specified initial parameters
@@ -58,7 +59,6 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
       to_nrow <- to_nrow -1
     }
     p <- p+nb_paraD
-    
     # para of transition matrix vec_alpha_ij
     vec_alpha_ij <- rep(0.4, L*nD*nD)
     cpt1 <- cpt1 + L*nD*nD
@@ -76,12 +76,13 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
     p <- p + K
     ### parameters of the link function
     ParaTransformY <- rep(1, ncolMod.MatrixY)
-    
+    if(ncolMod.MatrixY>2)
+      browser()
     cpt1 <- cpt1 + ncolMod.MatrixY
     p <- p + ncolMod.MatrixY
   }
   
-  
+
   
   # if user specified initial parameters
   if(!is.null(paras.ini)){
@@ -136,9 +137,9 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
     cpt1 <- cpt1 + ncolMod.MatrixY
     p <- p + ncolMod.MatrixY
   }
-  
+
   #final vector of initial parameters
-  paras <- c(alpha_mu0, alpha_mu, alpha_D, vec_alpha_ij,  paraB, paraSig, ParaTransformY )
+  paras <- c(alpha_mu0, alpha_mu, alpha_D, vec_alpha_ij,  paraB, paraSig, ParaTransformY)
   
   #initialisation
   #   paraOpt <- paras
@@ -166,7 +167,6 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
     paras[indexFixe] <- paraFixe
     paraOpt <- paras[-indexFixe]
   }
-  
   return(list(para = paras, paraOpt = paraOpt, paraFixe = paraFixe, posfix = posfix, L = L))
 }
 
@@ -201,7 +201,7 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
 
 f_paras.ini <- function(data, outcomes, mapped.to.LP, fixed_X0.models, fixed_DeltaX.models, randoms_DeltaX.models, 
                         randoms_X0.models, nb_RE, mod_trans.model, subject, 
-                        Time, link, knots, DeltaT, maxiter = 25, epsa = .0001, epsb = .0001,
+                        Time, link, knots, zitr = NULL, ide = NULL, DeltaT, maxiter = 25, epsa = .0001, epsb = .0001,
                         epsd = .0001, nproc = 1, print.info = TRUE)
 {
   cl <- match.call()
@@ -237,7 +237,8 @@ f_paras.ini <- function(data, outcomes, mapped.to.LP, fixed_X0.models, fixed_Del
     parameters = list(paras.ini = NULL, Fixed.para.index = indexparaFixeUser, Fixed.para.values = paraFixeUser)
     
     option = list(nproc = nproc, print.info = print.info, maxiter = maxiter)
-    mod <- CInLPN2(structural.model = structural.model, measurement.model = measurement.model, parameters = parameters,
+
+    mod <- CInLPN:::CInLPN(structural.model = structural.model, measurement.model = measurement.model, parameters = parameters,
                   option = option, Time = Time, subject = subject, data = data)
     L <- ncol(mod$modA_mat)
     
@@ -253,7 +254,9 @@ f_paras.ini <- function(data, outcomes, mapped.to.LP, fixed_X0.models, fixed_Del
     else{
       i1 <- i1 + n_col_x0_k + mod$nb_paraD
     }
-    
+    if(link[k]=="thresholds")
+      print("initialise parameters")
+
     if(k==1){
       para.trans <- c(para.trans, coefficients[(i1+1):(i1+L)])
     }
@@ -270,6 +273,7 @@ f_paras.ini <- function(data, outcomes, mapped.to.LP, fixed_X0.models, fixed_Del
   }
   para.RE <- rep(0.1, (nb_RE*(nb_RE+1)/2))
   paras.ini <- c(para.fixed_X0, para.fixed_DeltaX, para.RE, para.trans, para.Sig, ParaTransformY) 
+
   return(paras.ini)
 }
 

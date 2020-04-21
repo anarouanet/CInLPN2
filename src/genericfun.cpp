@@ -4,11 +4,11 @@
 #include <math.h>
 #include <stdlib.h> /* srand, rand */
 #include <vector>
+#include <algorithm>
 // [[Rcpp::depends(RcppArmadillo)]]
 using namespace Rcpp;
 using namespace arma;
 using namespace std;
-
 //===========================================================================================================
 //function print matrix
 int f_mat_print( arma::mat& B)
@@ -522,20 +522,29 @@ Description:
  normalCDF a function that computes the cumulative distribution function of a standard normal
 */
 
-double normalCDF(double value)
+double normalCDF(double value, bool lower_tail = true)
 {
   //double M_SQRT1_2=sqrt(0.5);
-  return 0.5 * erfc(-value * M_SQRT1_2);
+  double proba = 0.5 * erfc(-value * M_SQRT1_2);
+
+  if(!lower_tail)
+    proba = 1- proba;         
+  
+  return proba;
 }
 
 //===========================================================================================================
 /* ***********************************
-Function f_ord
+Function f_marker
 Description:
- f_ord a function that computes f(Yi|Lambda_i) with cumulative probit function
+ f_marker a function that computes f(Yi|Lambda_i) with cumulative probit function
 delete missing values (NA) and returns a double
 Dependances: matNui
 */
+
+bool Isnotnan(double i) {
+  return !isnan(i);
+}
 
 //===========================================================================================
 //' Function that computes the difference (mat_Yi - mat_Nu_i), delates missing values (NAs) and 
@@ -554,20 +563,134 @@ Dependances: matNui
 //' @param alpha_mu a vector of parameters associated to the model.matrix for the change's submodel
 //' @param G_mat_A_0_to_tau_i matrix containing  Prod(A_t)t=0,tau_i where A_t is the transition
 //' matric containing at time t
+//'  @param paraEtha2 transformation parameters
+//'  @param if_link: link function indicator, 0 if linear, 1 if splines, 2 if thresholds
+//'  @param zitr: thresholds for threshold function, in Ytildi scale
+//'  @param ide ????
+//'  @param paras_k: number of parameters for link function for each marker k
+//'  @param K2_lambda_t: vector indicating to which latent process corresponds each value of Lambdai
+//'  @param K2_lambda: vector indicating to which latent process corresponds each marker
 //' 
 //' @return a double
 //' @export
 //' 
 // [[Rcpp::export]]
-double f_ord(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, arma::vec& tau_i, double DeltaT, arma::mat& Yi, arma::mat& x0i, arma::colvec& alpha_mu0,
-                arma::mat& xi, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i){
+double f_marker(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, arma::vec& tau_i, double DeltaT, arma::mat& Ytildi, arma::mat& YtildPrimi, arma::mat& x0i, arma::colvec& alpha_mu0,
+                arma::mat& xi, arma::vec& paraSig, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::colvec& paraEtha2, arma::vec& if_link, arma::colvec& zitr, 
+                arma::mat& ide, arma::vec& paras_k, arma::vec& K2_lambda_t, arma::vec& K2_lambda){
+
+  int K = matrixP.n_rows;
+  double vrais = 0.0;
+
+  int param = 0;
+  int K_t = 0;
+
+   for(int k=0; k<K; k++){
+     
+    // Retrieve part of Ytildi and Lambdai that corresponds to marker k
+    vec Ytildik=Ytildi.col(k);
+
+    if(!std::all_of(Ytildi.col(k).begin(), Ytildi.col(k).end(), Isnotnan) ){
+      int ind=0;
+      for(int b = 0 ; b < Ytildi.n_rows; b++){
+        if(!isnan(Ytildi(b,k))){
+          Ytildik(ind)=Ytildi(b,k);
+          ind++;
+        }
+      }
+      Ytildik =Ytildik.head(ind);
+    }else{
+      Ytildik=Ytildi.col(k);
+    }
+    
+    vec Lambdai_k(Ytildik.size());
+    int ind=0;
+    for(int b = 0 ; b < K2_lambda_t.size(); b++){
+      if(K2_lambda_t(b)==K2_lambda(k)){
+        Lambdai_k(ind)=Lambdai(b);
+        ind++;
+      }
+    }
+
+     if (if_link[k]==2){// thresholds
+       
+       double inf;
+       double sup;
+       vec params_thresholds(paras_k[k]);
+       params_thresholds[0] = paraEtha2[param+1];
+       
+      for(int r=1; r<paras_k[k]; r++){
+         params_thresholds[r] = params_thresholds[r-1] + paraEtha2[param + r];
+       }
+       
+       for(int j=0; j<(int)tau_i.size(); j++){
+   
+         if (Ytildik(j,k)==zitr[K_t*2]){
+           double gamma0 =  params_thresholds[0] - Lambdai_k[j]; 
+           double temp = normalCDF(gamma0);
+           
+           vrais  *= normalCDF(gamma0);
+
+         }else{
+           sup = params_thresholds[1]*params_thresholds[1];
+           inf = sup;
+           
+           for(int p=0; p<(int)(zitr[K_t*2 + 1]-zitr[K_t*2]-1); p++){
+             sup += params_thresholds[p+1]*params_thresholds[p+1];
+             
+             if(Ytildik(j,k) == (zitr[K_t*2]+p)){
+               double gamma1 = sup - Lambdai_k[j];
+               double gamma0 = inf - Lambdai_k[j];
+   
+               double temp = (normalCDF(gamma1) - normalCDF(gamma0));
+               
+               vrais  *= (normalCDF(gamma1) - normalCDF(gamma0));
+               // fout << "Ytildij: "<< Ytildi(j,k) << " zitr[K_t*2]+p: "<<zitr[K_t*2]+p 
+               //      << " sup "<<sup << " inf "<<inf << " param "<< param
+               //      << " params_thresholds[p+1] "<< params_thresholds[p+1] << " vrais "<<vrais
+               //      << " temp "<<temp<< " gamma1 "<<gamma1<< " gamma0 "<<gamma0
+               //      <<" Ngamma1 "<<normalCDF(gamma1)<< " Ngamma0 "<<normalCDF(gamma0)<<endl;
+             }
+             
+             inf = sup;
+           }
+           
+           if (Ytildik(j,k)==zitr[K_t*2 + 1]){
+             double gamma0 =  sup - Lambdai_k[j]; 
+             double temp = normalCDF(gamma0);
+             vrais  *= (1-normalCDF(gamma0));
+           }
+         }
+       }
+      K_t +=1;
+      
+     }else if (if_link[k]==0){// linear
+       
+       vec params_lin(paras_k[k]);
+       for(int r=0; r<paras_k[k]; r++){
+         params_lin[r] = paraEtha2[param + r];
+       }
+
+       // ##### computering of the likelihood ##########################
+       double log_det= Lambdai_k.size()*log(paraSig[k]);
+       //double log_Jac_Phi=log(params_lin[0])*Lambdai_k.size();
+       double log_Jac_Phi = sum(log(YiwoNA(vectorise(YtildPrimi.col(k)))));
+       vec y=Ytildik-Lambdai_k;
+       
+//       vrais = -0.5*(sum(Lambdai_k.size())*log(2*M_PI) + log_det + as_scalar(y.t()*y/paraSig[k])) ;
+       double out=0;
+       out = -0.5*(Lambdai_k.size()*log(2*M_PI) + log_det + as_scalar(y.t()*y/paraSig[k])) + log_Jac_Phi;
+       vrais += exp(out);
+       
+      //dmvnorm(Ytilde, mean = Ytild[i+1,], sigma = sigmae2*diag(length(mu))) / a^(length(mu))
+     }
+     param += paras_k[k];
+   }
   
-  
-  double a= normalCDF(0.5);
   // int mk=ncol(matrixP); //number of ordinal markers
   // for(int i=0; i<(int)tau_i.size(); i++){
   //   for(int j=0; j<mk; i++){
-  //   
+  // 
   //   }
   // }
   // -0.5*(sum(k_i)*log(2*M_PI) + log(abs_det_matVY_i) + as_scalar(Ytildi_nu_i.t()*inv_sympd(matVY_i)*Ytildi_nu_i))
@@ -581,11 +704,9 @@ double f_ord(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, arma
   // }
   // // Nu_cp : Expectation of overall times
   // mat M =  Yi - Nu_cp_i*matrixP.t();
-  double out=0;
-  
-  return(out);
-}
 
+  return(vrais);
+}
 //===========================================================================================================
 
 // /*============================================================

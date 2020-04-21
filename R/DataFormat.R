@@ -65,7 +65,23 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
         degree[k] <- 0 # conventionnellement
       }
       else if(link[k]=="thresholds"){
+        linkSpe[[k]] <- "t"
+        print("check Imat!")
+
+        Imat     <- matrix(0, nrow = dim(Y)[1], ncol = length(unique(Y[,k])))
+        Imat[,1] <- Y[,k]
+        #Imat <- model.matrix(as.formula(paste("~1+",col[k])), data = Y, na.action= na.action)
+        #Imat <- matrix(0, dim(Y)[1], length(unique(Y[,k])-1))
+        #Imat[which(is.na(Imat[,2])),1] <- NA
         
+        colnamesY <- c(colnamesY, paste(outcomes[k],"thresholds", seq(1,ncol(Imat)), sep = "."))
+        colnamesYPrim <- c(colnamesYPrim, paste(outcomes[k],"thresholds", seq(1,(ncol(Imat)-1)), sep = "."))
+        #check!
+        Mod.MatrixY <- cbind(Mod.MatrixY, Imat)
+        Mod.MatrixYprim <- cbind(Mod.MatrixYprim, Imat[,-1])
+        
+        df <-c(df, ncol(Imat))
+        degree[k] <- 0 # conventionnellement
       }else{
         linkSpe[[k]] <- strsplit(gsub("[[:space:]]","",link[k]),"[-]")[[1]]
         temp <- try( linkSpe[[k]][1] <- as.numeric(linkSpe[[k]][1]),silent = FALSE)
@@ -134,7 +150,7 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
         Mod.MatrixYprim <- cbind(Mod.MatrixYprim, MsMat)
         df <-c(df, ncol(IsMat))
         }
-  }
+    }
     Mod.MatrixY <- as.matrix(Mod.MatrixY)
     Mod.MatrixYprim <- as.matrix(Mod.MatrixYprim)
     colnames(Mod.MatrixY) <- colnamesY
@@ -172,7 +188,7 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
 #' @return a list
 
 DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixed_DeltaX.models, 
-                       randoms_DeltaX.models, mod_trans.model, link = NULL, knots = NULL, 
+                       randoms_DeltaX.models, mod_trans.model, link = NULL, knots = NULL, zitr = NULL, ide = NULL, 
                        outcomes, nD, Time, DeltaT){
   
   cl <- match.call()
@@ -433,14 +449,12 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   #============================================================
   # design matrix for transition model
   f<-as.formula(paste(subject,mod_trans.model, sep="~"))# put subject, just to have a left side for the formula
-  
   modA_mat<-model.matrix(as.formula(paste(subject,mod_trans.model, sep="~")),data=data_xzMatA_cov)
   #   dim(modA_mat)
   #   head(modA_mat)
   #============================================================
   #design matrix for markers transformation
   Y <- as.matrix(data[,outcomes])
-  browser()
   tr_Y <- f.link(outcomes = outcomes, Y=as.data.frame(Y), link=link, knots =knots)
   Mod.MatrixY <- tr_Y$Mod.MatrixY
   Mod.MatrixYprim <- tr_Y$Mod.MatrixYprim
@@ -453,7 +467,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   nb_paraD <- nb_RE*(nb_RE+1)/2
   
   return(list(nb_subject=I, nb_obs = length(na.omit(as.vector(Y))), K=K, nD = nD, all.preds = all.preds, id_and_Time=id_and_Time,Tmax = Tmax, m_i = m_i, Y = Y, Mod.MatrixY=Mod.MatrixY,  
-              Mod.MatrixYprim=Mod.MatrixYprim, minY = minY, maxY = maxY, knots = knots, df = df, degree = degree, x = x, x0 = x0, 
+              Mod.MatrixYprim=Mod.MatrixYprim, minY = minY, maxY = maxY, knots = knots, zitr = zitr, ide = ide, df = df, degree = degree, x = x, x0 = x0, 
               vec_ncol_x0n = nb_x0_n, z = z, z0=z0, q = q, q0 = q0, nb_paraD = nb_paraD, nb_RE=nb_RE, modA_mat = modA_mat,
               tau = tau, tau_is = tau_is))
 }

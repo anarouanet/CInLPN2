@@ -20,6 +20,7 @@
 #' @param Time indicates the name of the covariate representing the time
 #' @param makepred indicates if predictions in the real scales of outcomes have to be done
 #' @param MCnr number of replicates  to compute the predictions in the real scales of the outcomes
+#' @param type_int type of Monte Carlo integration method to use
 #' @param paras.ini initial values for parameters, default values is NULL
 #' @param indexparaFixeUser position of parameters to be constrained
 #' @param paraFixeUser values associated to the index of parameters to be constrained
@@ -35,7 +36,7 @@
 #' @return CInLPN2 object
 CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.models, randoms_DeltaX.models, mod_trans.model, 
                            DeltaT, outcomes, nD, mapping.to.LP, link, knots=NULL, subject, data, Time,
-                           makepred, MCnr,
+                           makepred, MCnr, type_int = NULL, sequence = NULL, ind_seq_i = NULL,
                            paras.ini= NULL, indexparaFixeUser, paraFixeUser, maxiter, zitr, ide, univarmaxiter, nproc = 1, 
                            epsa =0.0001, epsb = 0.0001, epsd= 0.001, print.info = FALSE, ...)
 {
@@ -44,34 +45,82 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
   data_F <- DataFormat(data=data, subject = subject, fixed_X0.models = fixed_X0.models,
                        randoms_X0.models = randoms_X0.models, fixed_DeltaX.models = fixed_DeltaX.models, 
                        randoms_DeltaX.models = randoms_DeltaX.models, mod_trans.model = mod_trans.model, 
-                       outcomes = outcomes, nD = nD, link=link, knots = knots, 
+                       outcomes = outcomes, nD = nD, link=link, knots = knots, zitr= zitr, ide = ide, 
                        Time = Time, DeltaT=DeltaT)
   
-
   K <- data_F$K #  number of markers
   vec_ncol_x0n <- data_F$vec_ncol_x0n # number of parameters on initial level of processes
   n_col_x <- ncol(data_F$x) # number of parameters on processes slope
   nb_RE <- data_F$nb_RE # number of random effects on the processes slope
   L <- ncol(data_F$modA_mat)
   ncolMod.MatrixY <- ncol(data_F$Mod.MatrixY)
-  
+
   # ### creation of arguments:  Initialising parameters
   if(K>1 & is.null(paras.ini)){
+
+    if(all(link=="linear")){ 
+      browser()# add sequence and ind_seq_i !! 
     paras.ini <- f_paras.ini(data = data, outcomes = outcomes, mapped.to.LP = mapping.to.LP, fixed_X0.models = fixed_X0.models, fixed_DeltaX.models = fixed_DeltaX.models,  
-                             randoms_DeltaX.models = randoms_DeltaX.models, nb_RE = nb_RE, mod_trans.model = mod_trans.model, 
-                             subject = subject, Time = Time, link = link, knots = knots, zitr = zitr, ide = ide,
-                             DeltaT = DeltaT, maxiter = univarmaxiter, epsd = epsd, nproc = nproc, print.info = print.info)
+                                      randoms_DeltaX.models = randoms_DeltaX.models, nb_RE = nb_RE, mod_trans.model = mod_trans.model, 
+                                      subject = subject, Time = Time, link = link, knots = knots, #zitr = zitr, ide = ide,
+                                      DeltaT = DeltaT, maxiter = univarmaxiter, epsd = epsd, nproc = nproc, print.info = print.info)
+    #CInLPN:::
+    }else{
+     paras.ini <- f_paras.ini(data = data, outcomes = outcomes, mapped.to.LP = mapping.to.LP, fixed_X0.models = fixed_X0.models, fixed_DeltaX.models = fixed_DeltaX.models,  
+                              randoms_DeltaX.models = randoms_DeltaX.models, nb_RE = nb_RE, mod_trans.model = mod_trans.model, 
+                              subject = subject, Time = Time, link = link, knots = knots, zitr = zitr, ide = ide,
+                              DeltaT = DeltaT, maxiter = univarmaxiter, epsd = epsd, nproc = nproc, print.info = print.info)
+    }
   }
+
   paras <- Parametre(K=K, nD = nD, vec_ncol_x0n, n_col_x, nb_RE, indexparaFixeUser = indexparaFixeUser, 
                      paraFixeUser = paraFixeUser, L = L, ncolMod.MatrixY = ncolMod.MatrixY, paras.ini=paras.ini)
-  
+
   if_link <- rep(0,K)
   for(k in 1:K){
-    if(link[k] !="linear") if_link[k] <- 1
+    if(!link[k] %in%c("linear","thresholds")){
+      if_link[k] <- 1
+    }else if(link[k]=="thresholds"){
+      if_link[k] <- 2
+    } 
   }
-  
+
+  paras$npara_k <- sapply(outcomes, function(x) length(grep(x, names(data.frame(data_F$Mod.MatrixY)))))
+
+  #add zitr, ide  dans estim(). What about knots? What in dataF
+  if(any(link=="thresholds") || type_int %in% c("halton", "sobol")){
+    #  nmes <- c()
+    #  for (i in 1:length(unique(data$id))){
+    #    for(k in 1:K){
+    #      ind = which(names(data)==outcomes[k])
+    #      nmes <- c(nmes, length(which(data$id==unique(data$id)[i] & !is.na(data[,ind]))))
+    #    }
+    #  }
+    # nmes <- unique(nmes)
+    # nmes <- nmes[order(nmes)]
+    # 
+    # sequence <- matrix(NA, MCnr*length(nmes), max(nmes))
+    # 
+    # for(j in 1:length(nmes)){
+    #   if (type_int == "sobol") {
+    #     Seq <- randtoolbox::sobol(MCnr, dim = nmes[j], normal = TRUE, scrambling = 1)
+    #   } else if (type_int == "halton") {
+    #     Seq <- randtoolbox::halton(MCnr, dim = nmes[j], normal = TRUE)
+    #   }
+    #   sequence[((j-1)*MCnr+1):(j*MCnr), 1:nmes[j]] <- Seq
+    # }
+
+    paras$sequence <- sequence
+    paras$type_int <- ifelse(type_int=="halton",1,ifelse(type_int=="sobol",2,ifelse(type_int=="torus",3,0)))
+    paras$ind_seq_i <- ind_seq_i
+  }else{
+    paras$type_int <- -1
+    paras$sequence <- matrix(0,nD,1)
+    paras$ind_seq_i <- 0
+  }
+
   # estimation
-  est <- CInLPN2.estim(K= K, nD = nD, mapping.to.LP = mapping.to.LP, data = data_F, if_link = if_link, DeltaT = DeltaT, 
+  est <- CInLPN2.estim(K = K, nD = nD, mapping.to.LP = mapping.to.LP, data = data_F, if_link = if_link, DeltaT = DeltaT, 
                       paras = paras, maxiter = maxiter, nproc = nproc, epsa = epsa, epsb = epsb,
                       epsd = epsd, print.info = print.info)
   

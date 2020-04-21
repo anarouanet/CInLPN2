@@ -59,6 +59,21 @@
 #' \code{option$epsc}{ threshold for the convergence criterion on the derivatives}
 #' 
 #' \code{option$MCnr}{ number of replicates  to compute the predictions in the real scales of the outcomes (backward transformation because of the link functions)}
+#' 
+#' \code{option$type}{ type of Monte Carlo integration method to
+#'   use. Options are \describe{
+#'
+#'   \item{\code{type='montecarlo'}}{Vanilla Monte Carlo sampling.}
+#'
+#'   \item{\code{type='antithetic'}}{Variance reduction method using antithetic
+#'   simulation. This is the default option.}
+#'
+#'   \item{\code{type='sobol'}}{Quasi-Monte Carlo with a low
+#'   deterministic Sobol sequence with Owen-type scrambling.}
+#'
+#'   \item{\code{type='halton'}}{Quasi-Monte Carlo with a low deterministic
+#'   Halton sequence. See "randtoolbox" R package for more details about the last two sequences.}
+#'   
 #' @param Time indicates the name of the covariate representing the time 
 #' @param subject indicates the name of the covariate representing the grouping structure
 #' @param data indicates the data frame containing all the variables for estimating the model.
@@ -181,10 +196,13 @@
 
 
 CInLPN2 <- function(structural.model, measurement.model, parameters, 
-                   option, Time, subject, data,...){
+                   option, Time, subject, data, seed=NULL, ...){
   cl <- match.call()
   ptm <- proc.time()  
   cat("Be patient, CInLPN2 is running ... \n")
+  
+  if(!missing(seed))
+    set.seed(seed)
   
   ### check if all component of the model specification are well filled ####
   if(missing(structural.model))stop("The argument structural.model must be specified")
@@ -221,6 +239,9 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
   }
   if(is.null(option$MCnr)){
     option$MCnr <- 30
+  }
+  if(is.null(option$type_int)){
+    option$type_int <- "antithetic"
   }
   
   # if(is.null(option$parallel)){
@@ -266,6 +287,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
   ## component of option
   makepred <- option$makepred
   MCnr <- option$MCnr
+  type_int <- option$type_int
   #parallel <- option$parallel
   maxiter <- option$maxiter  
   univarmaxiter <- option$univarmaxiter
@@ -282,6 +304,8 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
   if(!all(round((data[,Time]/DeltaT)-round(data[,Time]/DeltaT),8)==0.0))stop(paste("Time must be multiple of", DeltaT, sep = " "))
   if(dim(unique(data))[1] != dim(data)[1]) stop("Some rows are the same in the dataset, perhaps because of a too large discretisation step")
   
+  
+  data <- data[order(data[,subject], data[,Time]),]
   
   #### fixed effects pre-traitement ####
   
@@ -364,38 +388,89 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
 
   if(any(link == "thresholds")){
     j     <- which(link == 'thresholds')
+    
     Y0    <- data[,outcomes[j]]
-    minY0 <- min(Y0,rm.na=TRUE)
-    maxY0 <- max(Y0,rm.na=TRUE)
+    minY0 <- apply(as.matrix(Y0), 2, min, rm.na=TRUE)# min(Y0,rm.na=TRUE)
+    maxY0 <- apply(as.matrix(Y0), 2, max, rm.na=TRUE)# max(Y0,rm.na=TRUE)
+
+    if(length(j==1))
+       ide0 <- matrix(0, nrow = length(j),  ncol = max(sapply(j, function(x) max(Y0, na.rm =T)-min(Y0, na.rm =T) ))) #change dimensions
+    else
+      ide0 <- matrix(0, nrow = length(j),  ncol = max(sapply(j, function(x) max(Y0[,x], na.rm =T)-min(Y0[,x], na.rm =T) ))) #change dimensions
     
     nbzitr0 <- 2
-    idlink0 <- 3
-    ntrtot0 <- as.integer(maxY0 - minY0)
-    
-    if (!(all.equal(minY0, as.integer(minY0)) == T) | 
-        !(all.equal(maxY0, as.integer(maxY0)) == T) | 
-        !all(Y0 %in% minY0:maxY0)) {
-      stop("With the threshold link function, the longitudinal outcome must be discrete")
+    #idlink0 <- 3
+    #ntrtot0 <- as.integer(maxY0 - minY0)
+    if (!(all(is.integer(minY0) | !all(is.integer(maxY0)))))
+          stop("With the threshold link function, the longitudinal outcome must be discrete")
+
+    zitr <- c()
+    for(i in 1:length(j)){
+      if(length(j)>1){
+        Y0tmp <- Y0[,i]
+      }else{
+        Y0tmp <- Y0
+      }
+      
+      if (!all(Y0tmp %in% minY0[i]:maxY0[i]))
+        stop("With the threshold link function, problem with the outcome data, must be discrete")
+      
+      IND <- sort(unique(Y0tmp))
+      IND <- IND[1:(length(IND) - 1)] - minY0[i] + 1
+      #ide0 <- rep(0, as.integer(maxY0[i] - minY0[i])) #change dimensions
+      ide0[i, IND] <- 1
+
+      #if(i==1)
+      #  zitr <- matrix(rep(0, length(j)*nbzitr0), length(j), nbzitr0)
+      #zitr[i, nbzitr0] <- maxY0[i]
+      zitr <- c(zitr, minY0[i], maxY0[i])
     }
     
-    IND <- sort(unique(Y0))
-    IND <- IND[1:(length(IND) - 1)] - minY0 + 1
-    ide0 <- rep(0, as.integer(maxY0 - minY0))
-    ide0[IND] <- 1
+    if(!type_int %in% c("antithetic", "sobol", "halton", "torus"))
+      stop("With the threshold link function, type_int should be either antithetic, sobol, halton or torus.")
     
-    zitr <- rep(0, nbzitr0)
-    zitr[1] <- minY0
-    zitr[nbzitr0] <- maxY0
   }else{
     zitr <- 0
-    ide  <- 0 
+    ide0  <- 0 
   }
 
+  if(  (any(link=="thresholds")| any(link=="linear")) & !is.null(type_int)){ #
+    # Generation of quasi-random sequence
+    unique_id <- unique(data[,subject])
+    
+    nmes <- sapply(unique_id, function(x) 
+      length(which(!is.na(data[which(data[,subject]==x),outcomes]))))
+
+    sequence<-matrix(NA,option$MCnr/2*length(unique(nmes)),max(nmes)) 
+    nmes_seq <- rep(0,option$MCnr/2*length(unique(nmes)))
+    uniq_nmes <- unique(nmes)[order(unique(nmes))] 
+    
+    j=0
+    for(i in uniq_nmes){
+      if(type_int == "sobol"){
+        sequence[(j+1):(j+option$MCnr/2),1:i]  <- randtoolbox::sobol(n = option$MCnr/2, dim = i, scrambling = 1, normal = TRUE, init=T)
+      }else if(type_int == "halton"){
+        sequence[(j+1):(j+option$MCnr/2),1:i]  <- randtoolbox::halton(n = option$MCnr/2, dim = i, normal = TRUE, init=T) 
+      }else if(type_int == "torus"){
+        sequence[(j+1):(j+option$MCnr/2),1:i]  <- randtoolbox::torus(n = option$MCnr/2, dim = i,normal = TRUE, init=T) 
+      }
+      nmes_seq[(j+1):(j+option$MCnr/2)] <- i
+      j <- j+option$MCnr/2
+    }
+    
+    ind_seq_i <- sapply(nmes, function(x) which(nmes_seq==x)[1])
+    
+  }else{
+    sequence  <- NULL
+    ind_seq_i <- NULL
+  }
+  
   #### call of CInLPN2.default function to compute estimation and predictions
   est <- CInLPN2.default(fixed_X0.models = fixed_X0.models, fixed_DeltaX.models = fixed_DeltaX.models, randoms_X0.models = randoms_X0.models, 
                         randoms_DeltaX.models = randoms_DeltaX.models, mod_trans.model = mod_trans.model, DeltaT = DeltaT , outcomes = outcomes,
                         nD = nD, mapping.to.LP = mapping.to.LP, link = link, knots = knots, subject = subject, data = data, Time = Time, 
-                        makepred = option$makepred, MCnr = option$MCnr, paras.ini= paras.ini, paraFixeUser = paraFixeUser, indexparaFixeUser = indexparaFixeUser,  
+                        makepred = option$makepred, MCnr = option$MCnr, type_int = option$type_int, sequence = sequence, ind_seq_i = ind_seq_i,
+                        paras.ini= paras.ini, paraFixeUser = paraFixeUser, indexparaFixeUser = indexparaFixeUser,  
                         maxiter = maxiter, zitr = zitr, ide = ide0, univarmaxiter = univarmaxiter, nproc = nproc, epsa = epsa, epsb = epsb, epsd = epsd, 
                         print.info = print.info)
   est$call <- match.call()
@@ -404,8 +479,11 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
                       mod_trans.model = mod_trans.model)
   est$mapping.to.LP <- mapping.to.LP
   
+  if(!is.null(sequence))
+     est$sequence <- sequence
+  
   p.time <- proc.time() - ptm
   cat("The program took:", p.time[1], "\n")
-  est
+  return(est)
 }
 

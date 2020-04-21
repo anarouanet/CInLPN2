@@ -16,9 +16,10 @@ arma::mat matNui(int nD, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arma::
 
 arma::vec YiNui(int nD, arma::mat matrixP, arma::vec& tau, arma::vec& tau_i, double DeltaT, arma::mat& Yi, arma::mat& x0i, arma::colvec& alpha_mu0,
                 arma::mat& xi, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i);
-double normalCDF(double value);
-double f_ord(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, arma::vec& tau_i, double DeltaT, arma::mat& Yi, arma::mat& x0i, arma::colvec& alpha_mu0,
-             arma::mat& xi, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i);
+double normalCDF(double value, bool lower_tail);
+double f_marker(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, arma::vec& tau_i, double DeltaT, arma::mat& Yi, arma::mat& YtildPrimi, arma::mat& x0i, arma::colvec& alpha_mu0,
+             arma::mat& xi, arma::vec& paraSig, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::colvec& paraEtha2, arma::vec& if_link, arma::colvec& zitr, 
+             arma::mat& ide, arma::vec& paras_k, arma::vec& K2_lambda_t, arma::vec& K2_lambda);
 arma::mat transformY(arma::mat& Y, arma::colvec& paraEtha0, arma::colvec& paraEtha1);
 arma::vec vectorise(arma::mat& M);
 arma::mat mvnorm(int seed, arma::vec m, arma::mat SD);

@@ -36,7 +36,7 @@
 #' @return CInLPN2 object
 CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.models, randoms_DeltaX.models, mod_trans.model, 
                            DeltaT, outcomes, nD, mapping.to.LP, link, knots=NULL, subject, data, Time,
-                           makepred, MCnr, type_int = NULL, sequence = NULL, ind_seq_i = NULL,
+                           makepred, MCnr, type_int = NULL, sequence = NULL, ind_seq_i = NULL, nmes = NULL,
                            paras.ini= NULL, indexparaFixeUser, paraFixeUser, maxiter, zitr, ide, univarmaxiter, nproc = 1, 
                            epsa =0.0001, epsb = 0.0001, epsd= 0.001, print.info = FALSE, ...)
 {
@@ -59,7 +59,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
   if(K>1 & is.null(paras.ini)){
 
     if(all(link=="linear")){ 
-      browser()# add sequence and ind_seq_i !! 
+      browser()# add sequence and ind_seq_i and nmes !! 
     paras.ini <- f_paras.ini(data = data, outcomes = outcomes, mapped.to.LP = mapping.to.LP, fixed_X0.models = fixed_X0.models, fixed_DeltaX.models = fixed_DeltaX.models,  
                                       randoms_DeltaX.models = randoms_DeltaX.models, nb_RE = nb_RE, mod_trans.model = mod_trans.model, 
                                       subject = subject, Time = Time, link = link, knots = knots, #zitr = zitr, ide = ide,
@@ -120,7 +120,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
   }
 
   # estimation
-  est <- CInLPN2.estim(K = K, nD = nD, mapping.to.LP = mapping.to.LP, data = data_F, if_link = if_link, DeltaT = DeltaT, 
+  est <- CInLPN2.estim(K = K, nD = nD, mapping.to.LP = mapping.to.LP, data = data_F, if_link = if_link, DeltaT = DeltaT, MCnr = MCnr, nmes = nmes,
                       paras = paras, maxiter = maxiter, nproc = nproc, epsa = epsa, epsb = epsb,
                       epsd = epsd, print.info = print.info)
   

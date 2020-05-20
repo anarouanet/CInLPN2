@@ -580,11 +580,13 @@ double f_marker(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, a
                 arma::mat& ide, arma::vec& paras_k, arma::vec& K2_lambda_t, arma::vec& K2_lambda){
 
   int K = matrixP.n_rows;
+  double logvrais = 0.0;
   double vrais = 0.0;
 
   int param = 0;
   int K_t = 0;
-
+  double out=0;
+  
    for(int k=0; k<K; k++){
      
     // Retrieve part of Ytildi and Lambdai that corresponds to marker k
@@ -678,16 +680,14 @@ double f_marker(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, a
        vec y=Ytildik-Lambdai_k;
        
 //       vrais = -0.5*(sum(Lambdai_k.size())*log(2*M_PI) + log_det + as_scalar(y.t()*y/paraSig[k])) ;
-       double out=0;
-       out = -0.5*(Lambdai_k.size()*log(2*M_PI) + log_det + as_scalar(y.t()*y/paraSig[k])) + log_Jac_Phi;
-       vrais += exp(out);
-       
-      //dmvnorm(Ytilde, mean = Ytild[i+1,], sigma = sigmae2*diag(length(mu))) / a^(length(mu))
+       out += -0.5*(Lambdai_k.size()*log(2*M_PI) + log_det + as_scalar(y.t()*y/paraSig[k])) + log_Jac_Phi;
+       //dmvnorm(Ytilde, mean = Ytild[i+1,], sigma = sigmae2*diag(length(mu))) / a^(length(mu))
      }
      param += paras_k[k];
    }
-  
-  // int mk=ncol(matrixP); //number of ordinal markers
+
+   logvrais = out;
+   // int mk=ncol(matrixP); //number of ordinal markers
   // for(int i=0; i<(int)tau_i.size(); i++){
   //   for(int j=0; j<mk; i++){
   // 
@@ -705,7 +705,7 @@ double f_marker(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, a
   // // Nu_cp : Expectation of overall times
   // mat M =  Yi - Nu_cp_i*matrixP.t();
 
-  return(vrais);
+  return(logvrais);
 }
 //===========================================================================================================
 

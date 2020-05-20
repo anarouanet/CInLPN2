@@ -458,18 +458,19 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
       j <- j+option$MCnr/2
     }
     
-    ind_seq_i <- sapply(nmes, function(x) which(nmes_seq==x)[1])
+    ind_seq_i <- sapply(nmes, function(x) which(nmes_seq==x)[1]-1)
     
   }else{
     sequence  <- NULL
     ind_seq_i <- NULL
+    nmes      <- NULL
   }
   
   #### call of CInLPN2.default function to compute estimation and predictions
   est <- CInLPN2.default(fixed_X0.models = fixed_X0.models, fixed_DeltaX.models = fixed_DeltaX.models, randoms_X0.models = randoms_X0.models, 
                         randoms_DeltaX.models = randoms_DeltaX.models, mod_trans.model = mod_trans.model, DeltaT = DeltaT , outcomes = outcomes,
                         nD = nD, mapping.to.LP = mapping.to.LP, link = link, knots = knots, subject = subject, data = data, Time = Time, 
-                        makepred = option$makepred, MCnr = option$MCnr, type_int = option$type_int, sequence = sequence, ind_seq_i = ind_seq_i,
+                        makepred = option$makepred, MCnr = option$MCnr, type_int = option$type_int, sequence = sequence, ind_seq_i = ind_seq_i, nmes = nmes,
                         paras.ini= paras.ini, paraFixeUser = paraFixeUser, indexparaFixeUser = indexparaFixeUser,  
                         maxiter = maxiter, zitr = zitr, ide = ide0, univarmaxiter = univarmaxiter, nproc = nproc, epsa = epsa, epsb = epsb, epsd = epsd, 
                         print.info = print.info)

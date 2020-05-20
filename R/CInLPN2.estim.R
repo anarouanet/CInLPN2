@@ -18,29 +18,31 @@
 #'
 #' @return CInLPN2 object
 
-CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, DeltaT=1.0, paras, 
+CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, DeltaT=1.0, MCnr = NULL, nmes = NULL, paras, 
                          maxiter = 500, nproc = 1, epsa =0.0001, epsb = 0.0001,epsd= 0.001, print.info = FALSE){
   cl <- match.call()
   #  non parall Optimisation 
   # package loading
-  browser()
+  debug=0
+  if(debug==1){
+    Loglik(K = K, nD = nD, mapping =  mapping.to.LP, paras$paraOpt,  paraFixe = paras$paraFixe, posfix = paras$posfix, paras_k = paras$npara_k,
+           sequence = paras$sequence, type_int = paras$type_int, ind_seq_i = paras$ind_seq_i, MCnr = MCnr, nmes = nmes,
+           m_is = data$m_i, Mod_MatrixY = data$Mod.MatrixY, Mod_MatrixYprim = data$Mod.MatrixYprim, df=data$df,
+           x = data$x, z = data$z, q = data$q,nb_paraD = data$nb_paraD,
+           x0 = data$x0, z0 = data$z0, q0 = data$q0,
+           if_link = if_link, zitr = data$zitr, ide = data$ide,
+           tau = data$tau, tau_is=data$tau_is,
+           modA_mat = data$modA_mat, DeltaT)
+    
+    CInLPN:::Loglik(K = K, nD = nD, mapping =  mapping.to.LP, paras$paraOpt,  paraFixe = paras$paraFixe, posfix = paras$posfix, 
+                    m_is = data$m_i, Mod_MatrixY = data$Mod.MatrixY, Mod_MatrixYprim = data$Mod.MatrixYprim, df=data$df,
+                    x = data$x, z = data$z, q = data$q,nb_paraD = data$nb_paraD,
+                    x0 = data$x0, z0 = data$z0, q0 = data$q0,
+                    if_link = if_link,# zitr = data$zitr, ide = data$ide,
+                    tau = data$tau, tau_is=data$tau_is,
+                    modA_mat = data$modA_mat, DeltaT)
+  }
 
-  Loglik(K = K, nD = nD, mapping =  mapping.to.LP, paras$paraOpt,  paraFixe = paras$paraFixe, posfix = paras$posfix, paras_k = paras$npara_k,
-         sequence = paras$sequence, type_int = paras$type_int, ind_seq_i = paras$ind_seq_i,
-         m_is = data$m_i, Mod_MatrixY = data$Mod.MatrixY, Mod_MatrixYprim = data$Mod.MatrixYprim, df=data$df,
-         x = data$x, z = data$z, q = data$q,nb_paraD = data$nb_paraD,
-         x0 = data$x0, z0 = data$z0, q0 = data$q0,
-         if_link = if_link, zitr = data$zitr, ide = data$ide,
-         tau = data$tau, tau_is=data$tau_is,
-         modA_mat = data$modA_mat, DeltaT)
-
-  CInLPN:::Loglik(K = K, nD = nD, mapping =  mapping.to.LP, paras$paraOpt,  paraFixe = paras$paraFixe, posfix = paras$posfix, 
-         m_is = data$m_i, Mod_MatrixY = data$Mod.MatrixY, Mod_MatrixYprim = data$Mod.MatrixYprim, df=data$df,
-         x = data$x, z = data$z, q = data$q,nb_paraD = data$nb_paraD,
-         x0 = data$x0, z0 = data$z0, q0 = data$q0,
-         if_link = if_link,# zitr = data$zitr, ide = data$ide,
-         tau = data$tau, tau_is=data$tau_is,
-         modA_mat = data$modA_mat, DeltaT)
   
   # marqLevAlg::marqLevAlg(b = paras$paraOpt, fn = Loglik, nproc = nproc, .packages = NULL, epsa=epsa, epsb=epsb, epsd=epsd,
   #                maxiter=maxiter, print.info = print.info, minimize = FALSE,
@@ -62,13 +64,14 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, DeltaT=
   #                        x0 = data$x0, z0 = data$z0, q0 = data$q0,tau = data$tau, tau_is=data$tau_is,
   #                        modA_mat = data$modA_mat)
   # 
-  
-  if(requireNamespace("marqLevAlg", quietly = TRUE)){
+  #source("/Users/anais/Documents/2019 Postdoc Bordeaux/code/R/MLM/marqLevAlg_AR.R")
+  #source("/Users/anais/Documents/2019 Postdoc Bordeaux/code/R/MLM/deriva_AR.R")
+  if(requireNamespace("marqLevAlg", quietly = TRUE)){#marqLevAlg::marqLevAlg
     temp <- try(marqLevAlg::marqLevAlg(b = paras$paraOpt, fn = Loglik, nproc = nproc, .packages = NULL, epsa=epsa, epsb=epsb, epsd=epsd,
                            maxiter=maxiter, print.info = print.info,  minimize = FALSE,
                            DeltaT=DeltaT, paraFixe = paras$paraFixe, posfix = paras$posfix,
                            paras_k = paras$npara_k, 
-                           sequence = paras$sequence, type_int = paras$type_int,
+                           sequence = paras$sequence, type_int = paras$type_int, ind_seq_i = paras$ind_seq_i,  MCnr = MCnr, nmes = nmes,
                            K = K, nD = nD, mapping =  mapping.to.LP, m_is = data$m_i, if_link = if_link, zitr = data$zitr, ide = data$ide, 
                            Mod_MatrixY = data$Mod.MatrixY, Mod_MatrixYprim = data$Mod.MatrixYprim, df=data$df,
                            x = data$x, z = data$z, q = data$q, nb_paraD = data$nb_paraD,

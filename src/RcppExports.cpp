@@ -7,8 +7,8 @@
 using namespace Rcpp;
 
 // Loglik
-double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& paraFixe, arma::vec& posfix, arma::vec& paras_k, arma::mat& sequence, unsigned int type_int, arma::vec& ind_seq_i, arma::vec& m_is, arma::mat& Mod_MatrixY, arma::mat& Mod_MatrixYprim, arma::vec& df, arma::mat& x, arma::mat& z, arma::vec& q, int nb_paraD, arma::mat& x0, arma::mat& z0, arma::vec& q0, arma::vec if_link, arma::vec& zitr, arma::vec& ide, arma::vec& tau, arma::vec& tau_is, arma::mat& modA_mat, double DeltaT);
-RcppExport SEXP _CInLPN2_Loglik(SEXP KSEXP, SEXP nDSEXP, SEXP mappingSEXP, SEXP paraOptSEXP, SEXP paraFixeSEXP, SEXP posfixSEXP, SEXP paras_kSEXP, SEXP sequenceSEXP, SEXP type_intSEXP, SEXP ind_seq_iSEXP, SEXP m_isSEXP, SEXP Mod_MatrixYSEXP, SEXP Mod_MatrixYprimSEXP, SEXP dfSEXP, SEXP xSEXP, SEXP zSEXP, SEXP qSEXP, SEXP nb_paraDSEXP, SEXP x0SEXP, SEXP z0SEXP, SEXP q0SEXP, SEXP if_linkSEXP, SEXP zitrSEXP, SEXP ideSEXP, SEXP tauSEXP, SEXP tau_isSEXP, SEXP modA_matSEXP, SEXP DeltaTSEXP) {
+double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& paraFixe, arma::vec& posfix, arma::vec& paras_k, arma::mat& sequence, unsigned int type_int, arma::vec& ind_seq_i, int MCnr, arma::vec& nmes, arma::vec& m_is, arma::mat& Mod_MatrixY, arma::mat& Mod_MatrixYprim, arma::vec& df, arma::mat& x, arma::mat& z, arma::vec& q, int nb_paraD, arma::mat& x0, arma::mat& z0, arma::vec& q0, arma::vec& if_link, arma::vec& zitr, arma::vec& ide, arma::vec& tau, arma::vec& tau_is, arma::mat& modA_mat, double DeltaT);
+RcppExport SEXP _CInLPN2_Loglik(SEXP KSEXP, SEXP nDSEXP, SEXP mappingSEXP, SEXP paraOptSEXP, SEXP paraFixeSEXP, SEXP posfixSEXP, SEXP paras_kSEXP, SEXP sequenceSEXP, SEXP type_intSEXP, SEXP ind_seq_iSEXP, SEXP MCnrSEXP, SEXP nmesSEXP, SEXP m_isSEXP, SEXP Mod_MatrixYSEXP, SEXP Mod_MatrixYprimSEXP, SEXP dfSEXP, SEXP xSEXP, SEXP zSEXP, SEXP qSEXP, SEXP nb_paraDSEXP, SEXP x0SEXP, SEXP z0SEXP, SEXP q0SEXP, SEXP if_linkSEXP, SEXP zitrSEXP, SEXP ideSEXP, SEXP tauSEXP, SEXP tau_isSEXP, SEXP modA_matSEXP, SEXP DeltaTSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -22,6 +22,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat& >::type sequence(sequenceSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type type_int(type_intSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type ind_seq_i(ind_seq_iSEXP);
+    Rcpp::traits::input_parameter< int >::type MCnr(MCnrSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type nmes(nmesSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type m_is(m_isSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type Mod_MatrixY(Mod_MatrixYSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type Mod_MatrixYprim(Mod_MatrixYprimSEXP);
@@ -33,14 +35,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat& >::type x0(x0SEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type z0(z0SEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type q0(q0SEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type if_link(if_linkSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type if_link(if_linkSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type zitr(zitrSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type ide(ideSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type tau(tauSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type tau_is(tau_isSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type modA_mat(modA_matSEXP);
     Rcpp::traits::input_parameter< double >::type DeltaT(DeltaTSEXP);
-    rcpp_result_gen = Rcpp::wrap(Loglik(K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT));
+    rcpp_result_gen = Rcpp::wrap(Loglik(K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -322,7 +324,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_CInLPN2_Loglik", (DL_FUNC) &_CInLPN2_Loglik, 28},
+    {"_CInLPN2_Loglik", (DL_FUNC) &_CInLPN2_Loglik, 30},
     {"_CInLPN2_pred", (DL_FUNC) &_CInLPN2_pred, 25},
     {"_CInLPN2_vectorise", (DL_FUNC) &_CInLPN2_vectorise, 1},
     {"_CInLPN2_KmatDiag", (DL_FUNC) &_CInLPN2_KmatDiag, 1},

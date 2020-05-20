@@ -140,7 +140,7 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
 
   #final vector of initial parameters
   paras <- c(alpha_mu0, alpha_mu, alpha_D, vec_alpha_ij,  paraB, paraSig, ParaTransformY)
-  
+
   #initialisation
   #   paraOpt <- paras
   posfix <- rep(0,length(paras)) # 0 = non fixe 1 = fixe # initialisation

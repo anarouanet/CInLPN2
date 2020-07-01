@@ -7,7 +7,7 @@
 using namespace Rcpp;
 
 // Loglik
-double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& paraFixe, arma::vec& posfix, arma::vec& paras_k, arma::mat& sequence, unsigned int type_int, arma::vec& ind_seq_i, int MCnr, arma::vec& nmes, arma::vec& m_is, arma::mat& Mod_MatrixY, arma::mat& Mod_MatrixYprim, arma::vec& df, arma::mat& x, arma::mat& z, arma::vec& q, int nb_paraD, arma::mat& x0, arma::mat& z0, arma::vec& q0, arma::vec& if_link, arma::vec& zitr, arma::vec& ide, arma::vec& tau, arma::vec& tau_is, arma::mat& modA_mat, double DeltaT);
+double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& paraFixe, arma::vec& posfix, arma::vec& paras_k, arma::mat& sequence, int type_int, arma::vec& ind_seq_i, int MCnr, arma::vec& nmes, arma::vec& m_is, arma::mat& Mod_MatrixY, arma::mat& Mod_MatrixYprim, arma::vec& df, arma::mat& x, arma::mat& z, arma::vec& q, int nb_paraD, arma::mat& x0, arma::mat& z0, arma::vec& q0, arma::vec& if_link, arma::vec& zitr, arma::vec& ide, arma::vec& tau, arma::vec& tau_is, arma::mat& modA_mat, double DeltaT);
 RcppExport SEXP _CInLPN2_Loglik(SEXP KSEXP, SEXP nDSEXP, SEXP mappingSEXP, SEXP paraOptSEXP, SEXP paraFixeSEXP, SEXP posfixSEXP, SEXP paras_kSEXP, SEXP sequenceSEXP, SEXP type_intSEXP, SEXP ind_seq_iSEXP, SEXP MCnrSEXP, SEXP nmesSEXP, SEXP m_isSEXP, SEXP Mod_MatrixYSEXP, SEXP Mod_MatrixYprimSEXP, SEXP dfSEXP, SEXP xSEXP, SEXP zSEXP, SEXP qSEXP, SEXP nb_paraDSEXP, SEXP x0SEXP, SEXP z0SEXP, SEXP q0SEXP, SEXP if_linkSEXP, SEXP zitrSEXP, SEXP ideSEXP, SEXP tauSEXP, SEXP tau_isSEXP, SEXP modA_matSEXP, SEXP DeltaTSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -20,7 +20,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::vec& >::type posfix(posfixSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type paras_k(paras_kSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type sequence(sequenceSEXP);
-    Rcpp::traits::input_parameter< unsigned int >::type type_int(type_intSEXP);
+    Rcpp::traits::input_parameter< int >::type type_int(type_intSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type ind_seq_i(ind_seq_iSEXP);
     Rcpp::traits::input_parameter< int >::type MCnr(MCnrSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type nmes(nmesSEXP);

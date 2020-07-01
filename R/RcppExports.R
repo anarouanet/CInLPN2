@@ -292,8 +292,8 @@ YiNui <- function(nD, matrixP, tau, tau_i, DeltaT, Yi, x0i, alpha_mu0, xi, alpha
 #' matric containing at time t
 #'  @param paraEtha2 transformation parameters
 #'  @param if_link: link function indicator, 0 if linear, 1 if splines, 2 if thresholds
-#'  @param zitr: thresholds for threshold function, in Ytildi scale
-#'  @param ide ????
+#'  @param zitr: minY and maxY of observed ordinal Y
+#'  @param ide indicator if the values between zitr(0) and zitr(1) are observed in Y 
 #'  @param paras_k: number of parameters for link function for each marker k
 #'  @param K2_lambda_t: vector indicating to which latent process corresponds each value of Lambdai
 #'  @param K2_lambda: vector indicating to which latent process corresponds each marker

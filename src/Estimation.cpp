@@ -144,7 +144,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
                     arma::mat& matB, arma::mat& Sig, arma::mat& G_mat_A_0_to_tau_i,
                     arma::mat& G_mat_prod_A_0_to_tau,  double DeltaT, arma::vec& paraEtha2, arma::vec& if_link,  
                     arma::vec& zitr,  arma::mat& ide, arma::vec& paras_k,
-                    arma::mat& sequence, unsigned int type_int, arma::vec& ind_seq_i, int MCnr){
+                    arma::mat& sequence,  int type_int, arma::vec& ind_seq_i, int MCnr, int sub){
   
   // ###### compute  Yi - E(Yi) ##### deleting missing values #####
   vec Ytildi_nu_i = YiNui(nD, matrixP, tau, tau_i, DeltaT, Ytildi, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i);
@@ -291,7 +291,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
   for( int j =0 ; j < ViY.size(); j++){
     ya += abs(ViY(j)-ViY_check(j));
   }
-  
+
   // MatrixXd precMat = matV_i;
   // LLT<MatrixXd> lltOfA(matV_i); // compute the Cholesky decomposition of A
   // MatrixXd L = lltOfA.matrixL();
@@ -303,12 +303,11 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
   // Computation choleski
   //cout << " Add cholesky for V_Lambda_i !"<<endl;
   //mat Chol_matV_i = mvrnormArma(matV_i);//chol(matV_i); //chol.t()*chol = mat
-  
   vec K2_lambda = zeros<vec>(K); // which latent process linked to the K markers
   
   for(int j =0 ; j < K; j++){
     int jjj=0;  
-    while( matrixP(j,jjj)== 0){
+    while(matrixP(j,jjj)== 0){
       jjj ++;
     }
     K2_lambda[j]=jjj;
@@ -357,7 +356,6 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
   }
   
   vec paraSig = Sig.diag();
-  
   //LLT<MatrixXd> lltOfA(precMat); // compute the Cholesky decomposition of A
   //MatrixXd L = lltOfA.matrixL();
   //logDetPrecMat=  2*L.diagonal().array().log().sum();
@@ -375,7 +373,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
   
   //cout << " chol(matV_i) "<< chol(matV_i) <<endl;
   mat D;
-  
+
   const bool chol_status = op_chol::apply_direct(D, matV_i, 1);  // '1' means "lower triangular"
   
   if(chol_status == false)
@@ -409,40 +407,50 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     mat DD = eigvec * diagmat(sqrt(eigval));
     D.steal_mem(DD); //matV_i = D*D.t();
   }
+
   
   //mat out = D * randn< Mat<double> >(D.n_rows, MCnr);
 
   mat Lambda;
 
-  if(type_int==0){// aMC
+  if(type_int<=0){// MC or aMC
     Lambda = D * randn< Mat<double> >(D.n_rows, MCnr);
   }else{ // QMC
     Lambda =  (D* sequence.t()).t();
   }
 
   bool aMC=true;
-  double vrais =0;
-  double vrais_MC =0;
-  double lvrais_AMC =0;
+  double lvrais =0;
+
+  cout << " type_int "<<type_int <<endl;
+  cout << " matV_i "<<matV_i<<endl;
+  cout << " mean_lambdai "<<mean_lambdai.t()<<endl;
+    
   if(aMC){
     int MCnr_d;
     
-    if(type_int == 0){
+    if(type_int == -1){ //MC
+      
       for(int nr=0; nr < MCnr; nr++){
         vec zero_lambda = zeros<vec>(mean_lambdai.size());
-        
         //vec Lambda_nrMC = mvnrnd(mean_lambdai, matV_i);//chol(matV_i); //chol.t()*chol = mat
-        vec Lambda_nrMC(Lambda.n_cols);
-        for(int i=0; i < Lambda.n_cols; i++){
-          Lambda_nrMC(i) = mean_lambdai(i) + Lambda(nr,i);
+        vec Lambda_nrMC(Lambda.n_rows);
+        for(int i=0; i < Lambda.n_rows; i++){
+          Lambda_nrMC(i) = mean_lambdai(i) + Lambda(i,nr);
         }
         
         //Lambda_nr = mvnrnd(mean_lambdai, matV_i);
         double out2 = f_marker(Lambda_nrMC, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, paraEtha2, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda);
-        vrais += out2;
-        
+        if(sub==5& nr==112){
+          cout << " Ytildi "<<Ytildi.t()<<endl;
+          cout << " paraEtha2 "<< paraEtha2.t() <<endl;
+          cout << " Lambdanr "<< Lambda_nrMC.t()<<" lvrais "<<lvrais<<endl;
+          cout << sub << " nr "<< nr<< " out2 "<< out2 <<" lvrais "<<lvrais<<endl;
+        }
+        lvrais += out2;
       }
-    }else{
+      lvrais /= MCnr;
+    }else if(type_int > 0 ){ //QMC
       MCnr_d = MCnr/2;
       double cstant = 0;
       vec lvrais_nr(MCnr_d);
@@ -479,18 +487,18 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
 
       cstant=min(lvrais_nr);//(min(lvrais_nr)+max(lvrais_nr))/2;
       cstant=0;
-      vrais=0;
+      double vrais=0;
       //cstant=0;
       for(int nr=0; nr < MCnr_d; nr++){
         vrais += exp(lvrais_nr(nr)-cstant);
       }
-      lvrais_AMC =log(vrais)+cstant;
+      lvrais =log(vrais)+cstant;
+      lvrais -=log(MCnr/2);
     }
 
-    vrais_MC /=(MCnr);
-    lvrais_AMC -=log(MCnr/2);
   }
-  return(lvrais_AMC);
+
+  return(lvrais);
 }
 
 
@@ -568,7 +576,7 @@ bool compFun1(int i) {
 //' 
 // [[Rcpp::export]]
 double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& paraFixe, arma::vec& posfix, 
-              arma::vec& paras_k, arma::mat& sequence, unsigned int type_int, arma::vec& ind_seq_i, int MCnr,  arma::vec& nmes, arma::vec& m_is,
+              arma::vec& paras_k, arma::mat& sequence, int type_int, arma::vec& ind_seq_i, int MCnr,  arma::vec& nmes, arma::vec& m_is,
               arma::mat& Mod_MatrixY, arma::mat& Mod_MatrixYprim, arma::vec& df, arma::mat& x,
               arma::mat& z, arma::vec& q, int nb_paraD, arma::mat& x0, arma::mat& z0,
               arma::vec& q0, arma::vec& if_link, arma::vec& zitr, arma::vec& ide, 
@@ -631,6 +639,16 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
   Mat<double> matB = KmatDiag(paraB); // structured variance-covariance matrice
   Mat<double> Sig = KmatDiag(paraSig); // noise
   
+  cout << " nb_RE "<< nb_RE<<endl;
+  cout << " alpha_D "<< alpha_D.t()<<endl;
+  
+  cout << " matD "<< matD<<endl;
+  cout << " matDw "<< matDw<<endl;
+  cout << " matDw_u "<< matDw_u<<endl;
+  cout << " matDu "<< matDu<<endl;
+  cout << " matB "<< matB<<endl;
+  cout << " Sig "<< Sig<<endl;
+  
   // Computering of Ytild and YtildPrim, the transformed marker and it derivate from
   // Y, model.matrix and transformation parameters
   Mat<double> Ytild = zeros(Mod_MatrixY.n_rows,K);
@@ -640,7 +658,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
   // if_link = 1 : mean non linear link
   std::fstream fout("Mod_MatrixY.txt", std::ios::in | std::ios::out | std::ios::app);
   std::fstream fout2("Compare_liki.txt", std::ios::in | std::ios::out | std::ios::app);
-  
+
   int kk = 0;
   int kkp = 0;
   for(int k=0; k<K;k++){
@@ -654,8 +672,9 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
     }else if(if_link[k] == 2){ //thresholds
       cout<<"transform Y with threshold marker with degrees "<< df[k]<< " degrees "<<endl;
       Ytild.col(k) = Mod_MatrixY.col(kk);
-      fout << " Mod_MatrixY"<<endl<<Ytild<<endl;
-      cout << " ParaTransformY "<<endl<<ParaTransformY<<endl;
+      fout << " Mod_MatrixY"<<endl<<Ytild.t()<<endl;
+      fout << " zitr "<<zitr<<endl;
+      cout << " ParaTransformY "<<endl<<ParaTransformY.t()<<endl;
       kk += df[k];
       kkp += df[k]-1;
     }else{ // linear
@@ -673,7 +692,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
   }
   
   //Computering of log-likelihood as sum of individuals contributions
-  for(int n= 0; n < N; n++ ){
+  for(int n= 0; n < 10; n++ ){
     //if(n%200==0)
       //cout << "indiv "<< n <<endl;
     // printf("\n %d \n",(n+1));
@@ -689,7 +708,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
     //                    matB, Sig, G_mat_A_0_to_tau_i, G_mat_prod_A_0_to_tau,  DeltaT);}
     // }else if( std::all_of(if_link.begin(), if_link.end(), compFun1) ){
     //  std::cout << "All the elements are equal to 2.\n";
-    
+
     mat seq;
     if(type_int>0){
       seq = sequence(span(ind_seq_i(n),ind_seq_i(n)+MCnr/2-1),span(0,nmes(n)-1));//ind_seqi[i]:(ind_seqi[i]+Ndraws/2-1), 1:ni[i]]
@@ -702,8 +721,9 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
                            z0(span(n*nD,(n+1)*nD-1), span(0,(ncol_z0-1))), x(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_x-1))),
                            z(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_z-1))),alpha_mu0, alpha_mu, matDw, matDw_u, matDu,
                            matB, Sig, G_mat_A_0_to_tau_i, G_mat_prod_A_0_to_tau,  DeltaT, ParaTransformY, if_link, zitr, ide, paras_k,
-                           seq, type_int, ind_seq_i, MCnr);
+                           seq, type_int, ind_seq_i, MCnr, n);
     loglik += out1;
+    cout << " i "<< n << " loglik_i "<<out1<< endl;
     // double out2 =  Loglikei(K, nD, matrixP, m_is(n), tau, tau_is(span(p,(p+m_is(n)-1))), Ytild(span(p,(p+m_is(n)-1)), span(0,(K-1))),
     //                     YtildPrim(span(p,(p+m_is(n)-1)), span(0,(K-1))), x0(span(n*nD,(n+1)*nD-1), span(0,(ncol_x0-1))),
     //                     z0(span(n*nD,(n+1)*nD-1), span(0,(ncol_z0-1))), x(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_x-1))),

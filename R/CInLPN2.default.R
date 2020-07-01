@@ -58,8 +58,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
   # ### creation of arguments:  Initialising parameters
   if(K>1 & is.null(paras.ini)){
 
-    if(all(link=="linear")){ 
-      browser()# add sequence and ind_seq_i and nmes !! 
+    if(all(link=="linear")){ #if K>1 & is.null(paras.ini) &
     paras.ini <- f_paras.ini(data = data, outcomes = outcomes, mapped.to.LP = mapping.to.LP, fixed_X0.models = fixed_X0.models, fixed_DeltaX.models = fixed_DeltaX.models,  
                                       randoms_DeltaX.models = randoms_DeltaX.models, nb_RE = nb_RE, mod_trans.model = mod_trans.model, 
                                       subject = subject, Time = Time, link = link, knots = knots, #zitr = zitr, ide = ide,
@@ -72,9 +71,10 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
                               DeltaT = DeltaT, maxiter = univarmaxiter, epsd = epsd, nproc = nproc, print.info = print.info)
     }
   }
-
+  npara_k <- sapply(outcomes, function(x) length(grep(x, names(data.frame(data_F$Mod.MatrixY)))))
+  
   paras <- Parametre(K=K, nD = nD, vec_ncol_x0n, n_col_x, nb_RE, indexparaFixeUser = indexparaFixeUser, 
-                     paraFixeUser = paraFixeUser, L = L, ncolMod.MatrixY = ncolMod.MatrixY, paras.ini=paras.ini)
+                     paraFixeUser = paraFixeUser, L = L, ncolMod.MatrixY = ncolMod.MatrixY, paras.ini=paras.ini, link = link, npara_k = npara_k)
 
   if_link <- rep(0,K)
   for(k in 1:K){
@@ -84,8 +84,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
       if_link[k] <- 2
     } 
   }
-
-  paras$npara_k <- sapply(outcomes, function(x) length(grep(x, names(data.frame(data_F$Mod.MatrixY)))))
+  paras$npara_k <- npara_k
 
   #add zitr, ide  dans estim(). What about knots? What in dataF
   if(any(link=="thresholds") || type_int %in% c("halton", "sobol")){
@@ -111,7 +110,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
     # }
 
     paras$sequence <- sequence
-    paras$type_int <- ifelse(type_int=="halton",1,ifelse(type_int=="sobol",2,ifelse(type_int=="torus",3,0)))
+    paras$type_int <- ifelse(type_int=="halton",1,ifelse(type_int=="sobol",2,ifelse(type_int=="torus",3,ifelse(type_int=="MC",-1,0))))
     paras$ind_seq_i <- ind_seq_i
   }else{
     paras$type_int <- -1

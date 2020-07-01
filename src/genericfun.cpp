@@ -565,8 +565,8 @@ bool Isnotnan(double i) {
 //' matric containing at time t
 //'  @param paraEtha2 transformation parameters
 //'  @param if_link: link function indicator, 0 if linear, 1 if splines, 2 if thresholds
-//'  @param zitr: thresholds for threshold function, in Ytildi scale
-//'  @param ide ????
+//'  @param zitr: minY and maxY of observed ordinal Y
+//'  @param ide indicator if the values between zitr(0) and zitr(1) are observed in Y 
 //'  @param paras_k: number of parameters for link function for each marker k
 //'  @param K2_lambda_t: vector indicating to which latent process corresponds each value of Lambdai
 //'  @param K2_lambda: vector indicating to which latent process corresponds each marker
@@ -581,19 +581,20 @@ double f_marker(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, a
 
   int K = matrixP.n_rows;
   double logvrais = 0.0;
+  
   double vrais = 0.0;
 
   int param = 0;
   int K_t = 0;
   double out=0;
-  
-   for(int k=0; k<K; k++){
-     
+
+  for(int k=0; k<K; k++){
     // Retrieve part of Ytildi and Lambdai that corresponds to marker k
     vec Ytildik=Ytildi.col(k);
 
     if(!std::all_of(Ytildi.col(k).begin(), Ytildi.col(k).end(), Isnotnan) ){
       int ind=0;
+      
       for(int b = 0 ; b < Ytildi.n_rows; b++){
         if(!isnan(Ytildi(b,k))){
           Ytildik(ind)=Ytildi(b,k);
@@ -604,6 +605,9 @@ double f_marker(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, a
     }else{
       Ytildik=Ytildi.col(k);
     }
+
+    // K2_lambda_t: which latent process linked to the observation in lambda
+    // K2_lambda: which latent process linked to the K markers
     
     vec Lambdai_k(Ytildik.size());
     int ind=0;
@@ -614,50 +618,64 @@ double f_marker(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, a
       }
     }
 
+
      if (if_link[k]==2){// thresholds
        
        double inf;
        double sup;
+       bool lower=true;
+       double vrais=1;
+       
        vec params_thresholds(paras_k[k]);
-       params_thresholds[0] = paraEtha2[param+1];
+       params_thresholds[0] = paraEtha2[param];
        
-      for(int r=1; r<paras_k[k]; r++){
-         params_thresholds[r] = params_thresholds[r-1] + paraEtha2[param + r];
+       for(int r=1; r<paras_k[k]; r++){
+         params_thresholds[r] = params_thresholds[r-1] + pow(paraEtha2[param + r],2);
        }
-       
+      
        for(int j=0; j<(int)tau_i.size(); j++){
-   
-         if (Ytildik(j,k)==zitr[K_t*2]){
+
+         if (Ytildik(j,k)==zitr[K_t*2]){ // if Ytildi == minY
            double gamma0 =  params_thresholds[0] - Lambdai_k[j]; 
            double temp = normalCDF(gamma0);
            
-           vrais  *= normalCDF(gamma0);
+           vrais  *= normalCDF(gamma0, lower);
 
          }else{
-           sup = params_thresholds[1]*params_thresholds[1];
+           sup = params_thresholds[0];
            inf = sup;
-           
+
+           int pp=0;
            for(int p=0; p<(int)(zitr[K_t*2 + 1]-zitr[K_t*2]-1); p++){
-             sup += params_thresholds[p+1]*params_thresholds[p+1];
              
-             if(Ytildik(j,k) == (zitr[K_t*2]+p)){
-               double gamma1 = sup - Lambdai_k[j];
-               double gamma0 = inf - Lambdai_k[j];
-   
-               double temp = (normalCDF(gamma1) - normalCDF(gamma0));
-               
-               vrais  *= (normalCDF(gamma1) - normalCDF(gamma0));
-               // fout << "Ytildij: "<< Ytildi(j,k) << " zitr[K_t*2]+p: "<<zitr[K_t*2]+p 
-               //      << " sup "<<sup << " inf "<<inf << " param "<< param
-               //      << " params_thresholds[p+1] "<< params_thresholds[p+1] << " vrais "<<vrais
-               //      << " temp "<<temp<< " gamma1 "<<gamma1<< " gamma0 "<<gamma0
-               //      <<" Ngamma1 "<<normalCDF(gamma1)<< " Ngamma0 "<<normalCDF(gamma0)<<endl;
+             if(ide(p)==1){
+               sup = params_thresholds[pp+1];
+
+               if(Ytildik(j,k) == (zitr[K_t*2]+p)){
+                 double gamma1 = sup - Lambdai_k[j];
+                 double gamma0 = inf - Lambdai_k[j];
+                 
+                 double temp = (normalCDF(gamma1) - normalCDF(gamma0));
+                 
+                 vrais  *= (normalCDF(gamma1) - normalCDF(gamma0));
+                 
+                 //cout << " p "<<p << " pp "<<pp << endl;
+                 //cout << " sup "<<sup << " gamma1 "<<gamma1 << " normalCDF(gamma1) "<<normalCDF(gamma1)<<endl;
+                 //cout << " inf "<<inf << " gamma0 "<<gamma0 << " normalCDF(gamma0) "<<normalCDF(gamma0)<<endl;
+                 //cout << " vrais "<<vrais << " CDF1-CDF0 "<<(normalCDF(gamma1) - normalCDF(gamma0)) << endl;
+
+                 // fout << "Ytildij: "<< Ytildi(j,k) << " zitr[K_t*2]+p: "<<zitr[K_t*2]+p 
+                 //      << " sup "<<sup << " inf "<<inf << " param "<< param
+                 //      << " params_thresholds[p+1] "<< params_thresholds[p+1] << " vrais "<<vrais
+                 //      << " temp "<<temp<< " gamma1 "<<gamma1<< " gamma0 "<<gamma0
+                 //      <<" Ngamma1 "<<normalCDF(gamma1)<< " Ngamma0 "<<normalCDF(gamma0)<<endl;
+               }
+               inf = sup;
+               pp += 1;
              }
-             
-             inf = sup;
            }
            
-           if (Ytildik(j,k)==zitr[K_t*2 + 1]){
+           if (Ytildik(j,k)==zitr[K_t*2 + 1]){ // if Ytildi == maxY
              double gamma0 =  sup - Lambdai_k[j]; 
              double temp = normalCDF(gamma0);
              vrais  *= (1-normalCDF(gamma0));
@@ -665,13 +683,14 @@ double f_marker(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, a
          }
        }
       K_t +=1;
-      
+     logvrais += log(vrais);
+
      }else if (if_link[k]==0){// linear
        
-       vec params_lin(paras_k[k]);
-       for(int r=0; r<paras_k[k]; r++){
-         params_lin[r] = paraEtha2[param + r];
-       }
+       // vec params_lin(paras_k[k]);
+       // for(int r=0; r<paras_k[k]; r++){
+       //   params_lin[r] = paraEtha2[param + r];
+       // }
 
        // ##### computering of the likelihood ##########################
        double log_det= Lambdai_k.size()*log(paraSig[k]);
@@ -680,13 +699,12 @@ double f_marker(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, a
        vec y=Ytildik-Lambdai_k;
        
 //       vrais = -0.5*(sum(Lambdai_k.size())*log(2*M_PI) + log_det + as_scalar(y.t()*y/paraSig[k])) ;
-       out += -0.5*(Lambdai_k.size()*log(2*M_PI) + log_det + as_scalar(y.t()*y/paraSig[k])) + log_Jac_Phi;
+       logvrais += -0.5*(Lambdai_k.size()*log(2*M_PI) + log_det + as_scalar(y.t()*y/paraSig[k])) + log_Jac_Phi;
        //dmvnorm(Ytilde, mean = Ytild[i+1,], sigma = sigmae2*diag(length(mu))) / a^(length(mu))
      }
      param += paras_k[k];
    }
 
-   logvrais = out;
    // int mk=ncol(matrixP); //number of ordinal markers
   // for(int i=0; i<(int)tau_i.size(); i++){
   //   for(int j=0; j<mk; i++){

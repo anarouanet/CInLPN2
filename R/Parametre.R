@@ -16,7 +16,7 @@
 #' 
 #' 
 Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, indexparaFixeUser =NULL,
-                      paraFixeUser=NULL, L = 1, paras.ini, ncolMod.MatrixY){
+                      paraFixeUser=NULL, L = 1, paras.ini, ncolMod.MatrixY, link, npara_k){
   cl <- match.call()
   #   require(MASS)
   #initialisation des parametres
@@ -77,13 +77,12 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
     ### parameters of the link function
     ParaTransformY <- rep(1, ncolMod.MatrixY)
     if(ncolMod.MatrixY>2)
-      browser()
+      message('check here')
     cpt1 <- cpt1 + ncolMod.MatrixY
     p <- p + ncolMod.MatrixY
   }
   
 
-  
   # if user specified initial parameters
   if(!is.null(paras.ini)){
     p <- 0 # position in the initialize parameters
@@ -108,8 +107,10 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
     to_nrow <- nb_RE
     i_alpha_D <- 0
     index_paraFixeDconstraint <- NULL
+
     for(n in 1:nD){
-      alpha_D[i_alpha_D+1] <- 1
+      if(link[n] != "thresholds")
+        alpha_D[i_alpha_D+1] <- 1
       i_alpha_D <- i_alpha_D + to_nrow
       cpt1 <- cpt1 + to_nrow
       to_nrow <- to_nrow -1
@@ -132,8 +133,19 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
     paraSig <- paras.ini[(p+1):(p + K)]
     p <- p + K
     cpt1 <- cpt1 + K
+    
     ### para of link function
+    if(length(paras.ini) != (p + ncolMod.MatrixY))
+      stop("The length of paras.ini is not correct - check the threshold link parameters (number of levels -1)")
     ParaTransformY <- paras.ini[(p+1):(p + ncolMod.MatrixY)]
+    
+    i_para <- 0
+     for(k in 1:K){
+       if(link[k]=="linear" & ParaTransformY[i_para+2]==0)
+         stop('Second parameter for linear link function cannot be set at 0 (variance)')
+       i_para <- i_para + npara_k[k]
+    }
+    
     cpt1 <- cpt1 + ncolMod.MatrixY
     p <- p + ncolMod.MatrixY
   }
@@ -227,22 +239,26 @@ f_paras.ini <- function(data, outcomes, mapped.to.LP, fixed_X0.models, fixed_Del
     indexparaFixeUser <- c(1,(n_col_x0_k+n_col_x_k+1))
     paraFixeUser <- c(0,1)
     
+    link_k <- ifelse(link[k]=="thresholds", "linear",link[k])
+    
     structural.model <- list(fixed.LP0 = fixed_X0,
                              fixed.DeltaLP = fixed_DeltaX,
                              random.DeltaLP = mod_randoms_DeltaX, 
                              trans.matrix = mod_trans, 
                              delta.time = DeltaT)
-    measurement.model <- list(link.functions = list(links = link[k], knots = knots[k]))
+    measurement.model <- list(link.functions = list(links = link_k, knots = knots[k]))
     
     parameters = list(paras.ini = NULL, Fixed.para.index = indexparaFixeUser, Fixed.para.values = paraFixeUser)
     
     option = list(nproc = nproc, print.info = print.info, maxiter = maxiter)
 
+    #CInLPN2:::CInLPN2
+    browser()
     mod <- CInLPN:::CInLPN(structural.model = structural.model, measurement.model = measurement.model, parameters = parameters,
                   option = option, Time = Time, subject = subject, data = data)
     L <- ncol(mod$modA_mat)
     
-    ## compute number of paramter per component
+    ## compute number of paramater per component
     coefficients <- as.vector(mod$coefficients)
     i1 <- 0
     if(k==1 | (k>1 && (mapped.to.LP[k-1]!= mapped.to.LP[k]))){
@@ -256,6 +272,11 @@ f_paras.ini <- function(data, outcomes, mapped.to.LP, fixed_X0.models, fixed_Del
     }
     if(link[k]=="thresholds")
       print("initialise parameters")
+    
+    ParaTransformY <- c(unique(data[,outcomes[k]])[order(unique(data[,outcomes[k]]))][-1])+0.5
+    
+    #eta_k =(H(k)+H(k+1))/2
+    
 
     if(k==1){
       para.trans <- c(para.trans, coefficients[(i1+1):(i1+L)])
@@ -268,7 +289,8 @@ f_paras.ini <- function(data, outcomes, mapped.to.LP, fixed_X0.models, fixed_Del
     para.Sig <- c(para.Sig,  mod$b[(i1+1):(i1+1)])
     i1 <- i1+1
     
-    ParaTransformY <- c(ParaTransformY,  coefficients[(i1+1):(i1+mod$length_para_trY)])
+    if(link[k]!="thresholds")
+      ParaTransformY <- c(ParaTransformY,  coefficients[(i1+1):(i1+mod$length_para_trY)])
     i1 <- i1+mod$length_para_trY
   }
   para.RE <- rep(0.1, (nb_RE*(nb_RE+1)/2))

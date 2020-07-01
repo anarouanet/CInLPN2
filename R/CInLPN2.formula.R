@@ -60,18 +60,18 @@
 #' 
 #' \code{option$MCnr}{ number of replicates  to compute the predictions in the real scales of the outcomes (backward transformation because of the link functions)}
 #' 
-#' \code{option$type}{ type of Monte Carlo integration method to
+#' \code{option$type_int}{ type of Monte Carlo integration method to
 #'   use. Options are \describe{
 #'
-#'   \item{\code{type='montecarlo'}}{Vanilla Monte Carlo sampling.}
+#'   \item{\code{type_int='montecarlo'}}{Vanilla Monte Carlo sampling.}
 #'
-#'   \item{\code{type='antithetic'}}{Variance reduction method using antithetic
+#'   \item{\code{type_int='antithetic'}}{Variance reduction method using antithetic
 #'   simulation. This is the default option.}
 #'
-#'   \item{\code{type='sobol'}}{Quasi-Monte Carlo with a low
+#'   \item{\code{type_int='sobol'}}{Quasi-Monte Carlo with a low
 #'   deterministic Sobol sequence with Owen-type scrambling.}
 #'
-#'   \item{\code{type='halton'}}{Quasi-Monte Carlo with a low deterministic
+#'   \item{\code{type_int='halton'}}{Quasi-Monte Carlo with a low deterministic
 #'   Halton sequence. See "randtoolbox" R package for more details about the last two sequences.}
 #'   
 #' @param Time indicates the name of the covariate representing the time 
@@ -390,8 +390,8 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
     j     <- which(link == 'thresholds')
     
     Y0    <- data[,outcomes[j]]
-    minY0 <- apply(as.matrix(Y0), 2, min, rm.na=TRUE)# min(Y0,rm.na=TRUE)
-    maxY0 <- apply(as.matrix(Y0), 2, max, rm.na=TRUE)# max(Y0,rm.na=TRUE)
+    minY0 <- apply(as.matrix(Y0), 2, min, na.rm=TRUE)# min(Y0,rm.na=TRUE)
+    maxY0 <- apply(as.matrix(Y0), 2, max, na.rm=TRUE)# max(Y0,rm.na=TRUE)
 
     if(length(j==1))
        ide0 <- matrix(0, nrow = length(j),  ncol = max(sapply(j, function(x) max(Y0, na.rm =T)-min(Y0, na.rm =T) ))) #change dimensions
@@ -413,7 +413,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
       }
       
       if (!all(Y0tmp %in% minY0[i]:maxY0[i]))
-        stop("With the threshold link function, problem with the outcome data, must be discrete")
+        stop("With the threshold link function, problem with the outcome data, must be discrete (remove NAs)")
       
       IND <- sort(unique(Y0tmp))
       IND <- IND[1:(length(IND) - 1)] - minY0[i] + 1
@@ -425,9 +425,9 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
       #zitr[i, nbzitr0] <- maxY0[i]
       zitr <- c(zitr, minY0[i], maxY0[i])
     }
-    
-    if(!type_int %in% c("antithetic", "sobol", "halton", "torus"))
-      stop("With the threshold link function, type_int should be either antithetic, sobol, halton or torus.")
+
+    if(!type_int %in% c("MC", "sobol", "halton", "torus"))
+      stop("With the threshold link function, type_int should be either antithetic, sobol, halton or torus. antithetic not developed yet, sorry.")
     
   }else{
     zitr <- 0

@@ -68,7 +68,7 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
         linkSpe[[k]] <- "t"
         print("check Imat!")
 
-        Imat     <- matrix(0, nrow = dim(Y)[1], ncol = length(unique(Y[,k])))
+        Imat     <- matrix(0, nrow = dim(Y)[1], ncol = length(unique(Y[,k]))-1)
         Imat[,1] <- Y[,k]
         #Imat <- model.matrix(as.formula(paste("~1+",col[k])), data = Y, na.action= na.action)
         #Imat <- matrix(0, dim(Y)[1], length(unique(Y[,k])-1))

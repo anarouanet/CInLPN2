@@ -433,33 +433,43 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
     zitr <- 0
     ide0  <- 0 
   }
-
-  if(  (any(link=="thresholds")| any(link=="linear")) & !is.null(type_int)){ #
-    # Generation of quasi-random sequence
-    unique_id <- unique(data[,subject])
+browser()
+  if(  (any(link=="thresholds")| any(link=="linear")) & !is.null(type_int)){ 
     
-    nmes <- sapply(unique_id, function(x) 
-      length(which(!is.na(data[which(data[,subject]==x),outcomes]))))
-
-    sequence<-matrix(NA,option$MCnr/2*length(unique(nmes)),max(nmes)) 
-    nmes_seq <- rep(0,option$MCnr/2*length(unique(nmes)))
-    uniq_nmes <- unique(nmes)[order(unique(nmes))] 
-    
-    j=0
-    for(i in uniq_nmes){
-      if(type_int == "sobol"){
-        sequence[(j+1):(j+option$MCnr/2),1:i]  <- randtoolbox::sobol(n = option$MCnr/2, dim = i, scrambling = 1, normal = TRUE, init=T)
-      }else if(type_int == "halton"){
-        sequence[(j+1):(j+option$MCnr/2),1:i]  <- randtoolbox::halton(n = option$MCnr/2, dim = i, normal = TRUE, init=T) 
-      }else if(type_int == "torus"){
-        sequence[(j+1):(j+option$MCnr/2),1:i]  <- randtoolbox::torus(n = option$MCnr/2, dim = i,normal = TRUE, init=T) 
+    int_ui = TRUE
+    if(int_ui == FALSE){ #Sequence defined for Lambda
+      # Generation of quasi-random sequence
+      unique_id <- unique(data[,subject])
+      
+      nmes <- sapply(unique_id, function(x) 
+        length(which(!is.na(data[which(data[,subject]==x),outcomes]))))
+      
+      sequence<-matrix(NA,option$MCnr/2*length(unique(nmes)),max(nmes)) 
+      nmes_seq <- rep(0,option$MCnr/2*length(unique(nmes)))
+      uniq_nmes <- unique(nmes)[order(unique(nmes))] 
+      
+      j=0
+      for(i in uniq_nmes){
+        if(type_int == "sobol"){
+          sequence[(j+1):(j+option$MCnr/2),1:i]  <- randtoolbox::sobol(n = option$MCnr/2, dim = i, scrambling = 1, normal = FALSE, init=T)
+        }else if(type_int == "halton"){
+          sequence[(j+1):(j+option$MCnr/2),1:i]  <- randtoolbox::halton(n = option$MCnr/2, dim = i, normal = FALSE, init=T) 
+        }else if(type_int == "torus"){
+          sequence[(j+1):(j+option$MCnr/2),1:i]  <- randtoolbox::torus(n = option$MCnr/2, dim = i,normal = FALSE, init=T) 
+        }
+        nmes_seq[(j+1):(j+option$MCnr/2)] <- i
+        j <- j+option$MCnr/2
       }
-      nmes_seq[(j+1):(j+option$MCnr/2)] <- i
-      j <- j+option$MCnr/2
+      
+      ind_seq_i <- sapply(nmes, function(x) which(nmes_seq==x)[1]-1)
+      
+    }else{ #Sequence defined for ui
+      browser()
+      sequence<-matrix(NA,option$MCnr/2*length(unique(nmes)),max(nmes)) 
+      randtoolbox::sobol(nMC, dim = sum(r), normal = TRUE, 
+                         scrambling = 1)
     }
-    
-    ind_seq_i <- sapply(nmes, function(x) which(nmes_seq==x)[1]-1)
-    
+
   }else{
     sequence  <- NULL
     ind_seq_i <- NULL

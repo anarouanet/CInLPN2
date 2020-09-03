@@ -700,6 +700,7 @@ double f_marker(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, a
        
 //       vrais = -0.5*(sum(Lambdai_k.size())*log(2*M_PI) + log_det + as_scalar(y.t()*y/paraSig[k])) ;
        logvrais += -0.5*(Lambdai_k.size()*log(2*M_PI) + log_det + as_scalar(y.t()*y/paraSig[k])) + log_Jac_Phi;
+
        //dmvnorm(Ytilde, mean = Ytild[i+1,], sigma = sigmae2*diag(length(mu))) / a^(length(mu))
      }
      param += paras_k[k];

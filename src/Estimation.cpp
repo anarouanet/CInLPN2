@@ -293,7 +293,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
   }
 
   
-  int check=0;
+  int check=1;
   if(check==1){
     // To check the linear closed form of likelihood
     double log_Jac_Phi = sum(log(YiwoNA(vectorise(YtildPrimi))));
@@ -301,7 +301,42 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     
     // ##### computering of the likelihood ##########################
     double loglik_i = -0.5*(sum(k_i)*log(2*M_PI) + log(abs_det_matVY_i) + as_scalar(Ytildi_nu_i.t()*inv_sympd(matVY_i)*Ytildi_nu_i)) + log_Jac_Phi;
-    cout << " loglik_i "<<loglik_i<<endl;
+    cout << " loglik_i "<<loglik_i<< " log_Jac_Phi "<< log_Jac_Phi <<endl;
+  }
+  
+  
+  int integral_ui = 1;
+  if(integral_ui ==1){
+    
+    int nq = matDw_u.n_cols + matDw.n_cols ;
+    mat var_RE = zeros<mat>(nq, nq);
+    mat ui;
+    
+    for(int j =0 ; j < nq; j++){
+      for(int jj =0 ; jj < nq; jj++){
+        if(j < matDw.n_cols & jj < matDw.n_cols)
+          var_RE(j, jj) = matDw(j, jj);
+        else if(j >= matDw.n_cols & jj < matDw.n_cols)
+          var_RE(j, jj) = matDw_u(j-matDw.n_cols, jj);
+        else if(j < matDw.n_cols & jj >= matDw.n_cols)
+          var_RE(j, jj) = matDw_u(jj-matDw.n_cols, j);
+        else if(j >= matDw.n_cols & jj >= matDw.n_cols)
+          var_RE(j, jj) = matDu(j-matDw.n_cols, jj-matDw.n_cols);
+      }
+    }
+
+      
+    ui = var_RE * randn< Mat<double> >(var_RE.n_rows, MCnr);
+    
+    cout << " ui "<< endl<<ui<<endl;
+    cout << " sequence "<< endl<<sequence<<endl;
+    
+    // if(type_int<=0){// MC or aMC
+    //   Lambda = matB * randn< Mat<double> >(matB.n_rows, MCnr);
+    // }else{ // QMC
+    //   Lambda =  sequence;
+    // }
+    
   }
 
   // MatrixXd precMat = matV_i;
@@ -420,22 +455,33 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     D.steal_mem(DD); //matV_i = D*D.t();
   }
 
+
+  mat MatVi2=matV_i+0.0001*eye(matV_i.n_rows, matV_i.n_rows);
+  mat invmatV_i= inv_sympd(MatVi2);
+  mat D_bis = D+0.0001*eye(matV_i.n_rows, matV_i.n_rows);
   
+  double log_det=log(det(MatVi2));
+  //double log_det_D=2*log(det(D_bis));
+  //cout << " log_det "<< log_det << " vs "<< log(det(matV_i))<< " vs " <<log_det_D << endl;
+  // double logDetPrecMat=  2*L.diagonal().array().log().sum();
+  //fout2 << " logDetPrecMat " << logDetPrecMat<<endl;
+  
+  //precMat = L.inverse().transpose()*L.inverse();
   //mat out = D * randn< Mat<double> >(D.n_rows, MCnr);
 
-  
-  
   mat Lambda;
 
   if(type_int<=0){// MC or aMC
     Lambda = D * randn< Mat<double> >(D.n_rows, MCnr);
   }else{ // QMC
-    Lambda =  (D* sequence.t()).t();
+    //Lambda =  (D* sequence.t()).t();
+    Lambda =  sequence;
   }
 
   bool aMC=true;
   double lvrais =0;
-
+  double lvrais2 =0;
+  
   if(aMC){
     int MCnr_d;
     
@@ -469,12 +515,17 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
         
         //vec Lambda_nrMC = mvnrnd(mean_lambdai, matV_i);//chol(matV_i); //chol.t()*chol = mat
         vec Lambda_nrMC(Lambda.n_cols);
+        vec resid_nrMC(Lambda.n_cols);
         for(int i=0; i < Lambda.n_cols; i++){
           Lambda_nrMC(i) = mean_lambdai(i) + Lambda(nr,i);
+          resid_nrMC(i) = Lambda(nr,i);
         }
         
         //Lambda_nr = mvnrnd(mean_lambdai, matV_i);
         double logout2 = f_marker(Lambda_nrMC, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, paraEtha2, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda);
+        
+        
+        double test = -0.5*(Lambda_nrMC.size()*log(2*M_PI) + log_det + as_scalar(resid_nrMC.t()*invmatV_i*resid_nrMC)) ;
         lvrais_nr(nr)=logout2;
         //if(type)
         // Sampling of Lambda_i
@@ -489,18 +540,30 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
         //vrais += out;
       }
 
-      cstant=min(lvrais_nr);//(min(lvrais_nr)+max(lvrais_nr))/2;
-      cstant=0;
+      cstant=max(lvrais_nr)-700;//(min(lvrais_nr)+max(lvrais_nr))/2;
+      //cstant=0;
       double vrais=0;
       //cstant=0;
+      int n0=0;
       for(int nr=0; nr < MCnr_d; nr++){
         vrais += exp(lvrais_nr(nr)-cstant);
+        if(exp(lvrais_nr(nr)-cstant)<pow(10,-5)){
+          n0 +=1;
+        }
       }
+    
+      cout << " n0 "<< n0<< " cstant "<< cstant <<
+        " vrais "<< vrais <<
+          " log(vrais) "<< log(vrais) << endl;
+      
       lvrais =log(vrais)+cstant;
+      lvrais2 =lvrais - log(MCnr_d-n0);
       lvrais -=log(MCnr/2);
     }
 
   }
+  cout << " lvrais "<<lvrais<<" lvrais2 "<<lvrais2<< endl;
+  
 
   return(lvrais);
 }
@@ -687,7 +750,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
   
   //Computering of log-likelihood as sum of individuals contributions
   double loglik0=0;
-  for(int n= 0; n < N; n++ ){
+  for(int n= 0; n < 10; n++ ){
     //if(n%200==0)
       //cout << "indiv "<< n <<endl;
     // printf("\n %d \n",(n+1));

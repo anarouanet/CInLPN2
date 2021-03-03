@@ -279,12 +279,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // f_marker
-double f_marker(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, arma::vec& tau_i, double DeltaT, arma::mat& Ytildi, arma::mat& YtildPrimi, arma::mat& x0i, arma::colvec& alpha_mu0, arma::mat& xi, arma::vec& paraSig, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::colvec& paraEtha2, arma::vec& if_link, arma::colvec& zitr, arma::mat& ide, arma::vec& paras_k, arma::vec& K2_lambda_t, arma::vec& K2_lambda);
+double f_marker(arma::mat& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, arma::vec& tau_i, double DeltaT, arma::mat& Ytildi, arma::mat& YtildPrimi, arma::mat& x0i, arma::colvec& alpha_mu0, arma::mat& xi, arma::vec& paraSig, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::colvec& paraEtha2, arma::vec& if_link, arma::colvec& zitr, arma::mat& ide, arma::vec& paras_k, arma::vec& K2_lambda_t, arma::vec& K2_lambda);
 RcppExport SEXP _CInLPN2_f_marker(SEXP LambdaiSEXP, SEXP nDSEXP, SEXP matrixPSEXP, SEXP tauSEXP, SEXP tau_iSEXP, SEXP DeltaTSEXP, SEXP YtildiSEXP, SEXP YtildPrimiSEXP, SEXP x0iSEXP, SEXP alpha_mu0SEXP, SEXP xiSEXP, SEXP paraSigSEXP, SEXP alpha_muSEXP, SEXP G_mat_A_0_to_tau_iSEXP, SEXP paraEtha2SEXP, SEXP if_linkSEXP, SEXP zitrSEXP, SEXP ideSEXP, SEXP paras_kSEXP, SEXP K2_lambda_tSEXP, SEXP K2_lambdaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec& >::type Lambdai(LambdaiSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Lambdai(LambdaiSEXP);
     Rcpp::traits::input_parameter< int >::type nD(nDSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type matrixP(matrixPSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type tau(tauSEXP);
@@ -306,6 +306,26 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::vec& >::type K2_lambda_t(K2_lambda_tSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type K2_lambda(K2_lambdaSEXP);
     rcpp_result_gen = Rcpp::wrap(f_marker(Lambdai, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, paraEtha2, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda));
+    return rcpp_result_gen;
+END_RCPP
+}
+// matNui_ui
+arma::vec matNui_ui(int nD, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arma::colvec& alpha_mu0, arma::mat& xi, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::vec& randomeffects, arma::mat& zi);
+RcppExport SEXP _CInLPN2_matNui_ui(SEXP nDSEXP, SEXP tau_iSEXP, SEXP DeltaTSEXP, SEXP x0iSEXP, SEXP alpha_mu0SEXP, SEXP xiSEXP, SEXP alpha_muSEXP, SEXP G_mat_A_0_to_tau_iSEXP, SEXP randomeffectsSEXP, SEXP ziSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type nD(nDSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type tau_i(tau_iSEXP);
+    Rcpp::traits::input_parameter< double >::type DeltaT(DeltaTSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type x0i(x0iSEXP);
+    Rcpp::traits::input_parameter< arma::colvec& >::type alpha_mu0(alpha_mu0SEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type xi(xiSEXP);
+    Rcpp::traits::input_parameter< arma::colvec& >::type alpha_mu(alpha_muSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type G_mat_A_0_to_tau_i(G_mat_A_0_to_tau_iSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type randomeffects(randomeffectsSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type zi(ziSEXP);
+    rcpp_result_gen = Rcpp::wrap(matNui_ui(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, randomeffects, zi));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -341,6 +361,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_CInLPN2_f_Yi_r_NA_by0", (DL_FUNC) &_CInLPN2_f_Yi_r_NA_by0, 1},
     {"_CInLPN2_YiNui", (DL_FUNC) &_CInLPN2_YiNui, 11},
     {"_CInLPN2_f_marker", (DL_FUNC) &_CInLPN2_f_marker, 21},
+    {"_CInLPN2_matNui_ui", (DL_FUNC) &_CInLPN2_matNui_ui, 10},
     {"_CInLPN2_VecToMat", (DL_FUNC) &_CInLPN2_VecToMat, 3},
     {NULL, NULL, 0}
 };

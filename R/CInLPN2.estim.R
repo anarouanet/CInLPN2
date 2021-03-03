@@ -27,7 +27,7 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, DeltaT=
   if(debug==1){
     browser()
 
-    Loglik(K = K, nD = nD, mapping =  mapping.to.LP, paras$paraOpt,  paraFixe = paras$paraFixe, posfix = paras$posfix, paras_k = paras$npara_k,
+    Loglik(K = K, nD = nD, mapping =  mapping.to.LP, paraOpt = paras$paraOpt,  paraFixe = paras$paraFixe, posfix = paras$posfix, paras_k = paras$npara_k,
            sequence = paras$sequence, type_int = paras$type_int, ind_seq_i = paras$ind_seq_i, MCnr = MCnr, nmes = nmes,
            m_is = data$m_i, Mod_MatrixY = data$Mod.MatrixY, Mod_MatrixYprim = data$Mod.MatrixYprim, df=data$df,
            x = data$x, z = data$z, q = data$q,nb_paraD = data$nb_paraD,

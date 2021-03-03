@@ -510,6 +510,7 @@ arma::vec YiNui(int nD, arma::mat matrixP, arma::vec& tau, arma::vec& tau_i, dou
   for(int i=0; i<(int)tau_i.size(); i++){
     Nu_cp_i.row(i) = Nu_cp.row(tau_i(i));
   }
+
   // Nu_cp : Expectation of overall times
   mat M =  Yi - Nu_cp_i*matrixP.t();
   return(YiwoNA(vectorise(M)));
@@ -550,7 +551,7 @@ bool Isnotnan(double i) {
 //' Function that computes the difference (mat_Yi - mat_Nu_i), delates missing values (NAs) and 
 //' returns a vector. mat_Yi is the outcomes and mat_Nu_i is the expectation
 //'  
-//' @param Lambdai a vector containing the sampled lambda_i
+//' @param Lambdai a matrix of dimension nT x nD containing the sampled lambda_i
 //' @param nD an integer indicating the number of processes
 //' @param matrixP a matrix that matches markers to latent processes
 //' @param tau a vector of integers indicating times 
@@ -575,7 +576,7 @@ bool Isnotnan(double i) {
 //' @export
 //' 
 // [[Rcpp::export]]
-double f_marker(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, arma::vec& tau_i, double DeltaT, arma::mat& Ytildi, arma::mat& YtildPrimi, arma::mat& x0i, arma::colvec& alpha_mu0,
+double f_marker(arma::mat& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, arma::vec& tau_i, double DeltaT, arma::mat& Ytildi, arma::mat& YtildPrimi, arma::mat& x0i, arma::colvec& alpha_mu0,
                 arma::mat& xi, arma::vec& paraSig, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::colvec& paraEtha2, arma::vec& if_link, arma::colvec& zitr, 
                 arma::mat& ide, arma::vec& paras_k, arma::vec& K2_lambda_t, arma::vec& K2_lambda){
 
@@ -592,28 +593,28 @@ double f_marker(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, a
     // Retrieve part of Ytildi and Lambdai that corresponds to marker k
     vec Ytildik=Ytildi.col(k);
 
-    if(!std::all_of(Ytildi.col(k).begin(), Ytildi.col(k).end(), Isnotnan) ){
-      int ind=0;
-      
-      for(int b = 0 ; b < Ytildi.n_rows; b++){
-        if(!isnan(Ytildi(b,k))){
-          Ytildik(ind)=Ytildi(b,k);
-          ind++;
-        }
-      }
-      Ytildik =Ytildik.head(ind);
-    }else{
-      Ytildik=Ytildi.col(k);
-    }
+    // if(!std::all_of(Ytildi.col(k).begin(), Ytildi.col(k).end(), Isnotnan) ){
+    //   int ind=0;
+    //   
+    //   for(int b = 0 ; b < Ytildi.n_rows; b++){
+    //     if(!isnan(Ytildi(b,k))){
+    //       Ytildik(ind)=Ytildi(b,k);
+    //       ind++;
+    //     }
+    //   }
+    //   Ytildik =Ytildik.head(ind);
+    // }else{
+    //   Ytildik=Ytildi.col(k);
+    // }
 
-    // K2_lambda_t: which latent process linked to the observation in lambda
-    // K2_lambda: which latent process linked to the K markers
-    
+    // vec K2_lambda_t[j]: which latent process linked to the jth observation in lambda
+    // K2_lambda[k]: which latent process linked to the kth markers
+    int nT = K2_lambda_t.size() ;
     vec Lambdai_k(Ytildik.size());
     int ind=0;
-    for(int b = 0 ; b < K2_lambda_t.size(); b++){
+    for(int b = 0 ; b < nT; b++){
       if(K2_lambda_t(b)==K2_lambda(k)){
-        Lambdai_k(ind)=Lambdai(b);
+        Lambdai_k(ind)=Lambdai(b,k);
         ind++;
       }
     }
@@ -724,6 +725,216 @@ double f_marker(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, a
   // // Nu_cp : Expectation of overall times
   // mat M =  Yi - Nu_cp_i*matrixP.t();
 
+  return(logvrais);
+}
+//===========================================================================================
+//'  Function that constructs the matrix lambda_t_j, the value of the processes at time t_j, given the random effects
+//'  
+//' @param nD an integer indicating the number of processes
+//' @param tau_i vector of integers indicating times 
+//' @param DeltaT double that indicates the discretization step
+//' @param x0i model.matrix for baseline's submodel
+//' @param xi model.matrix for change's submodel
+//' @param alpha_mu0 a vector of parameters associated to the model.matrix for the baseline's submodel (beta)
+//' @param alpha_mu a vector of parameters associated to the model.matrix for the change's submodel (gamma)
+//' @param G_mat_A_0_to_tau_i matrix containing  Prod(A_t)t=0,tau_i where A_t is the transition
+//' matric containing at time t
+//' @param ui random effects (baseline and slope) dimension: nD*(1+nq_v) x 1 [ui1, ..., uinD, vi1, ..., vinD]
+//' @param zi model.matrix for random change's submodel
+//' 
+//' @return a vector
+//' @export
+//' 
+// [[Rcpp::export]]
+arma::vec matNui_ui(int nD, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arma::colvec& alpha_mu0,
+                 arma::mat& xi, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::vec& randomeffects, arma::mat& zi){
+  // matNu_i : matrix of size xi.n_rows*nD containing expectation of processes
+  int n_cols_xi = xi.n_cols;
+  int n_cols_zi = zi.n_cols;
+  int mi=tau_i.size(); // number of observations
+  int T = max(tau_i)+1;
+  mat matNu_i = zeros(mi,nD);
+  mat Mu_t = zeros(nD,1);
+  
+  colvec ui=randomeffects.subvec( 0, nD-1 ).t();//randomeffects(linspace(0, nD-1, nD));
+  colvec vi=randomeffects.subvec( nD, randomeffects.size()-1 ).t();
+    
+    //Verify Xi, Zi with randomeffects.size()>1
+
+  int i = 0;
+  for(int t=0; t< T; t++){
+    if(t==0){
+      Mu_t = x0i*alpha_mu0+ ui;
+      
+    }
+    else{
+      Mu_t = DeltaT*(xi(span(t*nD,(t+1)*nD-1), span(0,n_cols_xi-1))*alpha_mu +
+      zi(span(t*nD,(t+1)*nD-1), span(0,n_cols_zi-1))*vi) +
+      G_mat_A_0_to_tau_i(span(0,nD-1),span(nD*(t-1),nD*(t-1)+nD-1))*Mu_t;
+      
+    }
+    if(t ==tau_i(i)){
+      matNu_i(span(i,i), span(0,nD-1)) = Mu_t.t();
+      i++;
+    }
+  }
+
+  for(int i=0; i<(int)tau_i.size(); i++){
+    matNu_i.row(i) = matNu_i.row(tau_i(i));
+  }
+  
+  return (YiwoNA(vectorise(matNu_i)));
+}
+//===========================================================================================================
+double f_marker_ui(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, arma::vec& tau_i, double DeltaT, arma::mat& Ytildi, arma::mat& YtildPrimi, arma::mat& x0i, arma::colvec& alpha_mu0,
+                arma::mat& xi, arma::vec& paraSig, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::colvec& paraEtha2, arma::vec& if_link, arma::colvec& zitr, 
+                arma::mat& ide, arma::vec& paras_k, arma::vec& K2_lambda_t, arma::vec& K2_lambda){
+  
+  int K = matrixP.n_rows;
+  double logvrais = 0.0;
+  
+  double vrais = 0.0;
+  
+  int param = 0;
+  int K_t = 0;
+  double out=0;
+  
+  for(int k=0; k<K; k++){
+    // Retrieve part of Ytildi and Lambdai that corresponds to marker k
+    vec Ytildik=Ytildi.col(k);
+    
+    if(!std::all_of(Ytildi.col(k).begin(), Ytildi.col(k).end(), Isnotnan) ){
+      int ind=0;
+      
+      for(int b = 0 ; b < Ytildi.n_rows; b++){
+        if(!isnan(Ytildi(b,k))){
+          Ytildik(ind)=Ytildi(b,k);
+          ind++;
+        }
+      }
+      Ytildik =Ytildik.head(ind);
+    }else{
+      Ytildik=Ytildi.col(k);
+    }
+    
+    // K2_lambda_t: which latent process linked to the observation in lambda
+    // K2_lambda: which latent process linked to the K markers
+    
+    vec Lambdai_k(Ytildik.size());
+    int ind=0;
+    for(int b = 0 ; b < K2_lambda_t.size(); b++){
+      if(K2_lambda_t(b)==K2_lambda(k)){
+        Lambdai_k(ind)=Lambdai(b);
+        ind++;
+      }
+    }
+    
+    
+    if (if_link[k]==2){// thresholds
+      
+      double inf;
+      double sup;
+      bool lower=true;
+      double vrais=1;
+      
+      vec params_thresholds(paras_k[k]);
+      params_thresholds[0] = paraEtha2[param];
+      
+      for(int r=1; r<paras_k[k]; r++){
+        params_thresholds[r] = params_thresholds[r-1] + pow(paraEtha2[param + r],2);
+      }
+      
+      for(int j=0; j<(int)tau_i.size(); j++){
+        
+        if (Ytildik(j,k)==zitr[K_t*2]){ // if Ytildi == minY
+          double gamma0 =  params_thresholds[0] - Lambdai_k[j]; 
+          double temp = normalCDF(gamma0);
+          
+          vrais  *= normalCDF(gamma0, lower);
+          
+        }else{
+          sup = params_thresholds[0];
+          inf = sup;
+          
+          int pp=0;
+          for(int p=0; p<(int)(zitr[K_t*2 + 1]-zitr[K_t*2]-1); p++){
+            
+            if(ide(p)==1){
+              sup = params_thresholds[pp+1];
+              
+              if(Ytildik(j,k) == (zitr[K_t*2]+p)){
+                double gamma1 = sup - Lambdai_k[j];
+                double gamma0 = inf - Lambdai_k[j];
+                
+                double temp = (normalCDF(gamma1) - normalCDF(gamma0));
+                
+                vrais  *= (normalCDF(gamma1) - normalCDF(gamma0));
+                
+                //cout << " p "<<p << " pp "<<pp << endl;
+                //cout << " sup "<<sup << " gamma1 "<<gamma1 << " normalCDF(gamma1) "<<normalCDF(gamma1)<<endl;
+                //cout << " inf "<<inf << " gamma0 "<<gamma0 << " normalCDF(gamma0) "<<normalCDF(gamma0)<<endl;
+                //cout << " vrais "<<vrais << " CDF1-CDF0 "<<(normalCDF(gamma1) - normalCDF(gamma0)) << endl;
+                
+                // fout << "Ytildij: "<< Ytildi(j,k) << " zitr[K_t*2]+p: "<<zitr[K_t*2]+p 
+                //      << " sup "<<sup << " inf "<<inf << " param "<< param
+                //      << " params_thresholds[p+1] "<< params_thresholds[p+1] << " vrais "<<vrais
+                //      << " temp "<<temp<< " gamma1 "<<gamma1<< " gamma0 "<<gamma0
+                //      <<" Ngamma1 "<<normalCDF(gamma1)<< " Ngamma0 "<<normalCDF(gamma0)<<endl;
+              }
+              inf = sup;
+              pp += 1;
+            }
+          }
+          
+          if (Ytildik(j,k)==zitr[K_t*2 + 1]){ // if Ytildi == maxY
+            double gamma0 =  sup - Lambdai_k[j]; 
+            double temp = normalCDF(gamma0);
+            vrais  *= (1-normalCDF(gamma0));
+          }
+        }
+      }
+      K_t +=1;
+      logvrais += log(vrais);
+      
+    }else if (if_link[k]==0){// linear
+      
+      // vec params_lin(paras_k[k]);
+      // for(int r=0; r<paras_k[k]; r++){
+      //   params_lin[r] = paraEtha2[param + r];
+      // }
+      
+      // ##### computering of the likelihood ##########################
+      double log_det= Lambdai_k.size()*log(paraSig[k]);
+      //double log_Jac_Phi=log(params_lin[0])*Lambdai_k.size();
+      double log_Jac_Phi = sum(log(YiwoNA(vectorise(YtildPrimi.col(k)))));
+      vec y=Ytildik-Lambdai_k;
+      
+      //       vrais = -0.5*(sum(Lambdai_k.size())*log(2*M_PI) + log_det + as_scalar(y.t()*y/paraSig[k])) ;
+      logvrais += -0.5*(Lambdai_k.size()*log(2*M_PI) + log_det + as_scalar(y.t()*y/paraSig[k])) + log_Jac_Phi;
+      
+      //dmvnorm(Ytilde, mean = Ytild[i+1,], sigma = sigmae2*diag(length(mu))) / a^(length(mu))
+    }
+    param += paras_k[k];
+  }
+  
+  // int mk=ncol(matrixP); //number of ordinal markers
+  // for(int i=0; i<(int)tau_i.size(); i++){
+  //   for(int j=0; j<mk; i++){
+  // 
+  //   }
+  // }
+  // -0.5*(sum(k_i)*log(2*M_PI) + log(abs_det_matVY_i) + as_scalar(Ytildi_nu_i.t()*inv_sympd(matVY_i)*Ytildi_nu_i))
+  // 
+  // 
+  // // Yi : matrice of observation of subject i
+  // mat Nu_cp = matNui(nD, tau, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i);
+  // mat Nu_cp_i = zeros(Yi.n_rows,nD);
+  // for(int i=0; i<(int)tau_i.size(); i++){
+  //   Nu_cp_i.row(i) = Nu_cp.row(tau_i(i));
+  // }
+  // // Nu_cp : Expectation of overall times
+  // mat M =  Yi - Nu_cp_i*matrixP.t();
+  
   return(logvrais);
 }
 //===========================================================================================================

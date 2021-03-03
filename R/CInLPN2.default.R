@@ -54,6 +54,15 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
   nb_RE <- data_F$nb_RE # number of random effects on the processes slope
   L <- ncol(data_F$modA_mat)
   ncolMod.MatrixY <- ncol(data_F$Mod.MatrixY)
+  
+  #definition quasi-random sequence
+  if(type_int == "sobol"){
+    sequence  <- randtoolbox::sobol(n = MCnr, dim = nb_RE, scrambling = 1, normal = TRUE, init=T)
+  }else if(type_int == "halton"){
+    sequence  <- randtoolbox::halton(n = MCnr, dim = i, normal = TRUE, init=T) 
+  }else if(type_int == "torus"){
+    sequence  <- randtoolbox::torus(n = MCnr, dim = i,normal = TRUE, init=T) 
+  }
 
   # ### creation of arguments:  Initialising parameters
   if(K>1 & is.null(paras.ini)){
@@ -86,7 +95,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
   }
   paras$npara_k <- npara_k
 
-  #add zitr, ide  dans estim(). What about knots? What in dataF
+    #add zitr, ide  dans estim(). What about knots? What in dataF
   if(any(link=="thresholds") || type_int %in% c("halton", "sobol")){
     #  nmes <- c()
     #  for (i in 1:length(unique(data$id))){

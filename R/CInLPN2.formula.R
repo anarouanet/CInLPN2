@@ -241,7 +241,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
     option$MCnr <- 30
   }
   if(is.null(option$type_int)){
-    option$type_int <- "antithetic"
+    option$type_int <- "montecarlo"
   }
   
   # if(is.null(option$parallel)){
@@ -433,7 +433,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
     zitr <- 0
     ide0  <- 0 
   }
-browser()
+
   if(  (any(link=="thresholds")| any(link=="linear")) & !is.null(type_int)){ 
     
     int_ui = TRUE
@@ -464,10 +464,17 @@ browser()
       ind_seq_i <- sapply(nmes, function(x) which(nmes_seq==x)[1]-1)
       
     }else{ #Sequence defined for ui
-      browser()
-      sequence<-matrix(NA,option$MCnr/2*length(unique(nmes)),max(nmes)) 
-      randtoolbox::sobol(nMC, dim = sum(r), normal = TRUE, 
-                         scrambling = 1)
+      #browser()
+      #sequence<-matrix(NA,option$MCnr/2*length(unique(nmes)),max(nmes)) 
+      #randtoolbox::sobol(nMC, dim = sum(r), normal = TRUE, 
+      #                   scrambling = 1)
+      #define sequence in CInLPN2.default
+      sequence  <- NULL
+      ind_seq_i <- 0
+      unique_id <- unique(data[,subject])
+      
+      nmes <- sapply(unique_id, function(x) 
+        length(which(!is.na(data[which(data[,subject]==x),outcomes]))))
     }
 
   }else{

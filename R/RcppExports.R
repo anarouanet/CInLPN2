@@ -277,7 +277,7 @@ YiNui <- function(nD, matrixP, tau, tau_i, DeltaT, Yi, x0i, alpha_mu0, xi, alpha
 #' Function that computes the difference (mat_Yi - mat_Nu_i), delates missing values (NAs) and 
 #' returns a vector. mat_Yi is the outcomes and mat_Nu_i is the expectation
 #'  
-#' @param Lambdai a vector containing the sampled lambda_i
+#' @param Lambdai a matrix of dimension nT x nD containing the sampled lambda_i
 #' @param nD an integer indicating the number of processes
 #' @param matrixP a matrix that matches markers to latent processes
 #' @param tau a vector of integers indicating times 
@@ -303,6 +303,27 @@ YiNui <- function(nD, matrixP, tau, tau_i, DeltaT, Yi, x0i, alpha_mu0, xi, alpha
 #' 
 f_marker <- function(Lambdai, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, paraEtha2, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda) {
     .Call(`_CInLPN2_f_marker`, Lambdai, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, paraEtha2, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda)
+}
+
+#'  Function that constructs the matrix lambda_t_j, the value of the processes at time t_j, given the random effects
+#'  
+#' @param nD an integer indicating the number of processes
+#' @param tau_i vector of integers indicating times 
+#' @param DeltaT double that indicates the discretization step
+#' @param x0i model.matrix for baseline's submodel
+#' @param xi model.matrix for change's submodel
+#' @param alpha_mu0 a vector of parameters associated to the model.matrix for the baseline's submodel (beta)
+#' @param alpha_mu a vector of parameters associated to the model.matrix for the change's submodel (gamma)
+#' @param G_mat_A_0_to_tau_i matrix containing  Prod(A_t)t=0,tau_i where A_t is the transition
+#' matric containing at time t
+#' @param ui random effects (baseline and slope) dimension: nD*(1+nq_v) x 1 [ui1, ..., uinD, vi1, ..., vinD]
+#' @param zi model.matrix for random change's submodel
+#' 
+#' @return a vector
+#' @export
+#' 
+matNui_ui <- function(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, randomeffects, zi) {
+    .Call(`_CInLPN2_matNui_ui`, nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, randomeffects, zi)
 }
 
 #' Function that transforms a vector to a matrix

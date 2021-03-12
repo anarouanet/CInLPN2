@@ -47,7 +47,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
                        randoms_DeltaX.models = randoms_DeltaX.models, mod_trans.model = mod_trans.model, 
                        outcomes = outcomes, nD = nD, link=link, knots = knots, zitr= zitr, ide = ide, 
                        Time = Time, DeltaT=DeltaT)
-  
+
   K <- data_F$K #  number of markers
   vec_ncol_x0n <- data_F$vec_ncol_x0n # number of parameters on initial level of processes
   n_col_x <- ncol(data_F$x) # number of parameters on processes slope

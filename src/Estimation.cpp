@@ -163,7 +163,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
   mat matVY_i = zeros(sizeYi,sizeYi); // initialization of the  matVY_i to zero
   mat matV_i = zeros(m_i*nD, m_i*nD); // Computation of the covariance matrix
   
-  mat matVY_icheck = zeros(sizeYi,sizeYi); // initialization of the  matVY_i to zero
+  //mat matVY_icheck = zeros(sizeYi,sizeYi); // initialization of the  matVY_i to zero
   vec k_i = zeros<vec>(m_i);// vector of number of observed marker at each observation time
   int q = zi.n_cols; // number of random effets on the slope
   
@@ -263,8 +263,8 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
         //cout << "matV_i2 "<< matH_i_t_j*( matrixP*
         //  (matV_i(span(j*nD,j*nD+add),span(k*nD,k*nD+add)))*matrixP.t())*matH_i_t_k.t();
         
-        matVY_icheck(span(p_j,(p_j+k_i(j)-1)), span((p_k), (p_k+k_i(k)-1))) += matH_i_t_j*( matrixP*
-          (matV_i(span(j*nD,j*nD+add),span(k*nD,k*nD+add)))*matrixP.t())*matH_i_t_k.t();
+        //matVY_icheck(span(p_j,(p_j+k_i(j)-1)), span((p_k), (p_k+k_i(k)-1))) += matH_i_t_j*( matrixP*
+        //  (matV_i(span(j*nD,j*nD+add),span(k*nD,k*nD+add)))*matrixP.t())*matH_i_t_k.t();
         
         //// For simplicty we define GrdZi(span(0*K,(0+1)*K-1), span(0,q-1))) = 0 : as if we specify
         // model for slope from t_0 but with covariate set to 0
@@ -273,7 +273,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
           // ##### Fill the diagonal of the matrix VY_i by adding  \Sigma  #########################
           mat MSM=matH_i_t_j*Sig*matH_i_t_j.t();
           matVY_i(span(p_j,(p_j+k_i(j)-1)), span((p_k), (p_k+k_i(k)-1))) += MSM;
-          matVY_icheck(span(p_j,(p_j+k_i(j)-1)), span((p_k), (p_k+k_i(k)-1))) += matH_i_t_j*Sig*matH_i_t_j.t();
+          //matVY_icheck(span(p_j,(p_j+k_i(j)-1)), span((p_k), (p_k+k_i(k)-1))) += matH_i_t_j*Sig*matH_i_t_j.t();
           MSigmaM(span(aa, aa +  matH_i_t_j.n_rows -1))= MSM.diag();
           aa = aa + matH_i_t_j.n_rows;
         }
@@ -281,7 +281,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
         // ###### VY_i is a symetric matrix; so we fill lower triangular matri by transpose the upper triangular part #########
         if(k != j){
           matVY_i(span((p_k), (p_k+k_i(k)-1)), span(p_j,(p_j+k_i(j)-1))) = matVY_i(span(p_j,(p_j+k_i(j)-1)), span((p_k), (p_k+k_i(k)-1))).t();
-          matVY_icheck(span((p_k), (p_k+k_i(k)-1)), span(p_j,(p_j+k_i(j)-1))) = matVY_icheck(span(p_j,(p_j+k_i(j)-1)), span((p_k), (p_k+k_i(k)-1))).t();
+          //matVY_icheck(span((p_k), (p_k+k_i(k)-1)), span(p_j,(p_j+k_i(j)-1))) = matVY_icheck(span(p_j,(p_j+k_i(j)-1)), span((p_k), (p_k+k_i(k)-1))).t();
         }
       }
       p_k += k_i(k); // incrementation of p_k
@@ -290,16 +290,16 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
   }
   
   vec ViY = vectorise(matVY_i);
-  vec ViY_check = vectorise(matVY_icheck);
+  //vec ViY_check = vectorise(matVY_icheck);
   mat sigMSM =diagmat(MSigmaM);
 
-  double ya=0;
-  for( int j =0 ; j < ViY.size(); j++){
-    ya += abs(ViY(j)-ViY_check(j));
-  }
+  //double ya=0;
+  //for( int j =0 ; j < ViY.size(); j++){
+  //  ya += abs(ViY(j)-ViY_check(j));
+  //}
 
   
-  int check=1;
+  int check=0;
   if(check==1){
     // To check the linear closed form of likelihood
     double log_Jac_Phi = sum(log(YiwoNA(vectorise(YtildPrimi))));
@@ -308,7 +308,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     // ##### computering of the likelihood ##########################
     double loglik_i = -0.5*(sum(k_i)*log(2*M_PI) + log(abs_det_matVY_i) + as_scalar(Ytildi_nu_i.t()*inv_sympd(matVY_i)*Ytildi_nu_i)) + log_Jac_Phi;
     double loglik_i0 = -0.5*(sum(k_i)*log(2*M_PI) + log(abs_det_matVY_i) + as_scalar(Ytildi_nu_i.t()*inv_sympd(matVY_i)*Ytildi_nu_i)) ;//+ log_Jac_Phi;
-    cout << " loglik_i "<<loglik_i<<" loglik_i0 "<< loglik_i0 << " log_Jac_Phi "<< log_Jac_Phi <<endl;
+    cout << " loglik_i "<<loglik_i<<endl;
   }
   
   
@@ -359,6 +359,8 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
 
 
   int integral_ui = 1;
+  double lvrais =0;
+  
   if(integral_ui ==1){
     
     int nq = matDw_u.n_cols + matDw.n_cols ;
@@ -398,7 +400,6 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     // }
     
     bool aMC=true;
-    double lvrais =0;
     double lvrais2 =0;
     
     if(aMC){
@@ -415,211 +416,222 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
         }
         lvrais /= MCnr;
       }else if(type_int > 0){//QMC
+
         for(int nr=0; nr < MCnr; nr++){
           vec ui_r = ui.row(nr).t();
+
+          //ui_r=  zeros<vec>(ui.n_cols);
           vec Lambda_nr = matNui_ui(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi);
+
           vec Ytildi_nu_i_ui = vectorise(Ytildi)-Lambda_nr;
-          
+ 
           double out2 = -0.5*(sum(k_i)*log(2*M_PI) + log(det(sigMSM)) + as_scalar(Ytildi_nu_i_ui.t()*inv_sympd(sigMSM)*Ytildi_nu_i_ui));
 
+           //if(nr < 10){
+           //  cout << " out2 "<< out2 <<endl;
+          //        << " pi " << sum(k_i)*log(2*M_PI) 
+          //        << " logdet " << log(det(sigMSM)) 
+          //        << " exp "<<  as_scalar(Ytildi_nu_i_ui.t()*inv_sympd(sigMSM)*Ytildi_nu_i_ui)
+          //        << " ui_r "<< ui_r.t()
+          //       << " vectorise(Ytildi) "<< vectorise(Ytildi).t()
+          //        << " Lambda_nr.t() "<< Lambda_nr.t()
+          //       << "Ytildi_nu_i_ui.t()  "<< Ytildi_nu_i_ui.t()<<endl;
+          //}
           //double out2 = f_marker(Lambda_nr, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, paraEtha2, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda);
-          lvrais += out2;
+          lvrais += exp(out2);
         }
-        lvrais /= MCnr;
-        cout << " lvrais "<< lvrais<<endl;
+
+        lvrais = log(lvrais) - log(MCnr);
+
         
         double log_Jac_Phi = sum(log(YiwoNA(vectorise(YtildPrimi))));
         lvrais += log_Jac_Phi;
-        cout << " lvrais+J "<< lvrais<<endl;
-        
-      }
-    }
-  }
-  
-  
-  ind_lambda = ind_lambda.head(sizeLambda);
-  int ind2=0;
-  ind=0;
-  vec mean_lambdai(sizeLambda);
-  
-  if(sizeLambda != PNu_cp_i.size()){ // if one Y obs = nan or there are doublons in lambda_k(t)
-    
-    int ind3=0;
-    for(int b = 0 ; b < PNu_cp_i.size(); b++){
-      if(binary_search(ind_lambda.begin(), ind_lambda.end(), b)){
-        mean_lambdai[ind3]= PNu_cp_i[b];
-        ind3++;
-      }else{
-        matV_i.shed_col(b);
-        matV_i.shed_row(b);
+
       }
     }
   }else{
-    mean_lambdai=PNu_cp_i;
-  }
-
-  //LLT<MatrixXd> lltOfA(precMat); // compute the Cholesky decomposition of A
-  //MatrixXd L = lltOfA.matrixL();
-  //logDetPrecMat=  2*L.diagonal().array().log().sum();
-  //precMat = L.inverse().transpose()*L.inverse();
-  // cout << " det(matV_i) "<< det(matV_i) <<endl;
-  // mat U;
-  // vec s;
-  // mat V;
-  // 
-  // svd(U,s,V,matV_i);
-  // 
-  // mat X= U*diagmat(s)*V.t();
-  // 
-  // cout << " matV_i-X "<< matV_i-X <<endl;
-  
-  //cout << " chol(matV_i) "<< chol(matV_i) <<endl;
-  mat D;
-
-  const bool chol_status = op_chol::apply_direct(D, matV_i, 1);  // '1' means "lower triangular"
-  
-  if(chol_status == false)
-  {
-    // C is not symmetric positive definite, so find approximate square root of C
+    ind_lambda = ind_lambda.head(sizeLambda);
+    int ind2=0;
+    ind=0;
+    vec mean_lambdai(sizeLambda);
     
-    colvec eigval;  // NOTE: eT is constrained to be real (ie. float or double) in fn_mvnrnd.hpp
-    mat eigvec;
-    
-    const bool eig_status = eig_sym_helper(eigval, eigvec, matV_i, 'd', "mvnrnd()");
-    
-    if(eig_status == false)  { return false; }
-    
-    double*   eigval_mem    = eigval.memptr();
-    const uword eigval_n_elem = eigval.n_elem;
-    
-    // since we're doing an approximation, tolerate tiny negative eigenvalues
-    
-    const double tol = double(-100) * Datum<double>::eps * norm(matV_i, "fro");
-    
-    if(arma_isfinite(tol) == false)  { return false; }
-    
-    for(uword i=0; i<eigval_n_elem; ++i){
-      const double val = eigval_mem[i];
+    if(sizeLambda != PNu_cp_i.size()){ // if one Y obs = nan or there are doublons in lambda_k(t)
       
-      if( (val < tol) || (arma_isfinite(val) == false) )  { return false; }
+      int ind3=0;
+      for(int b = 0 ; b < PNu_cp_i.size(); b++){
+        if(binary_search(ind_lambda.begin(), ind_lambda.end(), b)){
+          mean_lambdai[ind3]= PNu_cp_i[b];
+          ind3++;
+        }else{
+          matV_i.shed_col(b);
+          matV_i.shed_row(b);
+        }
+      }
+    }else{
+      mean_lambdai=PNu_cp_i;
     }
     
-    for(uword i=0; i<eigval_n_elem; ++i)  { if(eigval_mem[i] < double(0))  { eigval_mem[i] = double(0); } }
+    //LLT<MatrixXd> lltOfA(precMat); // compute the Cholesky decomposition of A
+    //MatrixXd L = lltOfA.matrixL();
+    //logDetPrecMat=  2*L.diagonal().array().log().sum();
+    //precMat = L.inverse().transpose()*L.inverse();
+    // cout << " det(matV_i) "<< det(matV_i) <<endl;
+    // mat U;
+    // vec s;
+    // mat V;
+    // 
+    // svd(U,s,V,matV_i);
+    // 
+    // mat X= U*diagmat(s)*V.t();
+    // 
+    // cout << " matV_i-X "<< matV_i-X <<endl;
     
-    mat DD = eigvec * diagmat(sqrt(eigval));
-    D.steal_mem(DD); //matV_i = D*D.t();
-  }
-
-
-  mat MatVi2=matV_i+0.0001*eye(matV_i.n_rows, matV_i.n_rows);
-  mat invmatV_i= inv_sympd(MatVi2);
-  mat D_bis = D+0.0001*eye(matV_i.n_rows, matV_i.n_rows);
-  
-  double log_det=log(det(MatVi2));
-  //double log_det_D=2*log(det(D_bis));
-  //cout << " log_det "<< log_det << " vs "<< log(det(matV_i))<< " vs " <<log_det_D << endl;
-  // double logDetPrecMat=  2*L.diagonal().array().log().sum();
-  //fout2 << " logDetPrecMat " << logDetPrecMat<<endl;
-  
-  //precMat = L.inverse().transpose()*L.inverse();
-  //mat out = D * randn< Mat<double> >(D.n_rows, MCnr);
-
-  mat Lambda;
-
-  if(type_int<=0){// MC (-1) or aMC (0) (QMC = 1)
-    Lambda = D * randn< Mat<double> >(D.n_rows, MCnr);
-  }else{ // QMC
-    //Lambda =  (D* seq_i.t()).t();
-    Lambda =  seq_i;
-  }
-
-   bool aMC=true;
-   double lvrais =0;
-   double lvrais2 =0;
-  
-  if(aMC){
-    int MCnr_d;
+    //cout << " chol(matV_i) "<< chol(matV_i) <<endl;
+    mat D;
     
-    if(type_int == -1){ //MC
+    const bool chol_status = op_chol::apply_direct(D, matV_i, 1);  // '1' means "lower triangular"
+    
+    if(chol_status == false)
+    {
+      // C is not symmetric positive definite, so find approximate square root of C
       
-      for(int nr=0; nr < MCnr; nr++){
-        vec zero_lambda = zeros<vec>(mean_lambdai.size());
-        //vec Lambda_nrMC = mvnrnd(mean_lambdai, matV_i);//chol(matV_i); //chol.t()*chol = mat
-        vec Lambda_nrMC(Lambda.n_rows);// changer ! matrice nT x nD
-        for(int i=0; i < Lambda.n_rows; i++){
-          Lambda_nrMC(i) = mean_lambdai(i) + Lambda(i,nr);
-        }
-        
-        //Lambda_nr = mvnrnd(mean_lambdai, matV_i);
-        double out2 = f_marker(Lambda_nrMC, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, paraEtha2, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda);
-        lvrais += out2;
-      }
-      lvrais /= MCnr;
-    }else if(type_int > 0 ){ //QMC
-      MCnr_d = MCnr;
-      double cstant = 0;
-      vec lvrais_nr(MCnr);
-      // Approximation of the likelihood by antithetic MC
-      //Number of pairs of draws for antithetic MC
-      //cout << " det(matV_i) "<<det(matV_i)<<endl;
-      //vec s = svd( matV_i );
-      //  cout << " svd "<<s.t()<<endl;
-      //type_int = 0 if antithetic MC, 1 if halton, 2 if sobol
-      for(int nr=0; nr < MCnr; nr++){
-        vec zero_lambda = zeros<vec>(mean_lambdai.size());
-        
-        //vec Lambda_nrMC = mvnrnd(mean_lambdai, matV_i);//chol(matV_i); //chol.t()*chol = mat
-        vec Lambda_nrMC(Lambda.n_cols);
-        vec resid_nrMC(Lambda.n_cols);
-        for(int i=0; i < Lambda.n_cols; i++){
-          Lambda_nrMC(i) = mean_lambdai(i) + Lambda(nr,i);
-          resid_nrMC(i) = Lambda(nr,i);
-        }
-        
-        //Lambda_nr = mvnrnd(mean_lambdai, matV_i);
-        double logout2 = f_marker(Lambda_nrMC, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, paraEtha2, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda);
-        
-        
-        double test = -0.5*(Lambda_nrMC.size()*log(2*M_PI) + log_det + as_scalar(resid_nrMC.t()*invmatV_i*resid_nrMC)) ;
-        lvrais_nr(nr)=logout2;
-        //if(type)
-        // Sampling of Lambda_i
-        //arma::vec sampled = mvnorm((nr+1)*666, zeros(matV_i.n_cols), eye(matV_i.n_cols, matV_i.n_cols));
-        //arma::vec Lambda_nr = PNu_cp_i + Chol_matV_i*sampled;
-        //vec Lambda_nr0 = mvnrnd(zero_lambda, matV_i);//chol(matV_i); //chol.t()*chol = mat
-        //for(int i=0; i < Lambda.n_cols; i++){
-        //  Lambda_nrMC(i) = mean_lambdai(i) - Lambda(nr,i);
-        //}      //Lambda_nr = mvnrnd(mean_lambdai, matV_i);
-        
-        //double out = f_marker(Lambda_nrMC, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, paraEtha2, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda);
-        //vrais += out;
-      }
-
-      //cstant=max(lvrais_nr)-700;//(min(lvrais_nr)+max(lvrais_nr))/2;
-      cstant=0;
-      double vrais=0;
-      //cstant=0;
-      int n0=0;
-      for(int nr=0; nr < MCnr_d; nr++){
-        vrais += exp(lvrais_nr(nr)-cstant);
-        if(exp(lvrais_nr(nr)-cstant)<pow(10,-5)){
-          n0 +=1;
-        }
-      }
-    
-      cout << " n0 "<< n0<< " cstant "<< cstant <<
-        " vrais "<< vrais <<
-          " log(vrais) "<< log(vrais) << endl;
+      colvec eigval;  // NOTE: eT is constrained to be real (ie. float or double) in fn_mvnrnd.hpp
+      mat eigvec;
       
-      lvrais =log(vrais)+cstant;
-      lvrais2 =lvrais - log(MCnr_d-n0);
-      lvrais -=log(MCnr/2);
+      const bool eig_status = eig_sym_helper(eigval, eigvec, matV_i, 'd', "mvnrnd()");
+      
+      if(eig_status == false)  { return false; }
+      
+      double*   eigval_mem    = eigval.memptr();
+      const uword eigval_n_elem = eigval.n_elem;
+      
+      // since we're doing an approximation, tolerate tiny negative eigenvalues
+      
+      const double tol = double(-100) * Datum<double>::eps * norm(matV_i, "fro");
+      
+      if(arma_isfinite(tol) == false)  { return false; }
+      
+      for(uword i=0; i<eigval_n_elem; ++i){
+        const double val = eigval_mem[i];
+        
+        if( (val < tol) || (arma_isfinite(val) == false) )  { return false; }
+      }
+      
+      for(uword i=0; i<eigval_n_elem; ++i)  { if(eigval_mem[i] < double(0))  { eigval_mem[i] = double(0); } }
+      
+      mat DD = eigvec * diagmat(sqrt(eigval));
+      D.steal_mem(DD); //matV_i = D*D.t();
     }
-
+    
+    
+    mat MatVi2=matV_i+0.0001*eye(matV_i.n_rows, matV_i.n_rows);
+    mat invmatV_i= inv_sympd(MatVi2);
+    mat D_bis = D+0.0001*eye(matV_i.n_rows, matV_i.n_rows);
+    
+    double log_det=log(det(MatVi2));
+    //double log_det_D=2*log(det(D_bis));
+    //cout << " log_det "<< log_det << " vs "<< log(det(matV_i))<< " vs " <<log_det_D << endl;
+    // double logDetPrecMat=  2*L.diagonal().array().log().sum();
+    //fout2 << " logDetPrecMat " << logDetPrecMat<<endl;
+    
+    //precMat = L.inverse().transpose()*L.inverse();
+    //mat out = D * randn< Mat<double> >(D.n_rows, MCnr);
+    
+    mat Lambda;
+    
+    if(type_int<=0){// MC (-1) or aMC (0) (QMC = 1)
+      Lambda = D * randn< Mat<double> >(D.n_rows, MCnr);
+    }else{ // QMC
+      //Lambda =  (D* seq_i.t()).t();
+      Lambda =  seq_i;
+    }
+    
+    bool aMC=true;
+    double lvrais2 =0;
+    
+    if(aMC){
+      int MCnr_d;
+      
+      if(type_int == -1){ //MC
+        
+        for(int nr=0; nr < MCnr; nr++){
+          vec zero_lambda = zeros<vec>(mean_lambdai.size());
+          //vec Lambda_nrMC = mvnrnd(mean_lambdai, matV_i);//chol(matV_i); //chol.t()*chol = mat
+          vec Lambda_nrMC(Lambda.n_rows);// changer ! matrice nT x nD
+          for(int i=0; i < Lambda.n_rows; i++){
+            Lambda_nrMC(i) = mean_lambdai(i) + Lambda(i,nr);
+          }
+          
+          //Lambda_nr = mvnrnd(mean_lambdai, matV_i);
+          double out2 = f_marker(Lambda_nrMC, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, paraEtha2, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda);
+          lvrais += out2;
+        }
+        lvrais /= MCnr;
+      }else if(type_int > 0 ){ //QMC
+        MCnr_d = MCnr;
+        double cstant = 0;
+        vec lvrais_nr(MCnr);
+        // Approximation of the likelihood by antithetic MC
+        //Number of pairs of draws for antithetic MC
+        //cout << " det(matV_i) "<<det(matV_i)<<endl;
+        //vec s = svd( matV_i );
+        //  cout << " svd "<<s.t()<<endl;
+        //type_int = 0 if antithetic MC, 1 if halton, 2 if sobol
+        for(int nr=0; nr < MCnr; nr++){
+          vec zero_lambda = zeros<vec>(mean_lambdai.size());
+          
+          //vec Lambda_nrMC = mvnrnd(mean_lambdai, matV_i);//chol(matV_i); //chol.t()*chol = mat
+          vec Lambda_nrMC(Lambda.n_cols);
+          vec resid_nrMC(Lambda.n_cols);
+          for(int i=0; i < Lambda.n_cols; i++){
+            Lambda_nrMC(i) = mean_lambdai(i) + Lambda(nr,i);
+            resid_nrMC(i) = Lambda(nr,i);
+          }
+          
+          //Lambda_nr = mvnrnd(mean_lambdai, matV_i);
+          double logout2 = f_marker(Lambda_nrMC, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, paraEtha2, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda);
+          
+          
+          double test = -0.5*(Lambda_nrMC.size()*log(2*M_PI) + log_det + as_scalar(resid_nrMC.t()*invmatV_i*resid_nrMC)) ;
+          lvrais_nr(nr)=logout2;
+          //if(type)
+          // Sampling of Lambda_i
+          //arma::vec sampled = mvnorm((nr+1)*666, zeros(matV_i.n_cols), eye(matV_i.n_cols, matV_i.n_cols));
+          //arma::vec Lambda_nr = PNu_cp_i + Chol_matV_i*sampled;
+          //vec Lambda_nr0 = mvnrnd(zero_lambda, matV_i);//chol(matV_i); //chol.t()*chol = mat
+          //for(int i=0; i < Lambda.n_cols; i++){
+          //  Lambda_nrMC(i) = mean_lambdai(i) - Lambda(nr,i);
+          //}      //Lambda_nr = mvnrnd(mean_lambdai, matV_i);
+          
+          //double out = f_marker(Lambda_nrMC, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, paraEtha2, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda);
+          //vrais += out;
+        }
+        
+        //cstant=max(lvrais_nr)-700;//(min(lvrais_nr)+max(lvrais_nr))/2;
+        cstant=0;
+        double vrais=0;
+        //cstant=0;
+        int n0=0;
+        for(int nr=0; nr < MCnr_d; nr++){
+          vrais += exp(lvrais_nr(nr)-cstant);
+          if(exp(lvrais_nr(nr)-cstant)<pow(10,-5)){
+            n0 +=1;
+          }
+        }
+        
+        cout << " n0 "<< n0<< " cstant "<< cstant <<
+          " vrais "<< vrais <<
+            " log(vrais) "<< log(vrais) << endl;
+        
+        lvrais =log(vrais)+cstant;
+        lvrais2 =lvrais - log(MCnr_d-n0);
+        lvrais -=log(MCnr/2);
+      }
+      
+    }
+    cout << " lvrais "<<lvrais<<" lvrais2 "<<lvrais2<< endl;
   }
-  cout << " lvrais "<<lvrais<<" lvrais2 "<<lvrais2<< endl;
   
-
   return(lvrais);
 }
 
@@ -805,7 +817,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
   
   //Computering of log-likelihood as sum of individuals contributions
   double loglik0=0;
-  for(int n= 0; n < 1; n++ ){
+  for(int n= 0; n < N; n++ ){
     //if(n%200==0)
       //cout << "indiv "<< n <<endl;
     // printf("\n %d \n",(n+1));

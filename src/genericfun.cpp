@@ -771,18 +771,18 @@ arma::vec matNui_ui(int nD, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arm
       Mu_t = DeltaT*(xi(span(t*nD,(t+1)*nD-1), span(0,n_cols_xi-1))*alpha_mu +
       zi(span(t*nD,(t+1)*nD-1), span(0,n_cols_zi-1))*vi) +
       G_mat_A_0_to_tau_i(span(0,nD-1),span(nD*(t-1),nD*(t-1)+nD-1))*Mu_t;
-      
     }
+    
     if(t ==tau_i(i)){
       matNu_i(span(i,i), span(0,nD-1)) = Mu_t.t();
       i++;
     }
   }
-
+  
   for(int i=0; i<(int)tau_i.size(); i++){
     matNu_i.row(i) = matNu_i.row(tau_i(i));
   }
-  
+
   return (YiwoNA(vectorise(matNu_i)));
 }
 //===========================================================================================================

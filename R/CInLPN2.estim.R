@@ -23,7 +23,7 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, DeltaT=
   cl <- match.call()
   #  non parall Optimisation 
   # package loading
-  debug=1
+  debug=0
   if(debug==1){
     browser()
 

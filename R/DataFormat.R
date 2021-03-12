@@ -248,6 +248,8 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   #Case of  unobserved components  at time t
   m_i <-as.data.frame(table(as.factor(data[,subject])))$Freq # matrice of frequencies m_i
   tau_is <- data[,Time]/DeltaT # vector of individuals visits vectors
+  tau_is <- as.numeric(as.character(tau_is)) # verify that all integer?
+
   Tmax <- max(tau_is,na.rm = TRUE)
   tau <- 0:Tmax  
   Y <- NULL
@@ -367,7 +369,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   colnames <- colnames(x)
   x <- as.matrix(x[,-c(1)])
   colnames(x) <- colnames[-c(1)]
-  
+
   #===================================================================
   #     construction  of matrices z0 et z========================
   data_z_cov <- data_xzMatA_cov[, c(subject,Time)]

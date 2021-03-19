@@ -237,7 +237,7 @@ f_paras.ini <- function(data, outcomes, mapped.to.LP, fixed_X0.models, fixed_Del
     mod_randoms_DeltaX <- as.formula(paste("~", randoms_DeltaX.models[mapped.to.LP[k]], sep=""))
     mod_trans <- as.formula(paste("~", mod_trans.model, sep=" "))
     indexparaFixeUser <- c(1,(n_col_x0_k+n_col_x_k+1))
-    paraFixeUser <- c(0,1)
+    paraFixeUser <- c(0,1)  #intercept latent process = 0
     
     link_k <- ifelse(link[k]=="thresholds", "linear",link[k])
     
@@ -258,7 +258,7 @@ f_paras.ini <- function(data, outcomes, mapped.to.LP, fixed_X0.models, fixed_Del
                   option = option, Time = Time, subject = subject, data = data)
     L <- ncol(mod$modA_mat)
     
-    ## compute number of paramater per component
+    ## compute number of parameter per component
     coefficients <- as.vector(mod$coefficients)
     i1 <- 0
     if(k==1 | (k>1 && (mapped.to.LP[k-1]!= mapped.to.LP[k]))){
@@ -273,7 +273,7 @@ f_paras.ini <- function(data, outcomes, mapped.to.LP, fixed_X0.models, fixed_Del
     if(link[k]=="thresholds")
       print("initialise parameters")
     
-    ParaTransformY <- c(unique(data[,outcomes[k]])[order(unique(data[,outcomes[k]]))][-1])+0.5
+    ParaTransformY <- c(min(data[,outcomes[k]]), rep(1,length(unique(data[,outcomes[k]]))-2))#c(unique(data[,outcomes[k]])[order(unique(data[,outcomes[k]]))][-1])+0.5
     
     #eta_k =(H(k)+H(k+1))/2
     

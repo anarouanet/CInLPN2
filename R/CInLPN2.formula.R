@@ -402,7 +402,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
     #idlink0 <- 3
     #ntrtot0 <- as.integer(maxY0 - minY0)
     if (!(all(is.integer(minY0) | !all(is.integer(maxY0)))))
-          stop("With the threshold link function, the longitudinal outcome must be discrete")
+          stop("With the thresholds link function, the longitudinal outcome must be discrete")
 
     zitr <- c()
     for(i in 1:length(j)){
@@ -414,7 +414,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
       
       if (!all(Y0tmp %in% minY0[i]:maxY0[i]))
         stop("With the threshold link function, problem with the outcome data, must be discrete (remove NAs)")
-      
+
       IND <- sort(unique(Y0tmp))
       IND <- IND[1:(length(IND) - 1)] - minY0[i] + 1
       #ide0 <- rep(0, as.integer(maxY0[i] - minY0[i])) #change dimensions
@@ -427,7 +427,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
     }
 
     if(!type_int %in% c("MC", "sobol", "halton", "torus"))
-      stop("With the threshold link function, type_int should be either antithetic, sobol, halton or torus. antithetic not developed yet, sorry.")
+      stop("With the thresholds link function, type_int should be either antithetic, sobol, halton or torus. antithetic not developed yet, sorry.")
     
   }else{
     zitr <- 0

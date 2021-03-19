@@ -54,7 +54,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
   nb_RE <- data_F$nb_RE # number of random effects on the processes slope
   L <- ncol(data_F$modA_mat)
   ncolMod.MatrixY <- ncol(data_F$Mod.MatrixY)
-  
+
   #definition quasi-random sequence
   if(type_int == "sobol"){
     sequence  <- randtoolbox::sobol(n = MCnr, dim = nb_RE, scrambling = 1, normal = TRUE, init=T)

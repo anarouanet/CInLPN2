@@ -65,6 +65,7 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
         degree[k] <- 0 # conventionnellement
       }
       else if(link[k]=="thresholds"){
+
         linkSpe[[k]] <- "t"
         print("check Imat!")
 

@@ -132,6 +132,12 @@ bool compFun0(int i) {
   return i > 0;
 }
 
+
+double normalCDF(double value)
+{
+  return 0.5 * erfc(-value * M_SQRT1_2);
+}
+
 /*
  individual contribution to the log-likelihood
  Generate latent process for antithetic MC: \int f(Y|Lambda) f(Lambda) dLambda = 1/N sum^N/2 [f(Y|Lambda_n)+f(Y|\tilde{Lambda}_n)]
@@ -142,7 +148,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
                     arma::mat x0i, arma::mat z0i, arma::mat xi, arma::mat zi, arma::colvec& alpha_mu0,
                     arma::colvec& alpha_mu, arma::mat& matDw,  arma::mat& matDw_u, arma::mat& matDu,
                     arma::mat& matB, arma::mat& Sig, arma::mat& G_mat_A_0_to_tau_i,
-                    arma::mat& G_mat_prod_A_0_to_tau,  double DeltaT, arma::vec& paraEtha2, arma::vec& if_link,  
+                    arma::mat& G_mat_prod_A_0_to_tau,  double DeltaT, arma::vec& ParamTransformY, arma::vec& df, arma::vec& if_link,  
                     arma::vec& zitr,  arma::mat& ide, arma::vec& paras_k,
                     arma::mat& seq_i,  int type_int, arma::vec& ind_seq_i, int MCnr, int sub){
   
@@ -305,7 +311,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     double log_Jac_Phi = sum(log(YiwoNA(vectorise(YtildPrimi))));
     double abs_det_matVY_i = abs(det(matVY_i));
     
-    // ##### computering of the likelihood ##########################
+    // ##### computering of the likelihood ########################## all linear
     double loglik_i = -0.5*(sum(k_i)*log(2*M_PI) + log(abs_det_matVY_i) + as_scalar(Ytildi_nu_i.t()*inv_sympd(matVY_i)*Ytildi_nu_i)) + log_Jac_Phi;
     double loglik_i0 = -0.5*(sum(k_i)*log(2*M_PI) + log(abs_det_matVY_i) + as_scalar(Ytildi_nu_i.t()*inv_sympd(matVY_i)*Ytildi_nu_i)) ;//+ log_Jac_Phi;
     cout << " loglik_i "<<loglik_i<<endl;
@@ -403,53 +409,125 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     double lvrais2 =0;
     
     if(aMC){
-      if(type_int == -1){ //-1 MC 0 AMC 
+      double out1;
+      double out2;
+      int kk=0;
+      for (int k = 0 ; k < K; k++){
+        vec ParaTransformYk = ParamTransformY(span(kk, (kk+df[k]-1)));
         
-        for(int nr=0; nr < MCnr; nr++){
-          vec ui_r = ui.row(nr).t();
-
+        if(type_int == -1){ //-1 MC 0 AMC 
+          cout << " develop likelihood computation with integral ui for MC or AMC "<<endl;
+          for(int nr=0; nr < MCnr; nr++){
+            vec ui_r = ui.row(nr).t();
+            
+            
+            //Computation \Lambda_nr
+            //vec Lambda_nr = lambda_ui(ui_r, Xi, beta, A, delta, gamma);
+            //double out2 = f_marker(Lambda_nrMC, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, ParaTransformY, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda);
+            //lvrais += out2;
+          }
+          lvrais /= MCnr;
           
-          //Computation \Lambda_nr
-          //vec Lambda_nr = lambda_ui(ui_r, Xi, beta, A, delta, gamma);
-          //double out2 = f_marker(Lambda_nrMC, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, paraEtha2, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda);
-          //lvrais += out2;
-        }
-        lvrais /= MCnr;
-      }else if(type_int > 0){//QMC
+        }else if(type_int > 0){//QMC`
+          
+          if(if_link(k)==0){// If linear
+            
+            for(int nr=0; nr < MCnr; nr++){
+              vec ui_r = ui.row(nr).t();
+              
+              //ui_r=  zeros<vec>(ui.n_cols);
+              vec Lambda_nr = matNui_ui(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi);
+              
+              vec Ytildi_nu_i_ui = vectorise(Ytildi)-Lambda_nr;
+              
+              out2 = -0.5*(sum(k_i)*log(2*M_PI) + log(det(sigMSM)) + as_scalar(Ytildi_nu_i_ui.t()*inv_sympd(sigMSM)*Ytildi_nu_i_ui));
+              lvrais += exp(out2);
+            }
+            
+            lvrais = log(lvrais) - log(MCnr);
+            double log_Jac_Phi = sum(log(YiwoNA(vectorise(YtildPrimi))));
+            lvrais += log_Jac_Phi;
+            
+          }else if(if_link(k)==2){ // threshold
+            double vrais = 0;
 
-        for(int nr=0; nr < MCnr; nr++){
-          vec ui_r = ui.row(nr).t();
+            
+            for(int nr=0; nr < MCnr; nr++){
+              
+              vec ui_r = ui.row(nr).t();
+              //ui_r=  zeros<vec>(ui.n_cols);
+              vec Lambda_nr = matNui_ui(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi);
 
-          //ui_r=  zeros<vec>(ui.n_cols);
-          vec Lambda_nr = matNui_ui(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi);
+              double vraisr=1;
+              double phi1;
+              double phi2;
+              for (int j = 0 ; j < k_i.size(); j++){
+                
+                if(k_i(j)>0){ // change: if k_i(j,k)==1
+                  int mm=0; //index in ParaTransformYk
+                  for (int m = 0 ; m <= (zitr(2*k+1)-zitr(2*k)); m++){ // m values between Ymin and Ymax
+                    
+                    //if(ide(kk + max(mm-1, 0))==1){ // check ide contains ide of k=0, k=1, ...
+                    if(Ytildi(j, k)==(zitr(2*k) + m)){
 
-          vec Ytildi_nu_i_ui = vectorise(Ytildi)-Lambda_nr;
- 
-          double out2 = -0.5*(sum(k_i)*log(2*M_PI) + log(det(sigMSM)) + as_scalar(Ytildi_nu_i_ui.t()*inv_sympd(sigMSM)*Ytildi_nu_i_ui));
+                      if(m==0){
+                        double value = (ParaTransformYk(mm)-Lambda_nr(j))/Sig(k,k);
+                        phi1 = normalCDF(value);
+                        phi2 = 0;
+                      }else if(m==(zitr(2*k+1)-zitr(2*k))){
+                        phi1 = 1;
+                        double value = (ParaTransformYk(mm-1)-Lambda_nr(j))/Sig(k,k);
+                        phi2 = normalCDF(value);
+                      }else{
+                        double value = (ParaTransformYk(mm)-Lambda_nr(j))/Sig(k,k);
+                        phi1 = normalCDF(value);
+                        value = (ParaTransformYk(mm-1)-Lambda_nr(j))/Sig(k,k);
+                        phi2 = normalCDF(value);
+                      }
 
-           //if(nr < 10){
-           //  cout << " out2 "<< out2 <<endl;
-          //        << " pi " << sum(k_i)*log(2*M_PI) 
-          //        << " logdet " << log(det(sigMSM)) 
-          //        << " exp "<<  as_scalar(Ytildi_nu_i_ui.t()*inv_sympd(sigMSM)*Ytildi_nu_i_ui)
-          //        << " ui_r "<< ui_r.t()
-          //       << " vectorise(Ytildi) "<< vectorise(Ytildi).t()
-          //        << " Lambda_nr.t() "<< Lambda_nr.t()
-          //       << "Ytildi_nu_i_ui.t()  "<< Ytildi_nu_i_ui.t()<<endl;
-          //}
-          //double out2 = f_marker(Lambda_nr, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, paraEtha2, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda);
-          lvrais += exp(out2);
-        }
-
-        lvrais = log(lvrais) - log(MCnr);
-
+                      if(phi1< phi2){
+                        cout << " j "<< j //<< " PT "<< ParaTransformYk.t()<<endl
+                             << " exp " <<(exp(phi1) - exp(phi2))
+                             << " vrais "<< vrais
+                             << " log(vrais) "<< log(vrais)
+                             << " phi1 "<< phi1
+                             << " phi2 "<< phi2 <<endl; 
+                      }
+                      
+                      //vrais *= (exp(phi1) - exp(phi2));
+                      // cout << " j "<< j << " phi1 "<< exp(phi1) - exp(phi2) <<  " phi1 "<<exp(phi1) << " phi2 "<< exp(phi2) <<endl
+                      //     <<" ParaTransformYk(m+1) " << ParaTransformYk(m+1) <<" ParaTransformYk(m) " << ParaTransformYk(m) << "Sig(k,k) "<< Sig(k,k) <<endl;
+                      
+                      //cout << "m "<<m<<" ParaTransformY(ind_m) "<<ParaTransformY(ind_m) << " lambda "<<Lambda_nr(j)<<endl;
+                      
+                      vraisr *= (phi1-phi2);
+                    }//if Y=m
+                    mm++;
+                  } // for m in Mk
+                }// if Yj observed
+              } // for j
+              vrais += vraisr;
+            }//nr
+            vrais /= MCnr;
+            lvrais += log(vrais);
+          }// if threshold
+        } // if QMC
         
-        double log_Jac_Phi = sum(log(YiwoNA(vectorise(YtildPrimi))));
-        lvrais += log_Jac_Phi;
-
+        //if(nr < 10){
+        //  cout << " out2 "<< out2 <<endl;
+        //        << " pi " << sum(k_i)*log(2*M_PI) 
+        //        << " logdet " << log(det(sigMSM)) 
+        //        << " exp "<<  as_scalar(Ytildi_nu_i_ui.t()*inv_sympd(sigMSM)*Ytildi_nu_i_ui)
+        //        << " ui_r "<< ui_r.t()
+        //       << " vectorise(Ytildi) "<< vectorise(Ytildi).t()
+        //        << " Lambda_nr.t() "<< Lambda_nr.t()
+        //       << "Ytildi_nu_i_ui.t()  "<< Ytildi_nu_i_ui.t()<<endl;
+        //}
+        //double out2 = f_marker(Lambda_nr, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, ParaTransformY, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda);
+        kk += df[k];
       }
     }
-  }else{
+  }else{ //Integral on lambda ------------------
     ind_lambda = ind_lambda.head(sizeLambda);
     int ind2=0;
     ind=0;
@@ -563,7 +641,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
           }
           
           //Lambda_nr = mvnrnd(mean_lambdai, matV_i);
-          double out2 = f_marker(Lambda_nrMC, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, paraEtha2, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda);
+          double out2 = f_marker(Lambda_nrMC, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, ParamTransformY, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda);
           lvrais += out2;
         }
         lvrais /= MCnr;
@@ -589,7 +667,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
           }
           
           //Lambda_nr = mvnrnd(mean_lambdai, matV_i);
-          double logout2 = f_marker(Lambda_nrMC, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, paraEtha2, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda);
+          double logout2 = f_marker(Lambda_nrMC, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, ParamTransformY, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda);
           
           
           double test = -0.5*(Lambda_nrMC.size()*log(2*M_PI) + log_det + as_scalar(resid_nrMC.t()*invmatV_i*resid_nrMC)) ;
@@ -603,7 +681,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
           //  Lambda_nrMC(i) = mean_lambdai(i) - Lambda(nr,i);
           //}      //Lambda_nr = mvnrnd(mean_lambdai, matV_i);
           
-          //double out = f_marker(Lambda_nrMC, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, paraEtha2, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda);
+          //double out = f_marker(Lambda_nrMC, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, ParaTransformY, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda);
           //vrais += out;
         }
         
@@ -785,31 +863,35 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
   
   int kk = 0;
   int kkp = 0;
+  colvec ParamTransformY(sum(df)); // transformed parameters
+
   for(int k=0; k<K;k++){
     if(if_link[k] == 1){ //splines
-      colvec ParamTransformYk = exp(ParaTransformY(span(kk, (kk+df[k]-1))));
-      ParamTransformYk[0] = log(ParamTransformYk[0]);
-      Ytild.col(k) = Mod_MatrixY.cols(kk, (kk+df[k]-1))*ParamTransformYk;
-      YtildPrim.col(k) = Mod_MatrixYprim.cols(kkp, (kkp+df[k]-2))*ParamTransformYk(span(1, (df[k]-1)));
+      ParamTransformY(span(kk, kk+df[k]-1)) = exp(ParaTransformY(span(kk, (kk+df[k]-1))));
+      ParamTransformY[kk] = log(ParamTransformY[kk]);
+      Ytild.col(k) = Mod_MatrixY.cols(kk, (kk+df[k]-1))*ParamTransformY(span(kk, kk+df[k]-1));
+      YtildPrim.col(k) = Mod_MatrixYprim.cols(kkp, (kkp+df[k]-2))*ParamTransformY(span(kk+1, (kk+df[k]-1)));
       kk += df[k];
       kkp += df[k]-1;
     }else if(if_link[k] == 2){ //thresholds
-      cout<<"transform Y with threshold marker with degrees "<< df[k]<< " degrees "<<endl;
+      
       Ytild.col(k) = Mod_MatrixY.col(kk);
-      fout << " Mod_MatrixY"<<endl<<Ytild.t()<<endl;
-      fout << " zitr "<<zitr<<endl;
-      cout << " ParaTransformY "<<endl<<ParaTransformY.t()<<endl;
+      ParamTransformY(kk) = ParaTransformY(kk);
+      for(int j= 1; j < df[k]; j++ ){
+        ParamTransformY(kk+j)= ParamTransformY(kk+j-1) + ParaTransformY(kk+j)*ParaTransformY(kk+j);
+      }
+      
       kk += df[k];
       kkp += df[k]-1;
     }else{ // linear
-      colvec ParamTransformYk = ParaTransformY(span(kk, (kk+df[k]-1)));
-      ParamTransformYk[0] = - ParamTransformYk[0]/ParamTransformYk[1];
-      ParamTransformYk[1] = 1.e0/ParamTransformYk[1];
+      ParamTransformY(span(kk, (kk+df[k]-1))) = ParaTransformY(span(kk, (kk+df[k]-1)));
+      ParamTransformY[kk] = - ParamTransformY[kk]/ParamTransformY[kk+1];
+      ParamTransformY[kk+1] = 1.e0/ParamTransformY[kk+1];
       
-      Ytild.col(k) = Mod_MatrixY.cols(kk, (kk+df[k]-1))*ParamTransformYk;
+      Ytild.col(k) = Mod_MatrixY.cols(kk, (kk+df[k]-1))*ParamTransformY(span(kk, (kk+df[k]-1)));
       //cout << " Y "<<Mod_MatrixY.cols(kk, (kk+df[k]-1))<<endl;
 
-      YtildPrim.col(k) = ParamTransformYk[1]*Mod_MatrixYprim.cols(kkp, (kkp+df[k]-2));
+      YtildPrim.col(k) = ParamTransformY[kk+1]*Mod_MatrixYprim.cols(kkp, (kkp+df[k]-2));
       kk += df[k];
       kkp += df[k]-1;
     }
@@ -840,9 +922,11 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
                            YtildPrim(span(p,(p+m_is(n)-1)), span(0,(K-1))), x0(span(n*nD,(n+1)*nD-1), span(0,(ncol_x0-1))),
                            z0(span(n*nD,(n+1)*nD-1), span(0,(ncol_z0-1))), x(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_x-1))),
                            z(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_z-1))),alpha_mu0, alpha_mu, matDw, matDw_u, matDu,
-                           matB, Sig, G_mat_A_0_to_tau_i, G_mat_prod_A_0_to_tau,  DeltaT, ParaTransformY, if_link, zitr, ide, paras_k,
+                           matB, Sig, G_mat_A_0_to_tau_i, G_mat_prod_A_0_to_tau,  DeltaT, ParamTransformY, df, if_link, zitr, ide, paras_k,
                            sequence, type_int, ind_seq_i, MCnr, n);
+
     loglik += out1;
+
     // double out2 =  Loglikei(K, nD, matrixP, m_is(n), tau, tau_is(span(p,(p+m_is(n)-1))), Ytild(span(p,(p+m_is(n)-1)), span(0,(K-1))),
     //                     YtildPrim(span(p,(p+m_is(n)-1)), span(0,(K-1))), x0(span(n*nD,(n+1)*nD-1), span(0,(ncol_x0-1))),
     //                     z0(span(n*nD,(n+1)*nD-1), span(0,(ncol_z0-1))), x(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_x-1))),

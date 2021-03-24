@@ -196,7 +196,7 @@
 
 
 CInLPN2 <- function(structural.model, measurement.model, parameters, 
-                   option, Time, subject, data, seed=NULL, ...){
+                   option, Time, Event = NULL, StatusEvent = NULL, subject, data, seed=NULL, ...){
   cl <- match.call()
   ptm <- proc.time()  
   cat("Be patient, CInLPN2 is running ... \n")
@@ -483,14 +483,32 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
     nmes      <- NULL
   }
   
+  
+  ## If joint model -  Event and StatusEvent data
+  Survdata <- NULL
+
+  if((!is.null(Event) & is.null(StatusEvent)) | (is.null(Event) & !is.null(StatusEvent)))
+    stop("To run a joint model, both Event and Status even should be specified.")
+  
+  if(!is.null(Event)){
+    if(!(Event%in%colnames) | !(StatusEvent%in%colnames)) 
+      stop("Data should contain columns with the names specified in Event and StatusEvent")
+    
+    #One survival dataframe with one line per individual
+    first_line <- sapply(unique(data[,subject]), function(x) which(data[,subject]==x)[1])
+    Survdata <- data[first_line, c(Event, StatusEvent)]
+  }
+
   #### call of CInLPN2.default function to compute estimation and predictions
   est <- CInLPN2.default(fixed_X0.models = fixed_X0.models, fixed_DeltaX.models = fixed_DeltaX.models, randoms_X0.models = randoms_X0.models, 
                         randoms_DeltaX.models = randoms_DeltaX.models, mod_trans.model = mod_trans.model, DeltaT = DeltaT , outcomes = outcomes,
                         nD = nD, mapping.to.LP = mapping.to.LP, link = link, knots = knots, subject = subject, data = data, Time = Time, 
+                        Survdata = Survdata,
                         makepred = option$makepred, MCnr = option$MCnr, type_int = option$type_int, sequence = sequence, ind_seq_i = ind_seq_i, nmes = nmes,
                         paras.ini= paras.ini, paraFixeUser = paraFixeUser, indexparaFixeUser = indexparaFixeUser,  
                         maxiter = maxiter, zitr = zitr, ide = ide0, univarmaxiter = univarmaxiter, nproc = nproc, epsa = epsa, epsb = epsb, epsd = epsd, 
                         print.info = print.info)
+
   est$call <- match.call()
   est$formula <- list(fixed_X0.models=fixed_X0.models, fixed_DeltaX.models = fixed_DeltaX.models, 
                       randoms_X0.models=randoms_X0.models, randoms_DeltaX.models=randoms_DeltaX.models, 

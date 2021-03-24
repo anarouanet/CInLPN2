@@ -136,7 +136,7 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
     
     ### para of link function
     if(length(paras.ini) != (p + ncolMod.MatrixY))
-      stop("The length of paras.ini is not correct - check the threshold link parameters (number of levels -1)")
+      stop("The length of paras.ini is not correct.")
     ParaTransformY <- paras.ini[(p+1):(p + ncolMod.MatrixY)]
     
     i_para <- 0
@@ -253,8 +253,7 @@ f_paras.ini <- function(data, outcomes, mapped.to.LP, fixed_X0.models, fixed_Del
     option = list(nproc = nproc, print.info = print.info, maxiter = maxiter)
 
     #CInLPN2:::CInLPN2
-    browser()
-    mod <- CInLPN:::CInLPN(structural.model = structural.model, measurement.model = measurement.model, parameters = parameters,
+    mod <- CInLPN2:::CInLPN2(structural.model = structural.model, measurement.model = measurement.model, parameters = parameters,
                   option = option, Time = Time, subject = subject, data = data)
     L <- ncol(mod$modA_mat)
     
@@ -270,10 +269,10 @@ f_paras.ini <- function(data, outcomes, mapped.to.LP, fixed_X0.models, fixed_Del
     else{
       i1 <- i1 + n_col_x0_k + mod$nb_paraD
     }
-    if(link[k]=="thresholds")
+    if(link[k]=="thresholds"){
       print("initialise parameters")
-    
-    ParaTransformY <- c(min(data[,outcomes[k]]), rep(1,length(unique(data[,outcomes[k]]))-2))#c(unique(data[,outcomes[k]])[order(unique(data[,outcomes[k]]))][-1])+0.5
+      ParaTransformY <- c(min(data[,outcomes[k]]), rep(1,length(unique(data[,outcomes[k]]))-2))#c(unique(data[,outcomes[k]])[order(unique(data[,outcomes[k]]))][-1])+0.5
+    }
     
     #eta_k =(H(k)+H(k+1))/2
     

@@ -35,18 +35,19 @@
 #'
 #' @return CInLPN2 object
 CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.models, randoms_DeltaX.models, mod_trans.model, 
-                           DeltaT, outcomes, nD, mapping.to.LP, link, knots=NULL, subject, data, Time,
+                           DeltaT, outcomes, nD, mapping.to.LP, link, knots=NULL, subject, data, Time, Survdata = NULL,
                            makepred, MCnr, type_int = NULL, sequence = NULL, ind_seq_i = NULL, nmes = NULL,
                            paras.ini= NULL, indexparaFixeUser, paraFixeUser, maxiter, zitr, ide, univarmaxiter, nproc = 1, 
                            epsa =0.0001, epsb = 0.0001, epsd= 0.001, print.info = FALSE, ...)
 {
   cl <- match.call()
   ################### created formated data ##########################
+
   data_F <- DataFormat(data=data, subject = subject, fixed_X0.models = fixed_X0.models,
                        randoms_X0.models = randoms_X0.models, fixed_DeltaX.models = fixed_DeltaX.models, 
                        randoms_DeltaX.models = randoms_DeltaX.models, mod_trans.model = mod_trans.model, 
                        outcomes = outcomes, nD = nD, link=link, knots = knots, zitr= zitr, ide = ide, 
-                       Time = Time, DeltaT=DeltaT)
+                       Time = Time, Survdata = Survdata, DeltaT=DeltaT)
 
   K <- data_F$K #  number of markers
   vec_ncol_x0n <- data_F$vec_ncol_x0n # number of parameters on initial level of processes
@@ -67,6 +68,9 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
   # ### creation of arguments:  Initialising parameters
   if(K>1 & is.null(paras.ini)){
 
+    if(!is.null(data_F$Event))
+      cat("Initialisation not computed for joint models")
+    
     if(all(link=="linear")){ #if K>1 & is.null(paras.ini) &
     paras.ini <- f_paras.ini(data = data, outcomes = outcomes, mapped.to.LP = mapping.to.LP, fixed_X0.models = fixed_X0.models, fixed_DeltaX.models = fixed_DeltaX.models,  
                                       randoms_DeltaX.models = randoms_DeltaX.models, nb_RE = nb_RE, mod_trans.model = mod_trans.model, 
@@ -81,7 +85,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
     }
   }
   npara_k <- sapply(outcomes, function(x) length(grep(x, names(data.frame(data_F$Mod.MatrixY)))))
-  
+
   paras <- Parametre(K=K, nD = nD, vec_ncol_x0n, n_col_x, nb_RE, indexparaFixeUser = indexparaFixeUser, 
                      paraFixeUser = paraFixeUser, L = L, ncolMod.MatrixY = ncolMod.MatrixY, paras.ini=paras.ini, link = link, npara_k = npara_k)
 
@@ -131,7 +135,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
   est <- CInLPN2.estim(K = K, nD = nD, mapping.to.LP = mapping.to.LP, data = data_F, if_link = if_link, DeltaT = DeltaT, MCnr = MCnr, nmes = nmes,
                       paras = paras, maxiter = maxiter, nproc = nproc, epsa = epsa, epsb = epsb,
                       epsd = epsd, print.info = print.info)
-  
+
   res <- list(conv = est$istop, v = est$v, best = est$b, ca = est$ca, cb = est$cb, rdm = est$rdm, 
               niter = est$iter, coefficients = est$coefficients, posfix = est$posfix)
   

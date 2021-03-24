@@ -190,7 +190,7 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
 
 DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixed_DeltaX.models, 
                        randoms_DeltaX.models, mod_trans.model, link = NULL, knots = NULL, zitr = NULL, ide = NULL, 
-                       outcomes, nD, Time, DeltaT){
+                       outcomes, nD, Time, Survdata = NULL, DeltaT){
   
   cl <- match.call()
   colnames<-colnames(data)
@@ -469,10 +469,21 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   nb_RE <- sum(q0,q)
   nb_paraD <- nb_RE*(nb_RE+1)/2
   
+  #If joint model
+  Event <- NULL
+  StatusEvent <- NULL
+  if(!is.null(Survdata)){ # Interesting for development to multi-state and interval censoring...
+    type=ifelse(length(unique(Survdata[,2]))>2, "mstate", "right")
+    surv_obj <- Surv(Survdata[,1], Survdata[,2], type=type)
+    Event <- surv_obj[,1]
+    StatusEvent <- surv_obj[,2]
+  }
+
+  
   return(list(nb_subject=I, nb_obs = length(na.omit(as.vector(Y))), K=K, nD = nD, all.preds = all.preds, id_and_Time=id_and_Time,Tmax = Tmax, m_i = m_i, Y = Y, Mod.MatrixY=Mod.MatrixY,  
               Mod.MatrixYprim=Mod.MatrixYprim, minY = minY, maxY = maxY, knots = knots, zitr = zitr, ide = ide, df = df, degree = degree, x = x, x0 = x0, 
               vec_ncol_x0n = nb_x0_n, z = z, z0=z0, q = q, q0 = q0, nb_paraD = nb_paraD, nb_RE=nb_RE, modA_mat = modA_mat,
-              tau = tau, tau_is = tau_is))
+              tau = tau, tau_is = tau_is, Event = Event, StatusEvent = StatusEvent))
 }
 
 

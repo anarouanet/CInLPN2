@@ -46,7 +46,9 @@ summary.CInLPN2 <- function(object, ...){
     }
     else{
       if (yk>1) cat("                       ")
-      cat(gsub("[[:space:]]","",x$linkstype[yk]),  " at knodes:", round(x$linknodes[[yk]],3)," for ",x$outcomes[yk], "\n")
+      cat(gsub("[[:space:]]","",x$linkstype[yk]))#,  " at knodes:", ifelse(length(x$linknodes[[yk]])>0,round(x$linknodes[[yk]],3), "NULL")," for ",x$outcomes[yk], "\n")
+      if (x$linkstype[yk]=="splines") cat(" at knodes:", round(x$linknodes[[yk]],3))
+      cat(" for ",x$outcomes[yk], "\n")
     }
   }
   

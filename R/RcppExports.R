@@ -26,12 +26,27 @@
 #' @param tau_is a vector of integers indicating times for individuals
 #' @param modA_mat model.matrix for elements of the transistion matrix
 #' @param DeltaT double that indicates the discretization step  
-#' 
+#' @param data_surv matrix of Tentry, Event, StatusEvent and covariates for survival models
+#' @param basehaz baseline hasard function type
+#' @param knots_surv knots for splines modelling the baseline hazard function
+#' @param np_surv number of parameters in the survival sub-models !! change if nE>1 !!
+#' @param survival boolean indicating if survival analysis
+#' @param assoc type of association between outcomes and times-to-events
+#' @param truncation boolean indicating if left trucation 
+#' @param nE number of events
+#' @param Xsurv1 design matrix for first event
+#' @param Xsurv2 design matrix for second event
+#' @param zitr min and max of ordinal outcomes
+#' @param ide vector of observed values for ordinal outcomes
+#' @param modA_mat_predGK_t design matrix for computing predictions of Y on [0;ti] in Gauss Konrod for all subject
+#' @param modA_mat_predGK_t0 design matrix for computing predictions of Y on [0;t0i] in Gauss Konrod for all subject
+#' @param pt_GK_t Gauss-Konrod nodes for integration on [0;ti] for all subject
+#' @param pt_GK_t0 Gauss-Konrod nodes for integration on [0;t0i] for all subject
 #' @return double 
 #' @export
 #' 
-Loglik <- function(K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT) {
-    .Call(`_CInLPN2_Loglik`, K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT)
+Loglik <- function(K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, data_surv, basehaz, knots_surv, np_surv, survival, assoc, truncation, nE, Xsurv1, Xsurv2, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT, modA_mat_predGK_t, modA_mat_predGK_t0, pt_GK_t, pt_GK_t0) {
+    .Call(`_CInLPN2_Loglik`, K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, data_surv, basehaz, knots_surv, np_surv, survival, assoc, truncation, nE, Xsurv1, Xsurv2, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT, modA_mat_predGK_t, modA_mat_predGK_t0, pt_GK_t, pt_GK_t0)
 }
 
 #' Function that computes the predictions (marginal and subject-specific) for individuals
@@ -69,6 +84,21 @@ Loglik <- function(K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence,
 pred <- function(K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred) {
     .Call(`_CInLPN2_pred`, K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred)
 }
+
+#' @param ui_r: vector of individual random effects
+#' @param t_i: individual time-to-event
+#' @param delta_i: individual status of event
+#' @param xti1: vector of individual covariates for first event
+#' @param xti2: vector of individual covariates for competing event
+#' @param param_surv: regression parameters
+#' @param param_basehaz: parameters for baseline hazard function
+#' @param basehaz: type of baseline hazard function
+#' @param knots_surv: vector of knots if basehaz == Splines
+#' @param assoc: function of the random effects that captures association 
+#' //'    (0: random intercept, 1: random slope, 2: random intercept and slope, 3: current value, 4: current slope, 5: current value and slope)
+#' @param truncation: boolean, indicating if left truncation or not
+#' 
+NULL
 
 #' Function that vectorises a matrix by rows
 #' 
@@ -137,7 +167,7 @@ ConstrA <- function(K, t, DeltaT, vec_alpha_ij, modA_mat) {
 #' @param K an integer representing the size of K*K matrix
 #' @param tau_i vector of integers indicating times at which coefficients are computed 
 #' @param DeltaT double that indicates the discretization step
-#' @param modA_mat model.matrix for elements of the transistion matrix  
+#' @param modA_mat model.matrix for elements of the transition matrix  
 #' @param vec_alpha_ij a vector of overall parameters associated to the
 #' model.matrix for elements of the transistion matrix 
 #' 
@@ -231,7 +261,7 @@ YiwoNA <- function(Yi) {
 #' @param alpha_mu0 a vector of parameters associated to the model.matrix for the baseline's submodel
 #' @param alpha_mu a vector of parameters associated to the model.matrix for the change's submodel
 #' @param G_mat_A_0_to_tau_i matrix containing  Prod(A_t)t=0,tau_i where A_t is the transition
-#' matric containing at time t
+#' matrix containing at time t
 #' 
 #' @return a matrix
 #' @export

@@ -26,6 +26,7 @@ is_na_vec <- function(vec){
 #' @return a list
 
 f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
+  
   cl <- match.call()
   current.na.action <- options('na.action')
   options(na.action = na.action)
@@ -48,6 +49,7 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
     df <- NULL
     colnamesY <- NULL
     colnamesYPrim <- NULL
+    
     for(k in 1:K){
       minY[k] <- min(Y[,col[k]], na.rm = T)
       maxY[k] <- max(Y[,col[k]], na.rm = T)
@@ -63,8 +65,7 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
         
         df <-c(df, ncol(Imat))
         degree[k] <- 0 # conventionnellement
-      }
-      else if(link[k]=="thresholds"){
+      }else if(link[k]=="thresholds"){
 
         linkSpe[[k]] <- "t"
         print("check Imat!")
@@ -190,7 +191,7 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
 
 DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixed_DeltaX.models, 
                        randoms_DeltaX.models, mod_trans.model, link = NULL, knots = NULL, zitr = NULL, ide = NULL, 
-                       outcomes, nD, Time, Survdata = NULL, DeltaT){
+                       outcomes, nD, Time, Survdata = NULL, basehaz = NULL, fixed.survival.models = NULL, DeltaT, assoc, truncation){
   
   cl <- match.call()
   colnames<-colnames(data)
@@ -453,10 +454,12 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   # design matrix for transition model
   f<-as.formula(paste(subject,mod_trans.model, sep="~"))# put subject, just to have a left side for the formula
   modA_mat<-model.matrix(as.formula(paste(subject,mod_trans.model, sep="~")),data=data_xzMatA_cov)
+
   #   dim(modA_mat)
   #   head(modA_mat)
   #============================================================
   #design matrix for markers transformation
+
   Y <- as.matrix(data[,outcomes])
   tr_Y <- f.link(outcomes = outcomes, Y=as.data.frame(Y), link=link, knots =knots)
   Mod.MatrixY <- tr_Y$Mod.MatrixY
@@ -472,18 +475,83 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   #If joint model
   Event <- NULL
   StatusEvent <- NULL
+
   if(!is.null(Survdata)){ # Interesting for development to multi-state and interval censoring...
-    type=ifelse(length(unique(Survdata[,2]))>2, "mstate", "right")
-    surv_obj <- Surv(Survdata[,1], Survdata[,2], type=type)
+    type=ifelse(length(unique(Survdata[,3]))>2, "mstate", "right")
+    surv_obj <- Surv(Survdata[,2], Survdata[,3], type=type)
     Event <- surv_obj[,1]
     StatusEvent <- surv_obj[,2]
+    cat("check use of mstate here....")
+  }
+  
+  nE <- length(fixed.survival.models)
+  Xsurv1 <- NULL
+  Xsurv2 <- NULL
+  np_surv <- NULL
+  for( n in 1: nE){
+    all.pred.fixed.survival.models <- list(strsplit(fixed.survival.models[n],"[+*]")[[1]])
+    Xsurv <- as.matrix(model.matrix(as.formula(paste("",fixed.survival.models[n], sep="~")),data=Survdata)[,-1])
+    
+    if(n==1)
+      Xsurv1 <- Xsurv
+    if(n==2)
+      Xsurv2 <- Xsurv
+    
+    np_surv <- c(np_surv, dim(Xsurv)[2] + ifelse(assoc%in%c(0, 1, 3, 4),1,2))
   }
 
+  modA_mat_pred_t <- NULL
+  modA_mat_pred_t0 <- NULL
+  
+  if(assoc>=3){
+
+    ptGK_1 <- 0.991455371120812639206854697526329
+    ptGK_2 <- 0.949107912342758524526189684047851
+    ptGK_3 <- 0.864864423359769072789712788640926
+    ptGK_4 <- 0.741531185599394439863864773280788
+    ptGK_5 <- 0.586087235467691130294144838258730
+    ptGK_6 <- 0.405845151377397166906606412076961
+    ptGK_7 <- 0.207784955007898467600689403773245
+    ptGK_8 <- 0.000000000000000000000000000000000
+    ptGK <- c(ptGK_1,-ptGK_1,ptGK_2,-ptGK_2,ptGK_3,-ptGK_3,ptGK_4,-ptGK_4,ptGK_5,-ptGK_5,ptGK_6,-ptGK_6,ptGK_7,-ptGK_7,ptGK_8) #pnts de quadrature GK
+    
+    N = length(unique(data_xzMatA_cov$id))
+    data_pred_GK <- data.frame(subject = rep(unique(data_xzMatA_cov$id), each=15), "pt_GK_t" = rep(0,N*15), "pt_GK_t0" = rep(0,N*15))
+    
+    ii=0
+    for(i in 1:N){
+      ti <- Survdata[i,"Event"]
+      for(j in 1:15){
+        data_pred_GK$pt_GK_t[ii+j] = ptGK[j]*(ti-0)/2+(ti+0)/2
+      }
+      ii = ii + 15
+    }
+    if(truncation){
+      ii=0
+      for(i in 1:N){
+        t0i <- Survdata[i,"Tentry"]
+        for(j in 1:15){
+          data_pred_GK$pt_GK_t0[ii+j] = ptGK[j]*(t0i-0)/2+(t0i+0)/2
+        }
+        ii = ii + 15
+      }
+    }
+      
+    data_MatA_ti <- data.frame(id = rep(unique(data_xzMatA_cov$id), each=15), Time=data_pred_GK$pt_GK_t)
+    names(data_MatA_ti) <- c(subject, Time)
+    data_MatA_t0i <- data.frame(rep(unique(data_xzMatA_cov$id), each=15), Time=data_pred_GK$pt_GK_t0)
+    names(data_MatA_t0i) <- c(subject, Time)
+    
+    modA_mat_pred_t<-model.matrix(as.formula(paste(subject,mod_trans.model, sep="~")), data=data_MatA_ti)
+    modA_mat_pred_t0<-model.matrix(as.formula(paste(subject,mod_trans.model, sep="~")), data=data_MatA_t0i)
+  }
   
   return(list(nb_subject=I, nb_obs = length(na.omit(as.vector(Y))), K=K, nD = nD, all.preds = all.preds, id_and_Time=id_and_Time,Tmax = Tmax, m_i = m_i, Y = Y, Mod.MatrixY=Mod.MatrixY,  
               Mod.MatrixYprim=Mod.MatrixYprim, minY = minY, maxY = maxY, knots = knots, zitr = zitr, ide = ide, df = df, degree = degree, x = x, x0 = x0, 
               vec_ncol_x0n = nb_x0_n, z = z, z0=z0, q = q, q0 = q0, nb_paraD = nb_paraD, nb_RE=nb_RE, modA_mat = modA_mat,
-              tau = tau, tau_is = tau_is, Event = Event, StatusEvent = StatusEvent))
+              tau = tau, tau_is = tau_is, Event = Event, StatusEvent = StatusEvent, basehaz = basehaz, nE = nE, Xsurv1 = Xsurv1, Xsurv2 = Xsurv2,
+              modA_mat_pred_t = modA_mat_pred_t, modA_mat_pred_t0 = modA_mat_pred_t0, np_surv = np_surv,
+              pt_GK_t = data_pred_GK$pt_GK_t, pt_GK_t0 = data_pred_GK$pt_GK_t0))
 }
 
 

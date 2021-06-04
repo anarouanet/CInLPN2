@@ -196,7 +196,7 @@
 
 
 CInLPN2 <- function(structural.model, measurement.model, parameters, 
-                   option, Time, Event = NULL, StatusEvent = NULL, subject, data, seed=NULL, ...){
+                   option, Time, Tentry ="Tentry", Event = "Event", StatusEvent = "StatusEvent", basehaz = NULL, subject, data, seed=NULL, ...){
   cl <- match.call()
   ptm <- proc.time()  
   cat("Be patient, CInLPN2 is running ... \n")
@@ -276,6 +276,11 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
   randoms_DeltaX <- structural.model$random.DeltaLP
   mod_trans <- structural.model$trans.matrix
   DeltaT <- structural.model$delta.time
+  survival= FALSE
+  if(!is.null(structural.model$fixed.survival)){
+    survival = TRUE
+    fixed.survival <- structural.model$fixed.survival
+  }
   
   # components of measurement model
   link <- measurement.model$link.functions$links
@@ -288,6 +293,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
   makepred <- option$makepred
   MCnr <- option$MCnr
   type_int <- option$type_int
+
   #parallel <- option$parallel
   maxiter <- option$maxiter  
   univarmaxiter <- option$univarmaxiter
@@ -352,6 +358,37 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
   fixed_X0.models<- as.vector(strsplit(fixed_X0.models,"[|]")[[1]]) 
   for(nd in 1:nD){
     if(fixed_X0.models[nd]=="~-1") fixed_X0.models[nd] <-"~1" # au moins l'intcpt
+  }
+  
+  ### pre-traitement of fixed effect on survival 
+  fixed.survival.models <- NULL
+  if(survival){
+    if(is.null(fixed.survival)){
+      fixed.survival<- ~1
+    }else{
+      if(class(fixed.survival)!="formula") stop("The argument fixed.survival must be a formula") 
+    }
+
+    fixed.survival.models <- strsplit(gsub("[[:space:]]","",as.character(fixed.survival)),"~")[[2]]
+    covsurv <- as.vector(strsplit(fixed.survival.models,"[|*]")[[1]]) 
+    
+    fixed.survival.models <- as.vector(strsplit(fixed.survival.models,"[|]")[[1]]) 
+
+    if(!all(covsurv%in%colnames))stop("All covariates in fixed.survival should be in the dataset")
+    
+    if(!is.null(option$assocT)){
+      if(!option$assocT%in%c("r.intercept", "r.slope", "r.intercept/slope", "c.value"))
+        stop("assocT should be defined as r.intercept, r.slope, r.intercept/slope, c.value.")
+      assoc <- switch(option$assocT, "r.intercept"=0, "r.slope"=1, "r.intercept/slope"=2, "c.value"=3, "c.slope"=4, "c.value/slope"=5)
+    }else{
+      assocT <- "r.intercept/slope"
+      assoc <- 2 # random intercept and slope
+    }
+    if(is.null(option$truncation)){
+      truncation = FALSE;
+    }else{
+      truncation <- option$truncation
+    }
   }
   
   ### pre-traitement of random effect on processes  intercept and slope
@@ -464,7 +501,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
       ind_seq_i <- sapply(nmes, function(x) which(nmes_seq==x)[1]-1)
       
     }else{ #Sequence defined for ui
-      #browser()
+      
       #sequence<-matrix(NA,option$MCnr/2*length(unique(nmes)),max(nmes)) 
       #randtoolbox::sobol(nMC, dim = sum(r), normal = TRUE, 
       #                   scrambling = 1)
@@ -483,27 +520,38 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
     nmes      <- NULL
   }
   
+  Survdata <- NULL
+  knots_surv <- NULL
   
   ## If joint model -  Event and StatusEvent data
-  Survdata <- NULL
+  if(survival){
 
-  if((!is.null(Event) & is.null(StatusEvent)) | (is.null(Event) & !is.null(StatusEvent)))
-    stop("To run a joint model, both Event and Status even should be specified.")
-  
-  if(!is.null(Event)){
-    if(!(Event%in%colnames) | !(StatusEvent%in%colnames)) 
-      stop("Data should contain columns with the names specified in Event and StatusEvent")
+    if(!(Event%in%colnames)) stop("Event should be in the dataset")
+    if(!(StatusEvent%in%colnames)) stop("StatusEvent should be in the dataset")
+
+    basehaz <- ifelse(!is.null(option$basehaz), option$basehaz, "Weibull")
+    if(Tentry != "Tentry" & !(Tentry%in%colnames)) stop("Tentry should be in the dataset")
+      
+    if(!basehaz%in%c("Weibull",'splines'))
+      stop('basehaz should be either Weibull or splines.')
     
+    if(basehaz == "Splines")
+      cat("Define knots_surv here")
     #One survival dataframe with one line per individual
     first_line <- sapply(unique(data[,subject]), function(x) which(data[,subject]==x)[1])
-    Survdata <- data[first_line, c(Event, StatusEvent)]
-  }
 
+    if(!(Tentry %in%names(data))) data$Tentry <- 0
+    
+    Survdata <- data[first_line, c(Tentry, Event, StatusEvent, covsurv[-1])]
+    names(Survdata)[1:3] <- c("Tentry", "Event", "StatusEvent")
+
+  }
+  
   #### call of CInLPN2.default function to compute estimation and predictions
   est <- CInLPN2.default(fixed_X0.models = fixed_X0.models, fixed_DeltaX.models = fixed_DeltaX.models, randoms_X0.models = randoms_X0.models, 
                         randoms_DeltaX.models = randoms_DeltaX.models, mod_trans.model = mod_trans.model, DeltaT = DeltaT , outcomes = outcomes,
                         nD = nD, mapping.to.LP = mapping.to.LP, link = link, knots = knots, subject = subject, data = data, Time = Time, 
-                        Survdata = Survdata,
+                        Survdata = Survdata, basehaz = basehaz, knots_surv = knots_surv, assoc = assoc, truncation = truncation, fixed.survival.models = fixed.survival.models,
                         makepred = option$makepred, MCnr = option$MCnr, type_int = option$type_int, sequence = sequence, ind_seq_i = ind_seq_i, nmes = nmes,
                         paras.ini= paras.ini, paraFixeUser = paraFixeUser, indexparaFixeUser = indexparaFixeUser,  
                         maxiter = maxiter, zitr = zitr, ide = ide0, univarmaxiter = univarmaxiter, nproc = nproc, epsa = epsa, epsb = epsb, epsd = epsd, 

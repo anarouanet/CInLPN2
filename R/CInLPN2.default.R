@@ -18,6 +18,12 @@
 #' @param subject indicates the name of the covariate representing the grouping structure
 #' @param data indicates the data frame containing all the variables for estimating the model
 #' @param Time indicates the name of the covariate representing the time
+#' @param Survdata Dataset for event and statusEvent
+#' @param basehaz baseline hazard type (Weibull or splines)
+#' @param knots_surv knots for splines (baseline hazard function)
+#' @param assoc association type between outcomes and times-to-events
+#' @param truncation boolean indicating if left truncation or not
+#' @param fixed.survival.models fixed effects in the submodel for the event hazards
 #' @param makepred indicates if predictions in the real scales of outcomes have to be done
 #' @param MCnr number of replicates  to compute the predictions in the real scales of the outcomes
 #' @param type_int type of Monte Carlo integration method to use
@@ -35,19 +41,20 @@
 #'
 #' @return CInLPN2 object
 CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.models, randoms_DeltaX.models, mod_trans.model, 
-                           DeltaT, outcomes, nD, mapping.to.LP, link, knots=NULL, subject, data, Time, Survdata = NULL,
+                           DeltaT, outcomes, nD, mapping.to.LP, link, knots=NULL, subject, data, Time, 
+                           Survdata = NULL, basehaz = NULL, knots_surv=NULL, assoc = NULL, truncation = FALSE, fixed.survival.models = NULL, 
                            makepred, MCnr, type_int = NULL, sequence = NULL, ind_seq_i = NULL, nmes = NULL,
                            paras.ini= NULL, indexparaFixeUser, paraFixeUser, maxiter, zitr, ide, univarmaxiter, nproc = 1, 
                            epsa =0.0001, epsb = 0.0001, epsd= 0.001, print.info = FALSE, ...)
 {
   cl <- match.call()
   ################### created formated data ##########################
-
+  
   data_F <- DataFormat(data=data, subject = subject, fixed_X0.models = fixed_X0.models,
                        randoms_X0.models = randoms_X0.models, fixed_DeltaX.models = fixed_DeltaX.models, 
                        randoms_DeltaX.models = randoms_DeltaX.models, mod_trans.model = mod_trans.model, 
                        outcomes = outcomes, nD = nD, link=link, knots = knots, zitr= zitr, ide = ide, 
-                       Time = Time, Survdata = Survdata, DeltaT=DeltaT)
+                       Time = Time, Survdata = Survdata, basehaz = basehaz, fixed.survival.models =fixed.survival.models, DeltaT=DeltaT, assoc = assoc, truncation = truncation)
 
   K <- data_F$K #  number of markers
   vec_ncol_x0n <- data_F$vec_ncol_x0n # number of parameters on initial level of processes
@@ -71,23 +78,21 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
     if(!is.null(data_F$Event))
       cat("Initialisation not computed for joint models")
     
-    if(all(link=="linear")){ #if K>1 & is.null(paras.ini) &
+
     paras.ini <- f_paras.ini(data = data, outcomes = outcomes, mapped.to.LP = mapping.to.LP, fixed_X0.models = fixed_X0.models, fixed_DeltaX.models = fixed_DeltaX.models,  
                                       randoms_DeltaX.models = randoms_DeltaX.models, nb_RE = nb_RE, mod_trans.model = mod_trans.model, 
-                                      subject = subject, Time = Time, link = link, knots = knots, #zitr = zitr, ide = ide,
+                                      subject = subject, Time = Time, link = link, knots = knots, zitr = zitr, ide = ide,
+                                      MCnr = MCnr, type_int = type_int,
+                                      Survdata = Survdata, basehaz = basehaz,
                                       DeltaT = DeltaT, maxiter = univarmaxiter, epsd = epsd, nproc = nproc, print.info = print.info)
-    #CInLPN:::
-    }else{
-     paras.ini <- f_paras.ini(data = data, outcomes = outcomes, mapped.to.LP = mapping.to.LP, fixed_X0.models = fixed_X0.models, fixed_DeltaX.models = fixed_DeltaX.models,  
-                              randoms_DeltaX.models = randoms_DeltaX.models, nb_RE = nb_RE, mod_trans.model = mod_trans.model, 
-                              subject = subject, Time = Time, link = link, knots = knots, zitr = zitr, ide = ide,
-                              DeltaT = DeltaT, maxiter = univarmaxiter, epsd = epsd, nproc = nproc, print.info = print.info)
-    }
   }
   npara_k <- sapply(outcomes, function(x) length(grep(x, names(data.frame(data_F$Mod.MatrixY)))))
 
   paras <- Parametre(K=K, nD = nD, vec_ncol_x0n, n_col_x, nb_RE, indexparaFixeUser = indexparaFixeUser, 
-                     paraFixeUser = paraFixeUser, L = L, ncolMod.MatrixY = ncolMod.MatrixY, paras.ini=paras.ini, link = link, npara_k = npara_k)
+                     paraFixeUser = paraFixeUser, L = L, ncolMod.MatrixY = ncolMod.MatrixY, paras.ini=paras.ini, 
+                     link = link, npara_k = npara_k,
+                     Survdata = Survdata, basehaz = basehaz, knots_surv = knots_surv, assoc = assoc, truncation = truncation,
+                     data = data, outcomes = outcomes, df= data_F$df, nE = data_F$nE, np_surv = data_F$np_surv)
 
   if_link <- rep(0,K)
   for(k in 1:K){
@@ -131,13 +136,18 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
     paras$ind_seq_i <- 0
   }
 
+  if(!is.null(Survdata)){
+    paras$basehaz <- basehaz
+  }
   # estimation
-  est <- CInLPN2.estim(K = K, nD = nD, mapping.to.LP = mapping.to.LP, data = data_F, if_link = if_link, DeltaT = DeltaT, MCnr = MCnr, nmes = nmes,
+  est <- CInLPN2.estim(K = K, nD = nD, mapping.to.LP = mapping.to.LP, data = data_F, if_link = if_link, 
+                      DeltaT = DeltaT, MCnr = MCnr, nmes = nmes, data_surv = Survdata, 
                       paras = paras, maxiter = maxiter, nproc = nproc, epsa = epsa, epsb = epsb,
                       epsd = epsd, print.info = print.info)
 
   res <- list(conv = est$istop, v = est$v, best = est$b, ca = est$ca, cb = est$cb, rdm = est$rdm, 
-              niter = est$iter, coefficients = est$coefficients, posfix = est$posfix)
+              #niter = est$iter, 
+              niter = est$ni, coefficients = est$coefficients, posfix = est$posfix)
   
   #   # fitted value and correlation matrix
   #   m <- length(data$tau)

@@ -18,12 +18,13 @@
 #'
 #' @return CInLPN2 object
 
-CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, DeltaT=1.0, MCnr = NULL, nmes = NULL, paras, 
+CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, DeltaT=1.0, MCnr = NULL, nmes = NULL, data_surv = NULL, paras, 
                          maxiter = 500, nproc = 1, epsa =0.0001, epsb = 0.0001,epsd= 0.001, print.info = FALSE){
   cl <- match.call()
   #  non parall Optimisation 
   # package loading
-  
+
+  browser()
   debug=0
   if(debug==1){
     browser()
@@ -33,9 +34,13 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, DeltaT=
            m_is = data$m_i, Mod_MatrixY = data$Mod.MatrixY, Mod_MatrixYprim = data$Mod.MatrixYprim, df=data$df,
            x = data$x, z = data$z, q = data$q,nb_paraD = data$nb_paraD,
            x0 = data$x0, z0 = data$z0, q0 = data$q0,
+           data_surv = as.matrix(data_surv), basehaz = ifelse(paras$basehaz=="Weibull", 0, 1), knots_surv = paras$knots_surv, 
+           np_surv = paras$np_surv, survival = (!is.null(data_surv)), assoc =  paras$assoc, truncation = paras$truncation, 
+           nE = data$nE, Xsurv1 = data$Xsurv1, Xsurv2 = data$Xsurv2,
            if_link = if_link, zitr = data$zitr, ide = data$ide,
-           tau = data$tau, tau_is=data$tau_is,
-           modA_mat = data$modA_mat, DeltaT)
+           tau = data$tau, tau_is=data$tau_is, 
+           modA_mat = data$modA_mat, DeltaT, modA_mat_predGK_t = data$modA_mat_pred_t, modA_mat_predGK_t0 = data$modA_mat_pred_t0,
+           pt_GK_t = data$pt_GK_t, pt_GK_t0 = data$pt_GK_t0)
     
     CInLPN:::Loglik(K = K, nD = nD, mapping =  mapping.to.LP, paras$paraOpt,  paraFixe = paras$paraFixe, posfix = paras$posfix, 
                     m_is = data$m_i, Mod_MatrixY = data$Mod.MatrixY, Mod_MatrixYprim = data$Mod.MatrixYprim, df=data$df,
@@ -91,7 +96,7 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, DeltaT=
     stop("Package marqLevAlg required for the optimization process")
     
   }
-  
+
   # (res <- Loglik(paraOpt = paras$paraOpt, DeltaT=DeltaT, paraFixe = paras$paraFixe, posfix = paras$posfix,
   #                K = K, nD = nD, mapping = mapping.to.LP, m_is = data$m_i, if_link = if_link,
   #                Mod_MatrixY = data$Mod.MatrixY, Mod_MatrixYprim = data$Mod.MatrixYprim, df=data$df,

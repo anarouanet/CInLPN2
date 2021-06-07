@@ -538,9 +538,9 @@ cout << " log_Jac_Phi "<< log_Jac_Phi <<endl<< " Ytildi_nu_i_ui "<< Ytildi_nu_i_
 
           double vraisr_surv=1;
           if(survival){
-            cout << " f_survival_ui "<<endl;
+          cout << " f_survival_ui "<<endl;
             vraisr_surv = f_survival_ui(ui_r, t_0i, t_i, delta_i, xti1, xti2, param_surv, param_basehaz, basehaz, knots_surv, assoc, truncation,
-                                        nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, modA_mat_predGK_ti, modA_mat_predGK_t0i,
+                                        nD, tau, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, modA_mat_predGK_ti, modA_mat_predGK_t0i,
                                         vec_alpha_ij);
           }
 
@@ -902,6 +902,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
       ipara += (np_surv(k) + nq_s);
     }
   }
+  cout << " check here np_surv " <<endl;
   
   int nb_RE = sum(sum(q0)+sum(q));
   Mat<double> matD = DparChol(nb_RE, alpha_D);

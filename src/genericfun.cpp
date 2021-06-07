@@ -1157,56 +1157,59 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
                      arma::mat& xi, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::mat& zi,
                      arma::mat& modA_mat_predGK_ti, arma::mat& modA_mat_predGK_t0i, arma::vec& vec_alpha_ij){
 
+  
   double vraisT_ui=1;
-  mat surv (1,1);
-  mat haz(1,1);
-  haz(0,0) = 1;
-  double fti ;
-  double surv0 = 1;
-  
-  mat exp_X (1,1);
-  
-  if(assoc <= 2){// random intercept (0), random slope (1) or both (2)
-    exp_X = xti1*param_surv(span(0, xti1.size()-1)).t();
-    
-    if(assoc == 0){
-      exp_X += ui_r(0)*param_surv(span(xti1.size(), param_surv.size()-1));
-    }else if(assoc == 1){
-      exp_X += ui_r(1)*param_surv(span(xti1.size(), param_surv.size()-1));
-    }else if(assoc == 2){
-      exp_X += ui_r.t()*param_surv(span(xti1.size(), param_surv.size()-1));
-    }
-    exp_X = exp(exp_X);
-    
-    
-    surv = fct_risq_base(t_i, param_basehaz, basehaz, knots_surv, true);
-    surv *= exp_X(0,0); //on the log scale
-    surv = exp(surv);
-    
-    if(delta_i==1){
-      haz = fct_risq_base(t_i, param_basehaz, basehaz, knots_surv, false);
-      haz *= exp_X;
-    }
-    
-    fti = surv(0,0)*haz(0,0);
-    
-    if(truncation){
-      surv0 = fct_risq_base(t_0i, param_basehaz, basehaz, knots_surv, true);
-      surv0 *= exp_X(0,0); //on the log scale
-      surv0 = exp(surv0);     
-    }
-
-    
-  }else{
-    cout <<" fct_risq_Konrod "<<endl;
-    double survie = fct_risq_Konrod(t_i, t_0i, xti1, xti2, ui_r, delta_i, param_basehaz, basehaz, param_surv, knots_surv, assoc, truncation,
-                                    nD, tau, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, modA_mat_predGK_ti, modA_mat_predGK_t0i,
-                                    vec_alpha_ij);
-  }
- 
-  fti /= surv0;
-  fti = log(fti);
-  cout << " fti "<< fti<<endl;
+//   if(2<1){
+//   mat surv (1,1);
+//   mat haz(1,1);
+//   haz(0,0) = 1;
+//   double fti ;
+//   double surv0 = 1;
+//   
+//   mat exp_X (1,1);
+// 
+//   if(assoc <= 2){// random intercept (0), random slope (1) or both (2)
+//     exp_X = xti1*param_surv(span(0, xti1.size()-1)).t();
+//     
+//     if(assoc == 0){
+//       exp_X += ui_r(0)*param_surv(span(xti1.size(), param_surv.size()-1));
+//     }else if(assoc == 1){
+//       exp_X += ui_r(1)*param_surv(span(xti1.size(), param_surv.size()-1));
+//     }else if(assoc == 2){
+//       exp_X += ui_r.t()*param_surv(span(xti1.size(), param_surv.size()-1));
+//     }
+//     exp_X = exp(exp_X);
+//     
+//     
+//     surv = fct_risq_base(t_i, param_basehaz, basehaz, knots_surv, true);
+//     surv *= exp_X(0,0); //on the log scale
+//     surv = exp(surv);
+//     
+//     if(delta_i==1){
+//       haz = fct_risq_base(t_i, param_basehaz, basehaz, knots_surv, false);
+//       haz *= exp_X;
+//     }
+//     
+//     fti = surv(0,0)*haz(0,0);
+//     
+//     if(truncation){
+//       surv0 = fct_risq_base(t_0i, param_basehaz, basehaz, knots_surv, true);
+//       surv0 *= exp_X(0,0); //on the log scale
+//       surv0 = exp(surv0);     
+//     }
+// 
+//     
+//   }else{
+//     cout <<" fct_risq_Konrod "<<endl;
+//     double survie = fct_risq_Konrod(t_i, t_0i, xti1, xti2, ui_r, delta_i, param_basehaz, basehaz, param_surv, knots_surv, assoc, truncation,
+//                                     nD, tau, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, modA_mat_predGK_ti, modA_mat_predGK_t0i,
+//                                     vec_alpha_ij);
+//   }
+//  
+//   fti /= surv0;
+//   fti = log(fti);
+//   cout << " fti "<< fti<<endl;
+// }
  return(vraisT_ui); 
 }
 

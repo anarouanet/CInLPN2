@@ -77,13 +77,11 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
 
     if(!is.null(data_F$Event))
       cat("Initialisation not computed for joint models")
-    
-
+  
     paras.ini <- f_paras.ini(data = data, outcomes = outcomes, mapped.to.LP = mapping.to.LP, fixed_X0.models = fixed_X0.models, fixed_DeltaX.models = fixed_DeltaX.models,  
                                       randoms_DeltaX.models = randoms_DeltaX.models, nb_RE = nb_RE, mod_trans.model = mod_trans.model, 
-                                      subject = subject, Time = Time, link = link, knots = knots, zitr = zitr, ide = ide,
-                                      MCnr = MCnr, type_int = type_int,
-                                      Survdata = Survdata, basehaz = basehaz,
+                                      subject = subject, MCnr = MCnr, type_int = type_int,
+                                      Survdata = Survdata, basehaz = basehaz, Time = Time, link = link, knots = knots, zitr = zitr, ide = ide,
                                       DeltaT = DeltaT, maxiter = univarmaxiter, epsd = epsd, nproc = nproc, print.info = print.info)
   }
   npara_k <- sapply(outcomes, function(x) length(grep(x, names(data.frame(data_F$Mod.MatrixY)))))

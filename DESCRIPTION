@@ -23,6 +23,6 @@ LinkingTo:
     RcppArmadillo
 Depends: 
     R (>= 3.4.3)
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.0
 LazyData: true
 URL: https://github.com/bachirtadde/CInLPN

@@ -39,8 +39,7 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, DeltaT=
            nE = data$nE, Xsurv1 = data$Xsurv1, Xsurv2 = data$Xsurv2,
            if_link = if_link, zitr = data$zitr, ide = data$ide,
            tau = data$tau, tau_is=data$tau_is, 
-           modA_mat = data$modA_mat, DeltaT, modA_mat_predGK_t = data$modA_mat_pred_t, modA_mat_predGK_t0 = data$modA_mat_pred_t0,
-           pt_GK_t = data$pt_GK_t, pt_GK_t0 = data$pt_GK_t0)
+           modA_mat = data$modA_mat, DeltaT)
     
     CInLPN:::Loglik(K = K, nD = nD, mapping =  mapping.to.LP, paras$paraOpt,  paraFixe = paras$paraFixe, posfix = paras$posfix, 
                     m_is = data$m_i, Mod_MatrixY = data$Mod.MatrixY, Mod_MatrixYprim = data$Mod.MatrixYprim, df=data$df,

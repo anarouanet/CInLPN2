@@ -151,7 +151,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
                     arma::mat& G_mat_prod_A_0_to_tau,  double DeltaT, arma::vec& ParamTransformY, arma::vec& df, arma::vec& if_link,  
                     arma::vec& zitr,  arma::mat& ide, arma::vec& paras_k,
                     double t_0i, double t_i, int delta_i, arma::vec& xti1, arma::vec& xti2, int basehaz, arma::vec& knots_surv, bool survival, arma::vec& param_surv, arma::vec& param_basehaz, int assoc, bool truncation, 
-                    arma::mat& seq_i,  int type_int, arma::vec& ind_seq_i, int MCnr, int sub, arma::mat& modA_mat_predGK_ti, arma::mat& modA_mat_predGK_t0i, arma::vec& vec_alpha_ij){
+                    arma::mat& seq_i,  int type_int, arma::vec& ind_seq_i, int MCnr, int sub, int nE){
   
   // ###### compute  Yi - E(Yi) ##### deleting missing values #####
   vec Ytildi_nu_i = YiNui(nD, matrixP, tau, tau_i, DeltaT, Ytildi, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i);
@@ -315,7 +315,8 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     // ##### computering of the likelihood ########################## all linear
     double loglik_i = -0.5*(sum(k_i)*log(2*M_PI) + log(abs_det_matVY_i) + as_scalar(Ytildi_nu_i.t()*inv_sympd(matVY_i)*Ytildi_nu_i)) + log_Jac_Phi;
     //double loglik_i0 = -0.5*(sum(k_i)*log(2*M_PI) + log(abs_det_matVY_i) + as_scalar(Ytildi_nu_i.t()*inv_sympd(matVY_i)*Ytildi_nu_i)) ;//+ log_Jac_Phi;
-    //cout << " loglik_i "<<loglik_i<<endl;
+    cout << " check loglik_i "<<loglik_i <<endl;
+
     lvrais = loglik_i;
   }
   
@@ -398,7 +399,12 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
         
       }else {//QMC
         ui = seq_i * chol_var_RE.t();
+        //ui = chol_var_RE.t()* seq_i.t();
+        mat uii = chol_var_RE * randn< Mat<double> >(chol_var_RE.n_rows, MCnr);
+        ui = uii.t();
       }        
+
+      //cout << " Vi "<< ZI*var_RE*ZI.t()<<endl<<endl;
       
       // if(type_int<=0){// MC or aMC
       //   Lambda = matB * randn< Mat<double> >(matB.n_rows, MCnr);
@@ -414,19 +420,21 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
         double vrais =0;
         int k_t=0;
         double log_Jac_Phi=0;
+        double vraisr_surv=1;
+        
+        double vrais_survtot =0;
+        double vraisY_tot =0;
         
         for(int nr=0; nr < MCnr; nr++){
-          cout << " nr "<<nr << endl;
+
           vec ui_r = ui.row(nr).t();
-          //ui_r=  zeros<vec>(ui.n_cols);
-          vec Lambda_nr = matNui_ui(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi);
 
-          cout << " Lambda_nr "<<Lambda_nr.t() << endl;
+          vec Lambda_nr = matNui_ui(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi, true);
 
-          double vraisr=1;
+          double vraisr=0;
           int kk = 0;
           for (int k = 0 ; k < K; k++){
-            cout << " k "<< k<<endl;
+
             vec ParaTransformYk = ParamTransformY(span(kk, (kk+df[k]-1)));
 
             if(type_int == -1){ //-1 MC 0 AMC 
@@ -448,12 +456,22 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
                   vec Ytildi_nu_i_ui = vectorise(Ytildi)-Lambda_nr;
                   out2 = -0.5*(sum(k_i)*log(2*M_PI) + log(det(sigMSM)) + as_scalar(Ytildi_nu_i_ui.t()*inv_sympd(sigMSM)*Ytildi_nu_i_ui));
                   vraisr += exp(out2);
-
+                  //if(nr<10)
+                    //cout << " vraisr "<<exp(out2);
+                  //double out_check = -0.5*(sum(k_i)*log(2*M_PI) + log(det(sigMSM)) + as_scalar(Ytildi_nu_i_ui.t()*inv_sympd(sigMSM)*Ytildi_nu_i_ui));
+                  //if(nr<10)
+                    //cout << " ui "<< ui_r.t()<<endl;
+                  // cout << " Lambda_nr "<< Lambda_nr.t()<<endl;
+                  // cout << " Ytildi "<< vectorise(Ytildi).t()<<endl;
+                  // cout << " Ytildi_nu_i_ui "<< Ytildi_nu_i_ui.t()<<endl;
+                  // cout << " out2 "<< out2 << " exp(out2) "<< exp(out2) <<endl;
+                  // cout << " sum(k_i) "<< sum(k_i) <<endl;
+                  //cout << " sigMSM "<< sigMSM<<endl<<endl;
+                  
+                  
                 if(nr==0)
                   log_Jac_Phi += sum(log(YiwoNA(vectorise(YtildPrimi))));
                 
-cout << " log_Jac_Phi "<< log_Jac_Phi <<endl<< " Ytildi_nu_i_ui "<< Ytildi_nu_i_ui.t()<< endl;
-
               }else if(if_link(k)==2){ // thresholds
                 log_Jac_Phi = 0;
                 
@@ -536,17 +554,20 @@ cout << " log_Jac_Phi "<< log_Jac_Phi <<endl<< " Ytildi_nu_i_ui "<< Ytildi_nu_i_
             kk += df[k];
           }//k
 
-          double vraisr_surv=1;
-          if(survival){
-          cout << " f_survival_ui "<<endl;
-            vraisr_surv = f_survival_ui(ui_r, t_0i, t_i, delta_i, xti1, xti2, param_surv, param_basehaz, basehaz, knots_surv, assoc, truncation,
-                                        nD, tau, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, modA_mat_predGK_ti, modA_mat_predGK_t0i,
-                                        vec_alpha_ij);
-          }
 
+          if(survival){
+            vraisr_surv = f_survival_ui(ui_r, t_0i, t_i, delta_i, xti1, xti2, param_surv, param_basehaz, basehaz, knots_surv, assoc, truncation,
+                                        nD, tau, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, nE);
+          }
+          
+          //if(nr<10)
+          //  cout << " nr "<< nr << " vraisr "<< vraisr<< "vraisr_surv "<< vraisr_surv<< endl;
+          vrais_survtot += vraisr_surv;
+          vraisY_tot += vraisr;
           vrais += vraisr*vraisr_surv;
         }//nr
-
+        cout << endl<< endl<< " vraisYi "<<vraisY_tot/MCnr << " vraisTi "<< vrais_survtot/MCnr << endl;
+        
         vrais /= MCnr;
         lvrais += log(vrais) + log_Jac_Phi;
       }
@@ -833,8 +854,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
               arma::mat& data_surv, int basehaz, arma::vec& knots_surv, arma::vec& np_surv, bool survival, int assoc, bool truncation,
               int nE, arma::mat& Xsurv1, arma::mat& Xsurv2,
               arma::vec& if_link, arma::vec& zitr, arma::vec& ide, 
-              arma::vec& tau, arma::vec& tau_is, arma::mat& modA_mat, double DeltaT, 
-              arma::mat& modA_mat_predGK_t, arma::mat& modA_mat_predGK_t0, arma::vec& pt_GK_t, arma::vec& pt_GK_t0){
+              arma::vec& tau, arma::vec& tau_is, arma::mat& modA_mat, double DeltaT){
 
   double loglik = 0.e0;
   double loglik2 = 0.e0;
@@ -885,8 +905,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
   ipara += nbParaTransformY;
   
   int nq_s=0; // number parameters for baseline function
-
-  colvec param_surv(sum(np_surv));
+  colvec param_surv = zeros<vec>(sum(np_surv));
   colvec param_basehaz;
   if(survival){
     if(basehaz==0){
@@ -895,15 +914,16 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
       nq_s = knots_surv.size();
     }
     
-    param_basehaz = zeros(nq_s*nE);
+    param_surv = zeros<vec>(sum(np_surv));
+    param_basehaz = zeros<vec>(nq_s*nE);
+    
     for(int k=0; k<nE;k++){
-      param_basehaz = paras(span(ipara,ipara + nq_s -1));
-      param_surv = paras(span(ipara + nq_s,ipara + nq_s + np_surv(k)-1));
+      param_basehaz(span(k*nq_s, (nq_s-1)*(1-k) + (nq_s*nE-1)*k)) = paras(span(ipara,ipara + nq_s -1));
+      param_surv(span(k*np_surv(0), (np_surv(0)-1)*(1-k) + (sum(np_surv)-1)*k)) = paras(span(ipara + nq_s,ipara + nq_s + np_surv(k)-1));
       ipara += (np_surv(k) + nq_s);
     }
   }
-  cout << " check here np_surv " <<endl;
-  
+
   int nb_RE = sum(sum(q0)+sum(q));
   Mat<double> matD = DparChol(nb_RE, alpha_D);
   int n_cols_matD = matD.n_cols;
@@ -980,16 +1000,13 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
     double delta_i;
     vec xti1 = zeros<vec>(Xsurv1.n_cols); 
     vec xti2 = zeros<vec>(Xsurv2.n_cols); 
-    mat modA_mat_predGK_ti;
-    mat modA_mat_predGK_t0i;
-    vec pt_GK_ti;
-    vec pt_GK_t0i;
-    
+
 
     if(survival){
       t_0i = data_surv(n,0);
       t_i = data_surv(n,1);
       delta_i = data_surv(n, 2);
+      
       int n_assoc = 1;
       if(assoc == 2 || assoc == 5){
         n_assoc ++;
@@ -1005,8 +1022,8 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
         }
       }
 
-      modA_mat_predGK_ti = modA_mat_predGK_t(span(n*15, (n+1)*15-1), span(0, modA_mat_predGK_t.n_cols-1));//zeros(15, modA_mat_predGK_t.n_cols);
-      modA_mat_predGK_t0i = modA_mat_predGK_t0(span(n*15, (n+1)*15-1), span(0, modA_mat_predGK_t0.n_cols-1));//zeros(15, modA_mat_predGK_t0.n_cols);
+      //modA_mat_predGK_ti = modA_mat_predGK_t(span(n*15, (n+1)*15-1), span(0, modA_mat_predGK_t.n_cols-1));//zeros(15, modA_mat_predGK_t.n_cols);
+      //modA_mat_predGK_t0i = modA_mat_predGK_t0(span(n*15, (n+1)*15-1), span(0, modA_mat_predGK_t0.n_cols-1));//zeros(15, modA_mat_predGK_t0.n_cols);
     }
 
       
@@ -1026,7 +1043,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
                            z(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_z-1))),alpha_mu0, alpha_mu, matDw, matDw_u, matDu,
                            matB, Sig, G_mat_A_0_to_tau_i, G_mat_prod_A_0_to_tau,  DeltaT, ParamTransformY, df, if_link, zitr, ide, paras_k,
                            t_0i, t_i, delta_i, xti1, xti2, basehaz, knots_surv, survival, param_surv, param_basehaz, assoc, truncation,
-                           sequence, type_int, ind_seq_i, MCnr, n, modA_mat_predGK_ti, modA_mat_predGK_t0i, vec_alpha_ij);
+                           sequence, type_int, ind_seq_i, MCnr, n, nE);
 
     loglik += out1;
 

@@ -503,6 +503,8 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   modA_mat_pred_t <- NULL
   modA_mat_pred_t0 <- NULL
   
+  data_pred_GK <- NULL
+  
   if(assoc>=3){
 
     ptGK_1 <- 0.991455371120812639206854697526329

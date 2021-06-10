@@ -140,8 +140,6 @@ model.matrix and vector of parameters
 double aijt(int t, arma::vec alpha_ijl,  arma::mat modA_mat){
   //modA_mat: model.matrix
   // remember that, length(alpha_ijl) = ncol(modA_mat)
-  cout << " aijt"<< " modA_mat "<< modA_mat.n_rows << " "<< modA_mat.n_cols<< endl
-       << " alpha_ijl "<< alpha_ijl << " t "<< t <<endl;
   double a_ij_t = as_scalar(modA_mat(span(t,t),span(0,modA_mat.n_cols-1))*alpha_ijl);
   return(a_ij_t);
 }
@@ -190,17 +188,15 @@ arma::vec vecaijt( int K, int t, arma::vec& vec_alpha_ij, arma::mat& modA_mat){
 //' 
 // [[Rcpp::export]]
 arma::mat ConstrA(int K, int t, double DeltaT, arma::vec& vec_alpha_ij, arma::mat& modA_mat){
-  cout << " inside constrA"<<endl;
+
   vec a_ij_t = vecaijt(K, t, vec_alpha_ij, modA_mat);
   mat A = zeros<mat>(K,K);
   vec vect = ones(K);
   mat Id = diagmat(vect);
   int p=0;
-  cout << " constrA"<<endl;
-  
+
   for(int i = 0;i< K;i++){
     for(int j = 0;j< K;j++){
-      cout << " i "<< i << " j "<< j <<endl;
       A(i,j) = a_ij_t(p);
       p++;
     }
@@ -228,10 +224,6 @@ arma::mat GmatA0totaui(int K, arma::vec& vec_alpha_ij, arma::vec& tau_i, double 
 
   mat G_mat_A_0_to_tau_i = zeros<mat>(K,K*siz_tau_i);
   for (int i=0; i< siz_tau_i; i++) {
-    cout << "   i "<< endl;
-    cout << " G_mat_A_0_to_tau_i "<<G_mat_A_0_to_tau_i(span(0,K-1),span(K*i,K*i+K-1))<<endl;
-    cout << " tau_i "<<tau_i.t()<<endl;
-    cout << " constrA "<< ConstrA(K, tau_i[i], DeltaT, vec_alpha_ij, modA_mat)<<endl;
     G_mat_A_0_to_tau_i(span(0,K-1),span(K*i,K*i+K-1)) = ConstrA(K, tau_i[i], DeltaT, vec_alpha_ij, modA_mat);
   }
   return (G_mat_A_0_to_tau_i);
@@ -442,7 +434,7 @@ arma::mat matNui(int nD, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arma::
       Mu_t = DeltaT*xi(span(t*nD,(t+1)*nD-1), span(0,n_cols_xi-1))*alpha_mu
       + G_mat_A_0_to_tau_i(span(0,nD-1),span(nD*(t-1),nD*(t-1)+nD-1))*Mu_t;
     }
-    if(t ==tau_i(i)){
+    if(t ==(int)tau_i(i)){
       matNu_i(span(i,i), span(0,nD-1)) = Mu_t.t();
       i++;
     }
@@ -751,13 +743,15 @@ double f_marker(arma::mat& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, a
 //' matric containing at time t
 //' @param ui random effects (baseline and slope) dimension: nD*(1+nq_v) x 1 [ui1, ..., uinD, vi1, ..., vinD]
 //' @param zi model.matrix for random change's submodel
+//' @param ordered indicator if tau_i is ordered or not (usually ordered, except for GK nodes)
 //' 
 //' @return a vector
 //' @export
 //' 
 // [[Rcpp::export]]
 arma::vec matNui_ui(int nD, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arma::colvec& alpha_mu0,
-                 arma::mat& xi, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::vec& randomeffects, arma::mat& zi){
+                 arma::mat& xi, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::vec& randomeffects, arma::mat& zi,
+                 bool ordered){
   // matNu_i : matrix of size xi.n_rows*nD containing expectation of processes
 
   int n_cols_xi = xi.n_cols;
@@ -775,16 +769,24 @@ arma::vec matNui_ui(int nD, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arm
   for(int t=0; t< T; t++){
     if(t==0){
       Mu_t = x0i*alpha_mu0+ ui;
-    }
-    else{
+    }else{
       Mu_t = DeltaT*(xi(span(t*nD,(t+1)*nD-1), span(0,n_cols_xi-1))*alpha_mu +
       zi(span(t*nD,(t+1)*nD-1), span(0,n_cols_zi-1))*vi) +
       G_mat_A_0_to_tau_i(span(0,nD-1),span(nD*(t-1),nD*(t-1)+nD-1))*Mu_t;
     }
 
-    if(t ==tau_i(i)){
-      matNu_i(span(i,i), span(0,nD-1)) = Mu_t.t();
-      i++;
+
+    if(ordered){
+      if(t ==(int)tau_i(i)){
+        matNu_i(span(i,i), span(0,nD-1)) = Mu_t.t();
+        i++;
+      }
+    }else{
+      for(int ii=0; ii< tau_i.size(); ii++){
+        if(t ==(int)tau_i(ii)){
+          matNu_i(span(ii,ii), span(0,nD-1)) = Mu_t.t();
+        }
+      }
     }
   }
 
@@ -945,18 +947,37 @@ double f_marker_ui(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau
 }
 
 // /*============================================================
-// Computes the baseline risk or log survival (without regression parameters) if lsurv == true
+// Computes the hazard risk or survival if surv == true
 // ==============================================================*/
-double fct_risq_base(double t,  arma::vec& param_basehaz, int basehaz, arma::vec& knots_surv, bool lsurv){
+//' @param gammaX: vector of linear predictors for 1 and 2 transitions (including association on random effects if assoc <=2)
+//' 
+double fct_risq_base(double t,  int status, arma::vec& param_basehaz, int basehaz, arma::vec& knots_surv, int nE, arma::vec& gammaX, bool surv){
   double out;
   
   if(basehaz==0){
     
-    if(lsurv){
-      out = -pow(t/param_basehaz(1),param_basehaz(0));
+    if(nE == 1){
+      if(surv){
+        out = exp(-pow(t/param_basehaz(1),param_basehaz(0))* exp(gammaX(0)));
+      }else{
+        out = param_basehaz(0)/param_basehaz(1)*pow(t/param_basehaz(1),(param_basehaz(0)-1))* exp(gammaX(0));
+      }
+      
     }else{
-      out = param_basehaz(0)/param_basehaz(1)*pow(t/param_basehaz(1),(param_basehaz(0)-1));
+      if(surv){
+        out = exp(-pow(t/param_basehaz(1),param_basehaz(0))* exp(gammaX(0)))* exp(-pow(t/param_basehaz(3),param_basehaz(2))* exp(gammaX(1)));
+
+      }else{
+        if(status == 0){
+          out = 1;
+        }else if(status == 1){
+          out = param_basehaz(0)/param_basehaz(1)*pow(t/param_basehaz(1),(param_basehaz(0)-1))* exp(gammaX(0));
+        }else if(status == 2){
+          out = param_basehaz(2)/param_basehaz(3)*pow(t/param_basehaz(3),(param_basehaz(2)-1))* exp(gammaX(1));
+        }
+      }
     }
+
     
   }else{ // Splines
     
@@ -969,31 +990,85 @@ double fct_risq_base(double t,  arma::vec& param_basehaz, int basehaz, arma::vec
 // /*============================================================
 // Computes the baseline risk
 // ==============================================================*/
-vec fct_pred_curlev_slope(arma::vec& t, arma::colvec& xti1, arma::colvec& xti2, arma::vec& ui_r, int delta_i, arma::colvec& param_surv, int assoc, 
+//' @param ptGK_delta: vector of projections of GK nodes onto grid of delta
+//' @param ptGK: vector of individual GK nodes
+//' @param alpha: vector of association parameters
+vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& xti1, arma::colvec& xti2, arma::vec& ui_r, int delta_i, arma::colvec& param_surv, int assoc, 
                              int nD, double DeltaT, arma::mat& x0i, arma::colvec& alpha_mu0, arma::mat& xi, arma::colvec& alpha_mu,
-                             arma::mat& G_mat_A_0_to_tau_i, arma::mat& zi){
+                             arma::mat& G_mat_A_0_to_tau_i, arma::mat& zi, arma::vec& param_basehaz, int basehaz, arma::vec& knots_surv, arma::vec& gamma_X, int nE, bool survfunc){
 
-  vec out = zeros(t.size());
-  vec curlev = zeros(t.size());
-  vec curslope = zeros(t.size());
+  vec out = zeros(ptGK_delta.size());
+  vec curlev = zeros(ptGK_delta.size());
+  vec curslope = zeros(ptGK_delta.size());
   
-  cout << " times "<< t.t()<<endl;
-
-  if(assoc == 3 || assoc == 5){
-    curlev = matNui_ui(nD, t, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi);
-    cout << " curlev "<< curlev.t()<<endl;
+  int nA = 1; // length of vector of association parameters
+  if(assoc == 5)
+    nA++;
+  
+  vec alpha = zeros(nA*nE) ; // association params for event 1, then for event 2
+  
+  for( int i=0; i<nE; i++){
+    for(int j=0; j<nA; j++){
+      alpha(i*nA+j)= param_surv(xti1.size() + i*(nA + xti2.size()) + j);
+    }
   }
-  
-  if(assoc == 4 || assoc == 5){
+
+  if(survfunc){ // Computation of the survival function
+    vec cumrisq(ptGK_delta.size());
+    
+    for( int i=0; i<ptGK.size(); i++) // Cumulative risk with regression parameters
+      cumrisq(i) = -log(fct_risq_base(ptGK(i), 0, param_basehaz, basehaz, knots_surv, nE, gamma_X, true));
+
+    if(assoc == 3 || assoc == 5){ // prediction Y(t)
+      
+      curlev = matNui_ui(nD, ptGK_delta, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi, false);
+      
+      for( int i=0; i<curlev.size(); i++)
+        curlev(i) = exp(alpha(DeltaT-1)*curlev(i));
+    }
+
+    if(assoc == 4 || assoc == 5){
+      cout << " to develop !"<<endl;
+    }
+    
+    for( int i=0; i<ptGK.size(); i++)
+      out(i) = cumrisq(i)*curlev(i);
+    
+    //if(interactions)
+    // arma::colvec& xti1, arma::colvec& xti2, 
+    // arma::colvec& param_surv, 
+
+  }else{ // Computation of the risk
+
+    if(DeltaT>0){
+
+      vec risq = zeros<vec>(ptGK_delta.size());
+      for( int i=0; i<ptGK_delta.size(); i++) // lambda0(t)exp(gammaX)
+        risq(i) = fct_risq_base(ptGK(i), delta_i, param_basehaz, basehaz, knots_surv, nE, gamma_X, false);
+      
+      if(assoc == 3 || assoc == 5){ // prediction Y(t)
+
+        curlev = matNui_ui(nD, ptGK_delta, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi, false);
+
+        for( int i=0; i<curlev.size(); i++)
+          curlev(i) = exp(alpha(DeltaT-1)*curlev(i));
+
+      }
+      
+      if(assoc == 4 || assoc == 5){
+        cout << " to develop !"<<endl;
+      }
+
+      for( int i=0; i<ptGK.size(); i++)
+        out(i) = risq(i)*curlev(i);
+
+    }else{
+      for( int i=0; i<ptGK.size(); i++)
+        out(i) = 1;
+    }
 
   }
-  
-  
-  //if(interactions)
-  // arma::colvec& xti1, arma::colvec& xti2, 
-  // arma::colvec& param_surv, 
-  out = curlev + curslope;
-  
+
   return(out);
 }
 //===========================================================================================================
@@ -1003,9 +1078,9 @@ vec fct_pred_curlev_slope(arma::vec& t, arma::colvec& xti1, arma::colvec& xti2, 
 // ==============================================================*/
 // combines a 7-point Gauss rule with a 15-point Kronrod rule (Kahaner, Moler & Nash 1989, §5.5).
 // Gauss points are incorporated into the Kronrod points
-double fct_risq_Konrod(double t_i, double t_0i, arma::colvec& xti1, arma::colvec& xti2, arma::vec& ui_r, int delta_i, arma::vec& param_basehaz, int basehaz, arma::colvec& param_surv, arma::vec& knots_surv, int assoc, bool truncation,
+double fct_risq_Konrod(double t_i, arma::colvec& xti1, arma::colvec& xti2, arma::vec& ui_r, int delta_i, arma::vec& param_basehaz, int basehaz, arma::colvec& param_surv, arma::vec& knots_surv, int assoc, bool truncation,
                        int nD, arma::vec& tau, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arma::colvec& alpha_mu0, arma::mat& xi, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::mat& zi,
-                       arma::mat& modA_mat_predGK_ti, arma::mat& modA_mat_predGK_t0i, arma::vec& vec_alpha_ij){
+                       int nE, arma::vec& gamma_X){
 
   // Konrod weights
   vec wgk(8);
@@ -1054,81 +1129,46 @@ double fct_risq_Konrod(double t_i, double t_0i, arma::colvec& xti1, arma::colvec
   ptGK(14) = 0.000000000000000000000000000000000;
   
   vec risq_GK_event = zeros(15); // baseline hazard
-  vec pred_GK_event = zeros(15); // prediction f(ui,t)
-  vec risq_GK_entry = zeros(15); // baseline hazard for truncation
-  vec pred_GK_entry = zeros(15); // prediction f(ui,t) for truncation
-  
-  double surv_t0;
+  vec pred_GK_event = zeros(15); // prediction Y(t)
+
   double surv=0;
   vec fct_pred_surv = zeros(15);
-  vec fct_pred_surv0 = zeros(15);
-  int L = (int)modA_mat_predGK_ti.n_cols;
-    
-  // GK nodes that correspond to [0, t_i] or [0, t_0i]
-  vec ptGK_ti = zeros(15);
-  vec ptGK_t0i = zeros(15);
+  vec ptGK_ti = zeros(15); // GK nodes that correspond to [0, t_i] 
+  vec deltaT_ptGK_ti = zeros(15); // projection of GK nodes onto the deltaT grid
+  
   
   for( int i=0; i<15; i++){
+    // projection of GK nodes onto [0, ti]
     ptGK_ti(i) = ptGK(i)*(t_i-0)/2+(t_i+0)/2;
-    
-    if(truncation)
-      ptGK_t0i(i) = ptGK(i)*(t_0i-0)/2+(t_0i+0)/2;
-    
-  }
-
-  // Correspondance ptGK_ti et DeltaT
-  vec deltaT_ptGK_ti = zeros(15); 
-  vec deltaT_ptGK_t0i = zeros(15); 
-
-  for( int i=0; i<15; i++){
-    deltaT_ptGK_ti(i) = floor(ptGK_ti(i)/ (double) DeltaT);
-    
-    if(truncation)
-      deltaT_ptGK_t0i(i) = floor(ptGK_t0i(i)/ (double)  DeltaT);
+    // Correspondance ptGK_ti and tau_i for computation of current Y
+    deltaT_ptGK_ti(i) = floor(ptGK_ti(i)/ (double) DeltaT); // search for last tau_i before ptGK_ti(i)
+    // int r = 0;
+    // while (tau_i(r)<=ptGK_ti(i)){
+    //   r++;
+    // }
+    // deltaT_ptGK_ti(i) = tau_i(r-1);
   }
   
-  //baseline hazard ptGK
-  for( int i=0; i<15; i++){
-    risq_GK_event(i) = fct_risq_base(ptGK_ti(i), param_basehaz, basehaz, knots_surv, false);
-    if(truncation)
-      risq_GK_entry(i) = fct_risq_base(ptGK_t0i(i), param_basehaz, basehaz, knots_surv, false); 
-    
-  }
+  risq_GK_event= fct_pred_curlev_slope(deltaT_ptGK_ti, ptGK_ti, xti1, xti2, ui_r, delta_i, param_surv, assoc, 
+                                       nD, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, param_basehaz, basehaz, knots_surv, 
+                                       gamma_X, nE, false);
+
+  //survival as a function of Y(t) for the 15 time points
+  pred_GK_event= fct_pred_curlev_slope(deltaT_ptGK_ti, ptGK_ti, xti1, xti2, ui_r, delta_i, param_surv, assoc, 
+                                       nD, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, param_basehaz, basehaz, knots_surv, 
+                                       gamma_X, nE, true);
   
-  cout << " vec_alpha_ij " << vec_alpha_ij.t()<< endl;
-  cout << " konrod developper " << endl;
-  
-  cout << " deltaT_ptGK_ti "<< deltaT_ptGK_ti.t() <<endl;
-
-
-  if(2>1){
-    //prediction of f(ui,t) for the 15 time points
-    pred_GK_event= fct_pred_curlev_slope(deltaT_ptGK_ti, xti1, xti2, ui_r, delta_i, param_surv, assoc, 
-                                         nD, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi);
-    if(truncation){
-      pred_GK_event= fct_pred_curlev_slope(deltaT_ptGK_t0i, xti1, xti2, ui_r, delta_i, param_surv, assoc, 
-                                           nD, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi);    
-      }
-    
-   }
-
   // produit des 2 vecteurs
   for( int i=0; i<15; i++){
     fct_pred_surv(i) = risq_GK_event(i) * pred_GK_event(i);
-    if(truncation)
-      fct_pred_surv0(i) = risq_GK_entry(i) * pred_GK_entry(i);
   }
   
   for( int i=0; i<15; i++){
     surv += wgk_15(i)*fct_pred_surv(i);
-    if(truncation)
-      surv_t0 += wgk_15(i)* fct_pred_surv0(i);
   }
 
   surv *= t_i/2; 
-  if(truncation)
-    surv_t0*= t_0i/2; 
-  
+
   return(surv); 
 }
 
@@ -1155,67 +1195,71 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
                      arma::vec& param_basehaz, int basehaz, arma::vec& knots_surv, int assoc, bool truncation,
                      int nD, arma::vec& tau, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arma::colvec& alpha_mu0,
                      arma::mat& xi, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::mat& zi,
-                     arma::mat& modA_mat_predGK_ti, arma::mat& modA_mat_predGK_t0i, arma::vec& vec_alpha_ij){
+                     int nE){
 
-  
-  double vraisT_ui=1;
+  double vraisT_ui=0;
 
   mat surv (1,1);
+  surv(0,0) = 0;
   mat haz(1,1);
   haz(0,0) = 1;
   double fti ;
   double surv0 = 1;
+  vec  gamma_X(nE);
+  vec gammaX = zeros(nE,1);
+  
 
-
-
+  int nA = 1;
+  if(assoc == 3) //random intercept + slope
+    nA ++;
+  
+  gammaX(span(0,0), span(0,0)) = xti1.t()*param_surv(span(0, xti1.size()-1));
+  if(nE==2)
+    gammaX(span(1,1), span(0,0)) = xti2.t()*param_surv(span(xti1.size() + nA, xti1.size() + nA + xti2.size()-1));
+  
   if(assoc <= 2){// random intercept (0), random slope (1) or both (2)
     
-    mat exp_X (nE,1);
+    int tp = xti1.size();
     for( int j=0; j<nE; j++){
-      if(j ==0)
-        exp_X(j, 0) = xti1*param_surv(span(0, xti1.size()-1)).t();
-      
+
+      if(assoc == 0){
+        gammaX(span(j,j), span(0,0)) += ui_r(0)*param_surv(tp);
+      }else if(assoc == 1){
+        gammaX(span(j,j), span(0,0)) += ui_r(1)*param_surv(tp);
+      }else if(assoc == 2){
+        gammaX(span(j,j), span(0,0)) += ui_r.t()*param_surv(span(tp, tp+nA));
+      }
+      tp += nA + xti2.size();
     }
+
+
+    for( int j=0; j<nE; j++)
+      gamma_X(j) = gammaX(j,0);
+
+    surv(0,0) = fct_risq_base(t_i, 0, param_basehaz, basehaz, knots_surv, nE, gamma_X, true);
+    haz(0,0) = fct_risq_base(t_i, delta_i, param_basehaz, basehaz, knots_surv, nE, gamma_X, false);
+
     
-
-    if(assoc == 0){
-      exp_X += ui_r(0)*param_surv(span(xti1.size(), param_surv.size()-1));
-    }else if(assoc == 1){
-      exp_X += ui_r(1)*param_surv(span(xti1.size(), param_surv.size()-1));
-    }else if(assoc == 2){
-      exp_X += ui_r.t()*param_surv(span(xti1.size(), param_surv.size()-1));
-    }
-    exp_X = exp(exp_X);
-
-
-    surv = fct_risq_base(t_i, param_basehaz, basehaz, knots_surv, true);
-    surv *= exp_X(0,0); //on the log scale
-    surv = exp(surv);
-
-    if(delta_i==1){
-      haz = fct_risq_base(t_i, param_basehaz, basehaz, knots_surv, false);
-      haz *= exp_X;
-    }
-
     fti = surv(0,0)*haz(0,0);
-
+    
     if(truncation){
-      surv0 = fct_risq_base(t_0i, param_basehaz, basehaz, knots_surv, true);
-      surv0 *= exp_X(0,0); //on the log scale
-      surv0 = exp(surv0);
+      surv0 = fct_risq_base(t_0i, 0, param_basehaz, basehaz, knots_surv, nE, gamma_X, true);
     }
-
 
   }else{
-    cout <<" fct_risq_Konrod "<<endl;
-    double survie = fct_risq_Konrod(t_i, t_0i, xti1, xti2, ui_r, delta_i, param_basehaz, basehaz, param_surv, knots_surv, assoc, truncation,
-                                    nD, tau, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, modA_mat_predGK_ti, modA_mat_predGK_t0i,
-                                    vec_alpha_ij);
+
+    for( int j=0; j<nE; j++)
+      gamma_X(j) = gammaX(j,0);
+    
+    surv(0,0) = fct_risq_Konrod(t_i, xti1, xti2, ui_r, delta_i, param_basehaz, basehaz, param_surv, knots_surv, assoc, truncation,
+                                    nD, tau, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, nE, gamma_X);
+    if(truncation){
+      surv0 = fct_risq_Konrod(t_0i, xti1, xti2, ui_r, 0, param_basehaz, basehaz, param_surv, knots_surv, assoc, truncation,
+                                    nD, tau, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, nE, gamma_X);
+    }
   }
 
   fti /= surv0;
-  fti = log(fti);
-  cout << " fti "<< fti<<endl;
 
  return(vraisT_ui); 
 }

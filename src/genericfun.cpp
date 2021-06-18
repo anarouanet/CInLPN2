@@ -950,6 +950,7 @@ double f_marker_ui(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau
 // Computes the hazard risk or survival if surv == true
 // ==============================================================*/
 //' @param gammaX: vector of linear predictors for 1 and 2 transitions (including association on random effects if assoc <=2)
+//' @param status: event status (0: censored, 1: first event, 2:second event)
 //' @param trans: index for computation of survival function on all transitions (-1), on first transition(0), or second transition (1)
 //' when 
 double fct_risq_base(double t,  int status, arma::vec& param_basehaz, int basehaz, arma::vec& knots_surv, int nE, arma::vec& gammaX, bool surv, int trans){
@@ -1010,7 +1011,6 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
                           arma::vec& gamma_X, int nE, bool survfunc, int trans){
   
   vec out = zeros(ptGK_delta.size());
-  out.fill(1);
   vec curlev = zeros(ptGK_delta.size());
   vec curslope = zeros(ptGK_delta.size());
 
@@ -1042,7 +1042,7 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
   
   // Computation of the survival/risk function
   if(survfunc){ // survival function
-    
+    cout << " verif use of fct_pred_curlev_slope for survival computation!! ";
     mat cumrisq(ptGK_delta.size(), nE);
     
     for(int j=0; j<nE; j++){
@@ -1071,28 +1071,24 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
       mat risq = zeros(ptGK_delta.size(),nE);
       
       for(int j=0; j<nE; j++){
-        for( int i=0; i<ptGK.size(); i++) // Instantaneous risk with regression parameters
-          risq(i,j) = fct_risq_base(ptGK(i), j, param_basehaz, basehaz, knots_surv, nE, gamma_X, false, j);
+        for( int i=0; i<ptGK.size(); i++){// Instantaneous risk with regression parameters
+          risq(i,j) = fct_risq_base(ptGK(i), j+1, param_basehaz, basehaz, knots_surv, nE, gamma_X, false, j);
+          out(i) += risq(i,j)*exp(alpha(j)*curlev(i));
+        } 
       }
       
       //cout << " risq(i,span(0,nE)) "<<risq(0,span(0,nE))<<endl;
       //cout << " alpha*curlev(0) "<<alpha*curlev(0)<<endl;
       //cout << " risq*alpha*curvlev "<<risq(0,span(0,nE))*alpha*curlev(0)<<endl;
 
-      for( int i=0; i<ptGK.size(); i++)
-        out(i) = risq(i,0)*exp(alpha(0)*curlev(i)) + risq(i,1)*exp(alpha(1)*curlev(i));
-      
     }else {
       vec risq = zeros(ptGK_delta.size());
       
       for( int i=0; i<ptGK.size(); i++) // Instantaneous risk with regression parameters
-        risq(i) = fct_risq_base(ptGK(i), trans, param_basehaz, basehaz, knots_surv, nE, gamma_X, false, trans);
+        risq(i) = fct_risq_base(ptGK(i), delta_i, param_basehaz, basehaz, knots_surv, nE, gamma_X, false, trans);
       
       for( int i=0; i<ptGK.size(); i++) 
         out(i) = risq(i)*exp(alpha(trans)*curlev(i));
-      
-      cout << " risq "<<risq.t()<<endl;
-      cout << " out "<<out.t()<<endl;
     }
   }
   
@@ -1166,34 +1162,25 @@ double fct_surv_Konrod(double t_i, arma::colvec& xti1, arma::colvec& xti2, arma:
   vec ptGK_ti = zeros(15); // GK nodes that correspond to [0, t_i] 
   vec deltaT_ptGK_ti = zeros(15); // projection of GK nodes onto the deltaT grid
   
-  
   for( int i=0; i<15; i++){
     // projection of GK nodes onto [0, ti]
     ptGK_ti(i) = ptGK(i)*(t_i-0)/2+(t_i+0)/2;
     // Correspondance ptGK_ti and tau_i for computation of current Y
     deltaT_ptGK_ti(i) = floor(ptGK_ti(i)/ (double) DeltaT); // search for last tau_i before ptGK_ti(i)
-    // int r = 0;
-    // while (tau_i(r)<=ptGK_ti(i)){
-    //   r++;
-    // }
-    // deltaT_ptGK_ti(i) = tau_i(r-1);
   }
   
   risq_GK_event= fct_pred_curlev_slope(deltaT_ptGK_ti, ptGK_ti, xti1, xti2, ui_r, 1, param_surv, assoc, 
                                        nD, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, param_basehaz, basehaz, knots_surv, 
                                        gamma_X, nE, false,-1);
 
-
+  double cumrisk=0;
   for( int i=0; i<15; i++){
-    surv += wgk_15(i)*risq_GK_event(i);
-    cout << " surv "<< surv <<"wgk_15(i) "<< wgk_15(i) << " fct_pred_surv(i) "<<risq_GK_event(i)<<endl<<endl;
-    
+    cumrisk += wgk_15(i)*risq_GK_event(i);
   }
-
-  surv=exp(-surv);
-  surv *= t_i/2; 
-  cout << "surv final "<< surv << " t_i "<<t_i<<endl<<endl;
   
+  cumrisk *= t_i/2;
+  surv=exp(-cumrisk);
+
   return(surv); 
 }
 
@@ -1222,12 +1209,12 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
                      arma::mat& xi, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::mat& zi,
                      int nE){
 
-  double vraisT_ui=0;
+
   mat surv (1,1);
   surv(0,0) = 0;
   mat haz(1,1);
   haz(0,0) = 1;
-  double fti ;
+  double fti = 1 ;
   double surv0 = 1;
   vec  gamma_X(nE);
   mat gammaX = zeros(nE,1);
@@ -1261,6 +1248,7 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
       gamma_X(j) = gammaX(j,0);
     
     surv(0,0) = fct_risq_base(t_i, 0, param_basehaz, basehaz, knots_surv, nE, gamma_X, true, -1);
+    cout << " check use of fct_risq_base for survival computation ! (surv and surv0)"<<endl;
     haz(0,0) = fct_risq_base(t_i, delta_i, param_basehaz, basehaz, knots_surv, nE, gamma_X, false, -1);
     
     
@@ -1269,9 +1257,10 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
     if(truncation){
       surv0 = fct_risq_base(t_0i, 0, param_basehaz, basehaz, knots_surv, nE, gamma_X, true, -1);
     }
+    fti /=surv0;
     
   }else{
-
+    
     for( int j=0; j<nE; j++)
       gamma_X(j) = gammaX(j,0);
     
@@ -1284,42 +1273,33 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
         deltaT_ptGK_ti(0) = tau_i(j);
       }
     }
-
-    vec haz(1);
+    
+    vec hazard(1);
     haz(0,0)=1;
     
     if(delta_i!=0)
-     haz= fct_pred_curlev_slope(deltaT_ptGK_ti, event, xti1, xti2, ui_r, delta_i, param_surv, assoc, 
-                                              nD, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, param_basehaz, basehaz, knots_surv, 
-                                              gamma_X, nE, false, delta_i-1); // trans = delta_i-1
+      hazard= fct_pred_curlev_slope(deltaT_ptGK_ti, event, xti1, xti2, ui_r, delta_i, param_surv, assoc, 
+                                    nD, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, param_basehaz, basehaz, knots_surv, 
+                                    gamma_X, nE, false, delta_i-1); // trans = delta_i-1
     
-    cout << " haz" << haz<< " delta_i "<< delta_i << " event "<< event <<endl
-         << " param_basehaz "<< param_basehaz.t()<<endl<<endl;
-    
-    //double test = fct_risq_base(t_i, 0, param_basehaz, basehaz, knots_surv, nE, gamma_X, true, -1);
-    //cout << " check surv "<<test<<endl;
-    
-    double surv = 1;
-    //surv = fct_surv_Konrod(t_i, xti1, xti2, ui_r, delta_i, param_basehaz, basehaz, param_surv, knots_surv, assoc, truncation,
-    //                                nD, tau, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, nE, gamma_X);
+    double test = fct_risq_base(t_i, 0, param_basehaz, basehaz, knots_surv, nE, gamma_X, true, -1);
 
+    double surv = 1;
+    surv = fct_surv_Konrod(t_i, xti1, xti2, ui_r, delta_i, param_basehaz, basehaz, param_surv, knots_surv, assoc, truncation,
+                           nD, tau, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, nE, gamma_X);
+    
     if(truncation){
       surv0 = fct_surv_Konrod(t_0i, xti1, xti2, ui_r, 0, param_basehaz, basehaz, param_surv, knots_surv, assoc, truncation,
                               nD, tau, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, nE, gamma_X);
     }
     
-    fti = surv*haz(0);
-    cout<< " haz " << haz << " surv "<< surv <<endl<< " fti "<< fti<<endl;    
-    cout << " gamma_X "<< gamma_X.t()<<endl;
-  
-  
-  
-  fti /= surv0;
-  cout<< " fti final "<< fti<<endl;
+    fti = surv*hazard(0,0);
+    
+    fti /= surv0;
   }
 
   
- return(vraisT_ui); 
+ return(fti); 
 }
 
 //===========================================================================================================

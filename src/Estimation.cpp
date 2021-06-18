@@ -436,8 +436,8 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
         double max_vraisr=0;
         int pb_QMC = 0;
         
-        for(int nr=0; nr < 1; nr++){
-cout << " nr " << nr <<endl;
+        for(int nr=0; nr < MCnr; nr++){
+
           vec ui_r = ui.row(nr).t();
 
           vec Lambda_nr = matNui_ui(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi, true);
@@ -588,13 +588,9 @@ cout << " nr " << nr <<endl;
             vraisr_surv = f_survival_ui(ui_r, t_0i, t_i, delta_i, xti1, xti2, param_surv, param_basehaz, basehaz, knots_surv, assoc, truncation,
                                         nD, tau, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, nE);
           }
-          cout << " vraisr_surv out "<< vraisr_surv<<endl;
-          //if(nr<10)
-          //  cout << " nr "<< nr << " vraisr "<< vraisr<< "vraisr_surv "<< vraisr_surv<< endl;
+
           vrais_survtot += vraisr_surv;
           vraisY_tot += vraisr;
-          if(nr<15)
-            cout << " vraisr_surv "<< vraisr_surv<<endl;
           vrais += vraisr*vraisr_surv;
         }//nr
         cout << endl<< endl<< " logvraisYi "<<log(vraisY_tot/MCnr) - test_add << " vraisTi "<< vrais_survtot/MCnr << endl;

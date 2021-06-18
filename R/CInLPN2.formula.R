@@ -546,7 +546,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
     names(Survdata)[1:3] <- c("Tentry", "Event", "StatusEvent")
 
   }
-  
+
   #### call of CInLPN2.default function to compute estimation and predictions
   est <- CInLPN2.default(fixed_X0.models = fixed_X0.models, fixed_DeltaX.models = fixed_DeltaX.models, randoms_X0.models = randoms_X0.models, 
                         randoms_DeltaX.models = randoms_DeltaX.models, mod_trans.model = mod_trans.model, DeltaT = DeltaT , outcomes = outcomes,

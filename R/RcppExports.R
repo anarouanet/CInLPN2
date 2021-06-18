@@ -86,12 +86,15 @@ pred <- function(K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, nb_paraD
 }
 
 #' @param gammaX: vector of linear predictors for 1 and 2 transitions (including association on random effects if assoc <=2)
-#' 
+#' @param trans: index for computation of survival function on all transitions (-1), on first transition(0), or second transition (1)
 NULL
 
 #' @param ptGK_delta: vector of projections of GK nodes onto grid of delta
 #' @param ptGK: vector of individual GK nodes
 #' @param alpha: vector of association parameters
+#' @param delta_i: event status 
+#' @param survfunc: indicator if output is survival function or hazard risk
+#' @param trans: index for computation of survival/risk function on all transitions (-1), on first transition(0), or second transition (1)
 NULL
 
 #' @param ui_r: vector of individual random effects

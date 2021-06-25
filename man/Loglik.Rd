@@ -4,9 +4,48 @@
 \alias{Loglik}
 \title{Function that computes the log-likelihood of the observed data}
 \usage{
-Loglik(K, nD, mapping, paraOpt, paraFixe, posfix, m_is, Mod_MatrixY,
-  Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, if_link, tau, tau_is,
-  modA_mat, DeltaT)
+Loglik(
+  K,
+  nD,
+  mapping,
+  paraOpt,
+  paraFixe,
+  posfix,
+  paras_k,
+  sequence,
+  type_int,
+  ind_seq_i,
+  MCnr,
+  nmes,
+  m_is,
+  Mod_MatrixY,
+  Mod_MatrixYprim,
+  df,
+  x,
+  z,
+  q,
+  nb_paraD,
+  x0,
+  z0,
+  q0,
+  data_surv,
+  basehaz,
+  knots_surv,
+  np_surv,
+  survival,
+  assoc,
+  truncation,
+  nE,
+  Xsurv1,
+  Xsurv2,
+  if_link,
+  zitr,
+  ide,
+  tau,
+  tau_is,
+  modA_mat,
+  DeltaT
+)
 }
 \arguments{
 \item{K}{an integer indicating the number of markers}
@@ -44,7 +83,31 @@ outcomes and latents processes}
 
 \item{q0}{a vector of number of random effects on each initial latent process level}
 
+\item{data_surv}{matrix of Tentry, Event, StatusEvent and covariates for survival models}
+
+\item{basehaz}{baseline hasard function type}
+
+\item{knots_surv}{knots for splines modelling the baseline hazard function}
+
+\item{np_surv}{number of parameters in the survival sub-models !! change if nE>1 !!}
+
+\item{survival}{boolean indicating if survival analysis}
+
+\item{assoc}{type of association between outcomes and times-to-events}
+
+\item{truncation}{boolean indicating if left trucation}
+
+\item{nE}{number of events}
+
+\item{Xsurv1}{design matrix for first event}
+
+\item{Xsurv2}{design matrix for second event}
+
 \item{if_link}{indicates if non linear link is used to transform an outcome}
+
+\item{zitr}{min and max of ordinal outcomes}
+
+\item{ide}{vector of observed values for ordinal outcomes}
 
 \item{tau}{a vector of integers indicating times (including maximum time)}
 
@@ -53,6 +116,14 @@ outcomes and latents processes}
 \item{modA_mat}{model.matrix for elements of the transistion matrix}
 
 \item{DeltaT}{double that indicates the discretization step}
+
+\item{modA_mat_predGK_t}{design matrix for computing predictions of Y on [0;ti] in Gauss Konrod for all subject}
+
+\item{modA_mat_predGK_t0}{design matrix for computing predictions of Y on [0;t0i] in Gauss Konrod for all subject}
+
+\item{pt_GK_t}{Gauss-Konrod nodes for integration on [0;ti] for all subject}
+
+\item{pt_GK_t0}{Gauss-Konrod nodes for integration on [0;t0i] for all subject}
 }
 \value{
 double

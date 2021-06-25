@@ -2,11 +2,34 @@
 % Please edit documentation in R/Parametre.R
 \name{Parametre}
 \alias{Parametre}
-\title{Function to initialize parameters kin multivariate CInLPN model}
+\title{Function to initialize parameters k in multivariate CInLPN2 model}
 \usage{
-Parametre(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr = FALSE,
-  indexparaFixeUser = NULL, paraFixeUser = NULL, L = 1, paras.ini,
-  ncolMod.MatrixY)
+Parametre(
+  K,
+  nD,
+  vec_ncol_x0n,
+  n_col_x,
+  nb_RE,
+  stochErr = FALSE,
+  indexparaFixeUser = NULL,
+  paraFixeUser = NULL,
+  L = 1,
+  paras.ini,
+  ncolMod.MatrixY,
+  link,
+  npara_k,
+  Survdata = NULL,
+  basehaz = NULL,
+  knots_surv = NULL,
+  assoc = NULL,
+  truncation = F,
+  data,
+  outcomes,
+  df,
+  nE = 0,
+  np_surv = 0,
+  fixed.survival.models = NULL
+)
 }
 \arguments{
 \item{K}{number of the markers}
@@ -35,5 +58,5 @@ Parametre(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr = FALSE,
 a list
 }
 \description{
-Function to initialize parameters kin multivariate CInLPN model
+Function to initialize parameters k in multivariate CInLPN2 model
 }

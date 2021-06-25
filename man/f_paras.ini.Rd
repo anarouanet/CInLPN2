@@ -4,11 +4,41 @@
 \alias{f_paras.ini}
 \title{Initialisation of parameters}
 \usage{
-f_paras.ini(data, outcomes, mapped.to.LP, fixed_X0.models,
-  fixed_DeltaX.models, randoms_DeltaX.models, randoms_X0.models, nb_RE,
-  mod_trans.model, subject, Time, link, knots, DeltaT, maxiter = 25,
-  epsa = 1e-04, epsb = 1e-04, epsd = 1e-04, nproc = 1,
-  print.info = TRUE)
+f_paras.ini(
+  data,
+  outcomes,
+  mapped.to.LP,
+  fixed_X0.models,
+  fixed_DeltaX.models,
+  randoms_DeltaX.models,
+  randoms_X0.models,
+  nb_RE,
+  mod_trans.model,
+  subject,
+  MCnr = NULL,
+  type_int = NULL,
+  Survdata = NULL,
+  basehaz = NULL,
+  Time,
+  link,
+  knots,
+  zitr = NULL,
+  ide = NULL,
+  DeltaT,
+  maxiter = 25,
+  epsa = 1e-04,
+  epsb = 1e-04,
+  epsd = 1e-04,
+  nproc = 1,
+  print.info = TRUE,
+  TimeDiscretization = FALSE,
+  fixed.survival.models = NULL,
+  Tentry = NULL,
+  Event = NULL,
+  StatusEvent = NULL,
+  assocT = NULL,
+  truncation = NULL
+)
 }
 \arguments{
 \item{data}{indicates the data frame containing all the variables for estimating the model}

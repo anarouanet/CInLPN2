@@ -321,9 +321,6 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     cout << " check loglik_i "<<loglik_i <<endl;
     mat Vvi=sigMSM;
 
-    double loglik_i2 = -0.5*(sum(k_i)*log(2*M_PI) + log(det(sigMSM)) + as_scalar(Ytildi_nu_i.t()*inv_sympd(sigMSM)*Ytildi_nu_i)) + log_Jac_Phi;
-    cout << " check loglik_i2 "<<loglik_i2 <<endl;
-    
     lvrais = loglik_i;
   }
   
@@ -355,7 +352,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     vec ind_lambda = zeros<vec>(sum(k_i));  // which indices of PNu_cp_i to include into lambda
     int ind=0;
     //sum(k_i) number of observations for subject i
-    
+
     for(int j =0 ; j < Ytildi.n_rows; j++){
       vec markers = zeros<vec>(K);
       for(int b = 0 ; b < Ytildi.n_cols; b++){
@@ -381,44 +378,49 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
       int nq = matDw_u.n_cols + matDw.n_cols ;
       mat var_RE = zeros<mat>(nq, nq);
       mat ui;
-      
       //Verify it works with nD>1, may have to introduce nD somewhere
-      //  matDw   matDw_u.t()
-      //  matDw_u matDu
+      //  matDw       matDw_u
+      //  matDw_u.t() matDu
       for(int j =0 ; j < nq; j++){
         for(int jj =0 ; jj < nq; jj++){
-          if(j < matDw.n_cols & jj < matDw.n_cols)
+          if(j < matDw.n_cols & jj < matDw.n_cols){
             var_RE(j, jj) = matDw(j, jj);
-          else if(j >= matDw.n_cols & jj < matDw.n_cols)
-            var_RE(j, jj) = matDw_u(j-matDw.n_cols, jj);
-          else if(j < matDw.n_cols & jj >= matDw.n_cols)
-            var_RE(j, jj) = matDw_u(jj-matDw.n_cols, j);
-          else if(j >= matDw.n_cols & jj >= matDw.n_cols)
+            
+          }else if(j >= matDw.n_cols & jj < matDw.n_cols){
+            var_RE(j, jj) = matDw_u(jj, j-matDw.n_cols);
+            
+          }else if(j < matDw.n_cols & jj >= matDw.n_cols){
+            var_RE(j, jj) = matDw_u(j, jj-matDw.n_cols);
+            
+          }else if(j >= matDw.n_cols & jj >= matDw.n_cols){
             var_RE(j, jj) = matDu(j-matDw.n_cols, jj-matDw.n_cols);
+            
+          }
         }
       }
-      
+
       mat chol_var_RE = chol(var_RE).t();
-      
+      cout << " type_int "<<type_int<<endl;
       if(type_int == -1){// MC
-        ui = chol_var_RE * randn< Mat<double> >(chol_var_RE.n_rows, MCnr);
-      }else if(type_int==0){ // AMC
-        
-      }else {//QMC
-        ui = seq_i * chol_var_RE.t();
-        //ui = chol_var_RE.t()* seq_i.t();
         mat uii = chol_var_RE * randn< Mat<double> >(chol_var_RE.n_rows, MCnr);
         ui = uii.t();
-      }        
+      }else if(type_int==0){ // AMC
+        cout << " to develop !"<<endl;
+      }else {//QMC
+        ui = chol_var_RE * randn< Mat<double> >(chol_var_RE.n_rows, MCnr);
+        mat uii = seq_i * chol_var_RE.t();
+        //ui = uii.t();
+        cout << " chol_var_RE "<<chol_var_RE.n_rows << " "<< chol_var_RE.n_cols<< endl;
+        
+        cout << " ui dimensions "<<ui.n_rows << " "<< ui.n_cols<< endl;
+        cout << " uii dimensions "<<uii.n_rows << " "<< uii.n_cols<< endl;
+        //ui = chol_var_RE.t()* seq_i.t();
+        //mat uii = chol_var_RE * randn< Mat<double> >(chol_var_RE.n_rows, MCnr);
+        //ui = uii;
+      }              
 
       //cout << " Vi "<< ZI*var_RE*ZI.t()<<endl<<endl;
-      
-      // if(type_int<=0){// MC or aMC
-      //   Lambda = matB * randn< Mat<double> >(matB.n_rows, MCnr);
-      // }else{ // QMC
-      //   Lambda =  seq_i;
-      // }
-      
+
       bool aMC=true;
 
       if(aMC){
@@ -439,13 +441,14 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
         for(int nr=0; nr < MCnr; nr++){
 
           vec ui_r = ui.row(nr).t();
-
+          cout << " ui "<< ui.n_rows << " "<< ui.n_cols<<endl;
+          cout << " ui_r "<<ui_r.size()<<endl;
           vec Lambda_nr = matNui_ui(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi, true);
-
+          cout << "apres"<<endl;
           double vraisr=0;
           int kk = 0;
           for (int k = 0 ; k < K; k++){
-
+            cout << "k"<<endl;
             vec ParaTransformYk = ParamTransformY(span(kk, (kk+df[k]-1)));
 
             if(type_int == -1){ //-1 MC 0 AMC 
@@ -462,10 +465,11 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
               
             }else if(type_int > 0){//QMC`
               if(if_link(k)==0){// If linear
-
+                cout << "Ytildi_nu_i_ui"<<endl;
                   //vec Lambda_nr = matNui_ui(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi);
                   vec Ytildi_nu_i_ui = vectorise(Ytildi)-Lambda_nr;
                   out2 = -0.5*(sum(k_i)*log(2*M_PI) + log(det(sigMSM)) + as_scalar(Ytildi_nu_i_ui.t()*inv_sympd(sigMSM)*Ytildi_nu_i_ui));
+                  cout << "out2"<<endl;
                   // if(nr==0){
                   //   cout << " sum(k_i) "<< sum(k_i) 
                   //        <<  " log(2*M_PI) "<< log(2*M_PI)
@@ -831,7 +835,6 @@ bool compFun1(int i) {
 /* ******************************************************
  Function f_Loglik: log-likelihood of the observed data
  */
-
 //===========================================================================================
 //' Function that computes the log-likelihood of the observed data
 //'  

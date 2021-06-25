@@ -4,8 +4,16 @@
 \alias{Plot_a}
 \title{Plot the temporal infmuences matrix A}
 \usage{
-Plot_a(recaps.A, with_IC = FALSE, Ylim = c(-2, 2), age0, legend,
-  pos.legend, color, xlab = "Time (in year)")
+Plot_a(
+  recaps.A,
+  with_IC = FALSE,
+  Ylim = c(-2, 2),
+  age0,
+  legend,
+  pos.legend,
+  color,
+  xlab = "Time (in year)"
+)
 }
 \arguments{
 \item{recaps.A}{values of matrix A}

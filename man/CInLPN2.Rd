@@ -4,8 +4,22 @@
 \alias{CInLPN2}
 \title{Causal Inference in a Latent Processes Network}
 \usage{
-CInLPN2(structural.model, measurement.model, parameters, option, Time,
-  subject, data, ...)
+CInLPN2(
+  structural.model,
+  measurement.model,
+  parameters,
+  option,
+  Time,
+  Tentry = "Tentry",
+  Event = "Event",
+  StatusEvent = "StatusEvent",
+  basehaz = NULL,
+  subject,
+  data,
+  seed = NULL,
+  TimeDiscretization = TRUE,
+  ...
+)
 }
 \arguments{
 \item{structural.model}{a list of 5 arguments used to specify the structural model: 
@@ -43,27 +57,6 @@ default value is NULL}}
 \code{parameters$Fixed.para.indix}{ indicates the positions of parameters to be constrained.}
 
 \code{parameters$Fixed.para.values}{ indicates the values associated to the index of parameters to be constrained. }}
-
-\item{option}{a list of 5 arguments for the optimization procedure:
-
-\code{option$epsa}{ threshold for the convergence criterion on the parameters}
-
-\code{option$epsb}{ threshold for the convergence criterion on the likelihood}
-
-\code{option$epsc}{ threshold for the convergence criterion on the derivatives}
-
-\code{option$MCnr}{ number of replicates  to compute the predictions in the real scales of the outcomes (backward transformation because of the link functions)}
-
-\code{option$type_int}{ type of Monte Carlo integration method to
- use. Options are \describe{
-    \item{\code{type_int='MC'}}{Standard Monte Carlo
- simulation. This is the default option.}
-   \item{\code{type_int='antithetic'}}{Variance reduction method using antithetic
- simulation.}
-   \item{\code{type_int='halton'}}{Quasi-Monte Carlo with a low deterministic
- Halton sequence. See the R package randtoolbox for more details about the last two sequences.}
-   \item{\code{type_int='sobol'}}{Quasi-Monte Carlo with a low
- deterministic Sobol sequence with Owen-type scrambling.}}}}
 
 \item{Time}{indicates the name of the covariate representing the time}
 

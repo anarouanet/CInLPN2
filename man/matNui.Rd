@@ -22,7 +22,7 @@ matNui(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i)
 \item{alpha_mu}{a vector of parameters associated to the model.matrix for the change's submodel}
 
 \item{G_mat_A_0_to_tau_i}{matrix containing  Prod(A_t)t=0,tau_i where A_t is the transition
-matric containing at time t}
+matrix containing at time t}
 }
 \value{
 a matrix

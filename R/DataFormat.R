@@ -124,8 +124,10 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
         if(linkSpe[[k]][2] == "equi"){
           knots[[k]] <- seq(from = minY[k], to = maxY[k], by = (maxY[k]-minY[k])/(nknots-1))
         }
-        
+
         ## if two quantiles are equal
+        if(nknots<3) 
+          stop("Splines for the outcome transformation should contain at least 3 knots (including 2 external knots)")
         for(nk in 3:nknots){
           if(knots[[k]][nk]== knots[[k]][nk-1]) knots[[k]][nk-1] <- knots[[k]][nk-1] - (max(Y[,col[k]], na.rm = TRUE)-min(Y[,col[k]], na.rm = TRUE))/5
         }
@@ -135,14 +137,12 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
           int_knots <- NULL
         }
         
-        
         modISpline <- paste("~ 1 + splines2::iSpline(",col[k],",knots=","int_knots",",","degree=", degree[k],
                             ",", "intercept = T,", "derivs= 0,", "Boundary.knots= c(",minY[k],",",maxY[k],"))")
         
         modMSpline <- paste("~ -1 + splines2::iSpline(",col[k],",knots=","int_knots",",","degree=", degree[k],
                             ",", "intercept = T, ", "derivs = 1,", "Boundary.knots= c(",minY[k],",",maxY[k],"))")
-        
-        
+
         IsMat <- model.matrix(as.formula(modISpline), data = Y, na.action = na.action)
         MsMat <- model.matrix(as.formula(modMSpline), data = Y, na.action = na.action)
         colnamesY <- c(colnamesY, paste(outcomes[k],link[k], seq(1,ncol(IsMat)), sep = "."))
@@ -151,8 +151,9 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
         Mod.MatrixY <- cbind(Mod.MatrixY, IsMat)
         Mod.MatrixYprim <- cbind(Mod.MatrixYprim, MsMat)
         df <-c(df, ncol(IsMat))
-        }
+      }
     }
+
     Mod.MatrixY <- as.matrix(Mod.MatrixY)
     Mod.MatrixYprim <- as.matrix(Mod.MatrixYprim)
     colnames(Mod.MatrixY) <- colnamesY
@@ -258,6 +259,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   IND <- NULL
   indY <- NULL
   data0 <- NULL
+
   ###creation de data0==========
   ## for x and z
   all.Y<-seq(1,K)
@@ -279,12 +281,13 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   
   
   #### only for x0 and x ###############
-  xs <- as.data.frame(unique(data0[,c(subject,setdiff(all.preds,Time))]))
+  xs <- as.data.frame(unique(data0[,c(subject,setdiff(all.preds,Time))])) # this does not work with time-dependent covariates
   colnames(xs) <- c(subject,setdiff(all.preds,Time))
   qsz <- as.data.frame(xs[rep(row.names(xs), rep(length(tau), dim(xs)[1])),])
   colnames(qsz) <- c(subject,setdiff(all.preds,Time))
   Times <- as.data.frame(DeltaT*rep(tau, I))
   colnames(Times) <- Time
+  
   data_c0 <- cbind(qsz,Times)
   data_xzMatA_cov <-data_c0  
   data_xzMatA_cov <-data_xzMatA_cov[order(data_xzMatA_cov[,subject], data_xzMatA_cov[,Time]),]
@@ -297,8 +300,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
     x_cov <- rbind(x_cov, data_x_cov_i)
   }
   x_cov <- x_cov[order(x_cov[,subject],x_cov[,Time]),]
-  
-  
+
   ##only for x0 #####
   x0 <- NULL
   nb_x0_n <- NULL
@@ -459,7 +461,6 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   #   head(modA_mat)
   #============================================================
   #design matrix for markers transformation
-
   Y <- as.matrix(data[,outcomes])
   tr_Y <- f.link(outcomes = outcomes, Y=as.data.frame(Y), link=link, knots =knots)
   Mod.MatrixY <- tr_Y$Mod.MatrixY
@@ -481,7 +482,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
     surv_obj <- Surv(Survdata[,2], Survdata[,3], type=type)
     Event <- surv_obj[,1]
     StatusEvent <- surv_obj[,2]
-    cat("check use of mstate here....")
+    message("check use of mstate here....")
   }
   
   nE <- length(fixed.survival.models)
@@ -500,60 +501,11 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
     np_surv <- c(np_surv, dim(Xsurv)[2] + ifelse(assoc%in%c(0, 1, 3, 4),1,2))
   }
 
-  modA_mat_pred_t <- NULL
-  modA_mat_pred_t0 <- NULL
-  
-  data_pred_GK <- NULL
-  
-  if(assoc>=3){
-
-    ptGK_1 <- 0.991455371120812639206854697526329
-    ptGK_2 <- 0.949107912342758524526189684047851
-    ptGK_3 <- 0.864864423359769072789712788640926
-    ptGK_4 <- 0.741531185599394439863864773280788
-    ptGK_5 <- 0.586087235467691130294144838258730
-    ptGK_6 <- 0.405845151377397166906606412076961
-    ptGK_7 <- 0.207784955007898467600689403773245
-    ptGK_8 <- 0.000000000000000000000000000000000
-    ptGK <- c(ptGK_1,-ptGK_1,ptGK_2,-ptGK_2,ptGK_3,-ptGK_3,ptGK_4,-ptGK_4,ptGK_5,-ptGK_5,ptGK_6,-ptGK_6,ptGK_7,-ptGK_7,ptGK_8) #pnts de quadrature GK
-    
-    N = length(unique(data_xzMatA_cov$id))
-    data_pred_GK <- data.frame(subject = rep(unique(data_xzMatA_cov$id), each=15), "pt_GK_t" = rep(0,N*15), "pt_GK_t0" = rep(0,N*15))
-    
-    ii=0
-    for(i in 1:N){
-      ti <- Survdata[i,"Event"]
-      for(j in 1:15){
-        data_pred_GK$pt_GK_t[ii+j] = ptGK[j]*(ti-0)/2+(ti+0)/2
-      }
-      ii = ii + 15
-    }
-    if(truncation){
-      ii=0
-      for(i in 1:N){
-        t0i <- Survdata[i,"Tentry"]
-        for(j in 1:15){
-          data_pred_GK$pt_GK_t0[ii+j] = ptGK[j]*(t0i-0)/2+(t0i+0)/2
-        }
-        ii = ii + 15
-      }
-    }
-      
-    data_MatA_ti <- data.frame(id = rep(unique(data_xzMatA_cov$id), each=15), Time=data_pred_GK$pt_GK_t)
-    names(data_MatA_ti) <- c(subject, Time)
-    data_MatA_t0i <- data.frame(rep(unique(data_xzMatA_cov$id), each=15), Time=data_pred_GK$pt_GK_t0)
-    names(data_MatA_t0i) <- c(subject, Time)
-    
-    modA_mat_pred_t<-model.matrix(as.formula(paste(subject,mod_trans.model, sep="~")), data=data_MatA_ti)
-    modA_mat_pred_t0<-model.matrix(as.formula(paste(subject,mod_trans.model, sep="~")), data=data_MatA_t0i)
-  }
-  
   return(list(nb_subject=I, nb_obs = length(na.omit(as.vector(Y))), K=K, nD = nD, all.preds = all.preds, id_and_Time=id_and_Time,Tmax = Tmax, m_i = m_i, Y = Y, Mod.MatrixY=Mod.MatrixY,  
               Mod.MatrixYprim=Mod.MatrixYprim, minY = minY, maxY = maxY, knots = knots, zitr = zitr, ide = ide, df = df, degree = degree, x = x, x0 = x0, 
               vec_ncol_x0n = nb_x0_n, z = z, z0=z0, q = q, q0 = q0, nb_paraD = nb_paraD, nb_RE=nb_RE, modA_mat = modA_mat,
               tau = tau, tau_is = tau_is, Event = Event, StatusEvent = StatusEvent, basehaz = basehaz, nE = nE, Xsurv1 = Xsurv1, Xsurv2 = Xsurv2,
-              modA_mat_pred_t = modA_mat_pred_t, modA_mat_pred_t0 = modA_mat_pred_t0, np_surv = np_surv,
-              pt_GK_t = data_pred_GK$pt_GK_t, pt_GK_t0 = data_pred_GK$pt_GK_t0))
+              np_surv = np_surv))
 }
 
 

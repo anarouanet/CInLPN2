@@ -4,9 +4,28 @@
 \alias{DataFormat}
 \title{Function to formated the data}
 \usage{
-DataFormat(data, subject, fixed_X0.models, randoms_X0.models,
-  fixed_DeltaX.models, randoms_DeltaX.models, mod_trans.model,
-  link = NULL, knots = NULL, outcomes, nD, Time, DeltaT)
+DataFormat(
+  data,
+  subject,
+  fixed_X0.models,
+  randoms_X0.models,
+  fixed_DeltaX.models,
+  randoms_DeltaX.models,
+  mod_trans.model,
+  link = NULL,
+  knots = NULL,
+  zitr = NULL,
+  ide = NULL,
+  outcomes,
+  nD,
+  Time,
+  Survdata = NULL,
+  basehaz = NULL,
+  fixed.survival.models = NULL,
+  DeltaT,
+  assoc,
+  truncation
+)
 }
 \arguments{
 \item{data}{indicates the data frame containing all the variables for estimating the model}

@@ -4,8 +4,18 @@
 \alias{PlotX}
 \title{Function to plot trajectories of observation and their predictions}
 \usage{
-PlotX(Obs, outcomes, preds, VarTime, with_IC = FALSE, Ylim,
-  xlab = "Time", ylab = "Score", age0 = 0, Title)
+PlotX(
+  Obs,
+  outcomes,
+  preds,
+  VarTime,
+  with_IC = FALSE,
+  Ylim,
+  xlab = "Time",
+  ylab = "Score",
+  age0 = 0,
+  Title
+)
 }
 \arguments{
 \item{Obs}{Observations}

@@ -196,11 +196,12 @@
 
 
 CInLPN2 <- function(structural.model, measurement.model, parameters, 
-                   option, Time, Tentry ="Tentry", Event = "Event", StatusEvent = "StatusEvent", basehaz = NULL, subject, data, seed=NULL, ...){
+                   option, Time, Tentry ="Tentry", Event = "Event", StatusEvent = "StatusEvent", basehaz = NULL, subject, data, seed=NULL, 
+                   TimeDiscretization = TRUE, ...){
   cl <- match.call()
   ptm <- proc.time()  
   cat("Be patient, CInLPN2 is running ... \n")
-  
+
   if(!missing(seed))
     set.seed(seed)
   
@@ -307,7 +308,9 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
   # if(missing(DeltaT) || DeltaT < 0 ) stop("The discretization step DeltaT cannot be null or negative")
   if(!(subject%in%colnames))stop("Subject should be in the dataset")
   if(!(Time %in% colnames)) stop("Time variable should be indicated and should be in the dataset")
-  if(!all(round((data[,Time]/DeltaT)-round(data[,Time]/DeltaT),8)==0.0))stop(paste("Time must be multiple of", DeltaT, sep = " "))
+  if(!TimeDiscretization){ # If discretization process is external, we need to check that time is multiple of DeltaT
+    if(!all(round((data[,Time]/DeltaT)-round(data[,Time]/DeltaT),8)==0.0))stop(paste("Discretized Time must be multiple of", DeltaT, sep = " "))
+  }  
   if(dim(unique(data))[1] != dim(data)[1]) stop("Some rows are the same in the dataset, perhaps because of a too large discretisation step")
   
   
@@ -370,8 +373,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
     }
 
     fixed.survival.models <- strsplit(gsub("[[:space:]]","",as.character(fixed.survival)),"~")[[2]]
-    covsurv <- as.vector(strsplit(fixed.survival.models,"[|*]")[[1]]) 
-    
+    covsurv <- unique(as.vector(strsplit(fixed.survival.models,"[|*+]")[[1]]))
     fixed.survival.models <- as.vector(strsplit(fixed.survival.models,"[|]")[[1]]) 
 
     if(!all(covsurv%in%colnames))stop("All covariates in fixed.survival should be in the dataset")
@@ -471,7 +473,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
     ide0  <- 0 
   }
 
-  if(  (any(link=="thresholds")| any(link=="linear")) & !is.null(type_int)){ 
+  if(  any(link=="thresholds") || !is.null(type_int)){ 
     
     int_ui = TRUE
     if(int_ui == FALSE){ #Sequence defined for Lambda
@@ -506,19 +508,21 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
       #randtoolbox::sobol(nMC, dim = sum(r), normal = TRUE, 
       #                   scrambling = 1)
       #define sequence in CInLPN2.default
-      sequence  <- NULL
+      sequence  <- 0
       ind_seq_i <- 0
       unique_id <- unique(data[,subject])
-      
-      nmes <- sapply(unique_id, function(x) 
-        length(which(!is.na(data[which(data[,subject]==x),outcomes]))))
     }
 
   }else{
-    sequence  <- NULL
-    ind_seq_i <- NULL
-    nmes      <- NULL
+    sequence  <- 0
+    ind_seq_i <- 0
+    nmes      <- 0
   }
+  
+  unique_id <- unique(data[,subject])
+  
+  nmes <- sapply(unique_id, function(x) 
+    length(which(!is.na(data[which(data[,subject]==x),outcomes]))))
   
   Survdata <- NULL
   knots_surv <- NULL
@@ -541,10 +545,8 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
     first_line <- sapply(unique(data[,subject]), function(x) which(data[,subject]==x)[1])
 
     if(!(Tentry %in%names(data))) data$Tentry <- 0
-    
-    Survdata <- data[first_line, c(Tentry, Event, StatusEvent, covsurv[-1])]
+    Survdata <- data[first_line, c(Tentry, Event, StatusEvent, covsurv)]
     names(Survdata)[1:3] <- c("Tentry", "Event", "StatusEvent")
-
   }
 
   #### call of CInLPN2.default function to compute estimation and predictions
@@ -555,12 +557,12 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
                         makepred = option$makepred, MCnr = option$MCnr, type_int = option$type_int, sequence = sequence, ind_seq_i = ind_seq_i, nmes = nmes,
                         paras.ini= paras.ini, paraFixeUser = paraFixeUser, indexparaFixeUser = indexparaFixeUser,  
                         maxiter = maxiter, zitr = zitr, ide = ide0, univarmaxiter = univarmaxiter, nproc = nproc, epsa = epsa, epsb = epsb, epsd = epsd, 
-                        print.info = print.info)
+                        print.info = print.info, TimeDiscretization = TimeDiscretization, Tentry = Tentry, Event = Event, StatusEvent = StatusEvent)
 
   est$call <- match.call()
   est$formula <- list(fixed_X0.models=fixed_X0.models, fixed_DeltaX.models = fixed_DeltaX.models, 
                       randoms_X0.models=randoms_X0.models, randoms_DeltaX.models=randoms_DeltaX.models, 
-                      mod_trans.model = mod_trans.model)
+                      mod_trans.model = mod_trans.model, TimeDiscretization=TimeDiscretization)
   est$mapping.to.LP <- mapping.to.LP
   
   if(!is.null(sequence))

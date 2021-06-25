@@ -4,9 +4,33 @@
 \alias{pred}
 \title{Function that computes the predictions (marginal and subject-specific) for individuals}
 \usage{
-pred(K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, nb_paraD, x0,
-  z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots,
-  degree, epsPred)
+pred(
+  K,
+  nD,
+  mapping,
+  paras,
+  m_is,
+  Mod_MatrixY,
+  df,
+  x,
+  z,
+  q,
+  nb_paraD,
+  x0,
+  z0,
+  q0,
+  if_link,
+  tau,
+  tau_is,
+  modA_mat,
+  DeltaT,
+  MCnr,
+  minY,
+  maxY,
+  knots,
+  degree,
+  epsPred
+)
 }
 \arguments{
 \item{K}{an integer indicating the number of markers}

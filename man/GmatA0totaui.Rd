@@ -16,7 +16,7 @@ model.matrix for elements of the transistion matrix}
 
 \item{DeltaT}{double that indicates the discretization step}
 
-\item{modA_mat}{model.matrix for elements of the transistion matrix}
+\item{modA_mat}{model.matrix for elements of the transition matrix}
 }
 \value{
 a matrix containing matrix of form Id + DeltaT*A

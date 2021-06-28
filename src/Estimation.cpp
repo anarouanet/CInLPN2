@@ -320,13 +320,11 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     loglik_i = -0.5*(sum(k_i)*log(2*M_PI) + log(abs_det_matVY_i) + as_scalar(Ytildi_nu_i.t()*inv_sympd(matVY_i)*Ytildi_nu_i)) + log_Jac_Phi;
     double loglik_i0 = -0.5*(sum(k_i)*log(2*M_PI) + log(abs_det_matVY_i) + as_scalar(Ytildi_nu_i.t()*inv_sympd(matVY_i)*Ytildi_nu_i)) ;//+ log_Jac_Phi;
 
-    cout << " loglik_i "<<loglik_i<< " k_i "<<k_i.t();
+    //cout << " loglik_i "<<loglik_i<< " k_i "<<k_i.t();
     //mat checkB = matVY_i-sigMSM;
     //mat Vvi=sigMSM;
     double loglik_i2 = -0.5*(sum(k_i)*log(2*M_PI) + log(det(sigMSM)) + as_scalar(Ytildi_nu_i.t()*inv_sympd(sigMSM)*Ytildi_nu_i)) + log_Jac_Phi;
-    cout << " Ytildi " <<Ytildi.t();
-    cout << " Ytildi_nu_i " <<Ytildi_nu_i.t();
-    cout << " sigMSM "<<sigMSM;
+    //cout << " loglik_i2 "<<loglik_i2<<endl;
     lvrais = loglik_i;
   }
 
@@ -429,18 +427,17 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
         int k_t=0;
         double log_Jac_Phi=0;
         double vraisr_surv=1;
-        
+        double vrais_surv_check=1;
         double vrais_survtot =0;
         double vraisY_tot =0;
-        double test_add = 0;
         double min_vraisr=0;
         double max_vraisr=0;
         int pb_QMC = 0;
         
-        for(int nr=0; nr < 1; nr++){
+        for(int nr=0; nr < MCnr; nr++){
 
           vec ui_r = ui.row(nr).t();
-          ui_r.fill(0);
+          //ui_r.fill(0);
           vec Lambda_nr;
           //vec Lambda_nr = matNui_ui(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi, true);
      
@@ -476,9 +473,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
                 //vec Ytildi_nu_i_ui = vectorise(Ytildi)-Lambda_nr;
                 vec Ytildi_nu_i_ui = Ytildik-Lambda_nr;
                 out2 = -0.5*(nik*log(2*M_PI) + log(det(Sig_k)) + as_scalar(Ytildi_nu_i_ui.t()*inv_sympd(Sig_k)*Ytildi_nu_i_ui));
-cout <<  endl<< "out2 "<<out2<< " log_Jac_Phi " <<log_Jac_Phi<< " nik "<< nik << " Sig_k "<<Sig_k;
-                cout << " Ytildik " <<Ytildik.t();
-                cout << " Ytildi_nu_i_ui " <<Ytildi_nu_i_ui.t();
+
                 // if(nr==0){
                 //   cout << " sum(k_i) "<< sum(k_i) 
                 //        <<  " log(2*M_PI) "<< log(2*M_PI)
@@ -497,7 +492,7 @@ cout <<  endl<< "out2 "<<out2<< " log_Jac_Phi " <<log_Jac_Phi<< " nik "<< nik <<
                 
                 if(exp(out2)==0)
                   pb_QMC++;
-                vraisr += exp(out2+test_add);
+                vraisr += (out2);
 
                 if(nr==0)
                   log_Jac_Phi += sum(log(YiwoNA(vectorise(YtildPrimi))));
@@ -555,6 +550,7 @@ cout <<  endl<< "out2 "<<out2<< " log_Jac_Phi " <<log_Jac_Phi<< " nik "<< nik <<
                         
                         //cout << "m "<<m<<" ParaTransformY(ind_m) "<<ParaTransformY(ind_m) << " lambda "<<Lambda_nr(j)<<endl;
                         vraisr *= (phi1-phi2);
+                        cout << " changer en somme des lvrais"<<endl;
                         if(nr<10){
                           cout << nr << " m "<<m<<" vraisr " << vraisr << " phi1 "<< phi1 << " phi2 "<< phi2<<endl; 
                         }
@@ -591,10 +587,10 @@ cout <<  endl<< "out2 "<<out2<< " log_Jac_Phi " <<log_Jac_Phi<< " nik "<< nik <<
           }
 
           vrais_survtot += vraisr_surv;
-          vraisY_tot += vraisr;
-          vrais += vraisr*vraisr_surv;
-          
-          if(2<1){//verification survival likelihood if all regression parameters  =0 and baseline = Weibull
+          vraisY_tot += exp(vraisr);
+          vrais += exp(vraisr)*vraisr_surv;
+
+          if(2>1){//verification survival likelihood if all regression parameters  =0 and baseline = Weibull
             double s1=exp(-pow(t_i/param_basehaz(1),param_basehaz(0))-pow(t_i/param_basehaz(3),param_basehaz(2)));
             double lambdat=1;
             if(delta_i==1)
@@ -602,8 +598,8 @@ cout <<  endl<< "out2 "<<out2<< " log_Jac_Phi " <<log_Jac_Phi<< " nik "<< nik <<
             if(delta_i==2)
               lambdat = param_basehaz(2)/param_basehaz(3)*pow(t_i/param_basehaz(3),param_basehaz(2)-1);
             double s0=exp(-pow(t_0i/param_basehaz(1),param_basehaz(0))-pow(t_0i/param_basehaz(3),param_basehaz(2)));
-            double vrais_surv_check=s1/s0*lambdat;
-            cout<< " vrais_surv_check "<<vrais_surv_check<< " s1 "<<s1 << " s0 "<<s0 << " lambdat "<< lambdat<<endl;
+            vrais_surv_check=s1/s0*lambdat;
+            //cout<< " vrais_surv_check "<<log(vrais_surv_check)<<endl;//<< " s1 "<<s1 << " s0 "<<s0 << " lambdat "<< lambdat<<endl;
           }
         }//nr
         
@@ -613,8 +609,9 @@ cout <<  endl<< "out2 "<<out2<< " log_Jac_Phi " <<log_Jac_Phi<< " nik "<< nik <<
             if(Ytildi(j)<minY)
               minY = Ytildi(j);
           }
-          //if(abs(loglik_i- log(vraisY_tot/MCnr) - test_add)>1)
-            cout << " diff "<<loglik_i- log(vraisY_tot/MCnr) - test_add<<" pb_QMC" <<pb_QMC<< " minY "<< minY << " vrais / MCnr "<<vrais / MCnr<< " x0i "<< x0i;// << " vraisTi "<< vrais_survtot/MCnr << endl;
+          //if(abs(loglik_i- log(vraisY_tot/MCnr) )>1)
+            cout << " diffY "<<loglik_i- log(vraisY_tot/MCnr)<< " diffT "<<log(vrais_surv_check)-log(vrais_survtot/MCnr) <<" pb_QMC" <<pb_QMC<< " minY "<< minY << " vrais / MCnr "<<endl;// << " vraisTi "<< vrais_survtot/MCnr << endl;
+          cout << " loglik_i "<<loglik_i<< " log(vraisY_tot/MCnr) "<< log(vraisY_tot/MCnr)<< " diffT "<<log(vrais_surv_check)-log(vrais_survtot/MCnr) <<" pb_QMC" <<pb_QMC<< " minY "<< minY << " vrais / MCnr "<<endl;// << " vraisTi "<< vrais_survtot/MCnr << endl;
           //cout << " max_vraisr "<< max_vraisr << " min_vraisr "<< min_vraisr << " pb_QMC" <<pb_QMC<< " log_Jac_Phi "<< log_Jac_Phi <<endl;
         }
 
@@ -1034,7 +1031,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
   
   //Computering of log-likelihood as sum of individuals contributions
   double loglik0=0;
-  for(int n= 0; n < 1; n++ ){
+  for(int n= 0; n < 3; n++ ){
 
     //if(n%200==0)
       //cout << "indiv "<< n <<endl;
@@ -1087,8 +1084,8 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
     //}
     // }else if( std::all_of(if_link.begin(), if_link.end(), compFun1) ){
     //  std::cout << "All the elements are equal to 2.\n";
-    
-      double out1 = Loglikei_GLM(K, nD, matrixP, m_is(n), tau, tau_is(span(p,(p+m_is(n)-1))), Ytild(span(p,(p+m_is(n)-1)), span(0,(K-1))),
+    cout << " n "<<n;
+    double out1 = Loglikei_GLM(K, nD, matrixP, m_is(n), tau, tau_is(span(p,(p+m_is(n)-1))), Ytild(span(p,(p+m_is(n)-1)), span(0,(K-1))),
                                  YtildPrim(span(p,(p+m_is(n)-1)), span(0,(K-1))), x0(span(n*nD,(n+1)*nD-1), span(0,(ncol_x0-1))),
                                  z0(span(n*nD,(n+1)*nD-1), span(0,(ncol_z0-1))), x(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_x-1))),
                                  z(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_z-1))),alpha_mu0, alpha_mu, matDw, matDw_u, matDu,

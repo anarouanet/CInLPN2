@@ -342,6 +342,31 @@ arma::mat matHit(arma::vec X_i_t){
   return(H_i_t);
 }
 
+
+// function that provides the vector of times (from tau) that correspond to outcomes values ()
+arma::vec matTik(arma::vec X_ik, arma::vec tau){
+  // X_ik : vector of observation
+
+  int T = (int)X_ik.size();
+  int p=0; //loop variable
+
+  for( int i=0; i< T; i++){
+    if(!isnan(X_ik(i))){
+      p++;
+    }
+  }
+
+  vec T_i_k = zeros<vec>(p); //initialisation of matrix H_i(t)
+  int ii=0;
+  for( int i=0; i< T; i++){
+    if(!isnan(X_ik(i))){
+      T_i_k(ii)=tau(i);
+      ii++;
+    }
+  }
+  
+  return(T_i_k);
+}
 //===========================================================================================
 //' After vectorising the vzector Yi, this function returns
 //' a vector indicating missing values : 1 = observed value, 0 = missing value

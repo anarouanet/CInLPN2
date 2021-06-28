@@ -309,7 +309,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
   //}
   
   double lvrais = 0;
-  int check=0; // 1 both, 2 close likelihood only
+  int check=1; // 1 both, 2 close likelihood only
   double loglik_i=0;
   if(max(if_link) == 1 || check>0){
     // To check the linear closed form of likelihood
@@ -320,10 +320,13 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     loglik_i = -0.5*(sum(k_i)*log(2*M_PI) + log(abs_det_matVY_i) + as_scalar(Ytildi_nu_i.t()*inv_sympd(matVY_i)*Ytildi_nu_i)) + log_Jac_Phi;
     double loglik_i0 = -0.5*(sum(k_i)*log(2*M_PI) + log(abs_det_matVY_i) + as_scalar(Ytildi_nu_i.t()*inv_sympd(matVY_i)*Ytildi_nu_i)) ;//+ log_Jac_Phi;
 
+    cout << " loglik_i "<<loglik_i<< " k_i "<<k_i.t();
     //mat checkB = matVY_i-sigMSM;
     //mat Vvi=sigMSM;
-    //double loglik_i2 = -0.5*(sum(k_i)*log(2*M_PI) + log(det(sigMSM)) + as_scalar(Ytildi_nu_i.t()*inv_sympd(sigMSM)*Ytildi_nu_i)) + log_Jac_Phi;
-
+    double loglik_i2 = -0.5*(sum(k_i)*log(2*M_PI) + log(det(sigMSM)) + as_scalar(Ytildi_nu_i.t()*inv_sympd(sigMSM)*Ytildi_nu_i)) + log_Jac_Phi;
+    cout << " Ytildi " <<Ytildi.t();
+    cout << " Ytildi_nu_i " <<Ytildi_nu_i.t();
+    cout << " sigMSM "<<sigMSM;
     lvrais = loglik_i;
   }
 
@@ -434,24 +437,25 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
         double max_vraisr=0;
         int pb_QMC = 0;
         
-        for(int nr=0; nr < MCnr; nr++){
+        for(int nr=0; nr < 1; nr++){
 
           vec ui_r = ui.row(nr).t();
-          //ui_r.fill(0);
-          vec Lambda_nr = matNui_ui(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi, true);
-          
-          //vec Lambda_nrtest = matNui_ui(nD, tau, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi, true);
-          
-          // mat Nu_cp_i = zeros(Yi.n_rows,nD);
-          // for(int i=0; i<(int)tau_i.size(); i++){
-          //   Nu_cp_i.row(i) = Nu_cp.row(tau_i(i));
-          // }
-          // 
-
+          ui_r.fill(0);
+          vec Lambda_nr;
+          //vec Lambda_nr = matNui_ui(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi, true);
+     
           double vraisr=0;
           int kk = 0;
           for (int k = 0 ; k < K; k++){
             vec ParaTransformYk = ParamTransformY(span(kk, (kk+df[k]-1)));
+
+            vec tau_ik = matTik(Ytildi.col(k), tau_i);
+
+            Lambda_nr = matNui_ui(nD, tau_ik, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi, true);
+
+            vec Ytildik = YiwoNA(vectorise(Ytildi.col(k)));
+            int nik = Ytildik.size();
+            mat Sig_k = eye(nik,nik)*Sig(k,k);
 
             if(type_int == -1){ //-1 MC 0 AMC 
               cout << " develop likelihood computation with integral ui for MC or AMC "<<endl;
@@ -469,9 +473,12 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
               if(if_link(k)<2){// If linear
                 //vec Lambda_nr = matNui_ui(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi);
 
-                vec Ytildi_nu_i_ui = vectorise(Ytildi)-Lambda_nr;
-                out2 = -0.5*(sum(k_i)*log(2*M_PI) + log(det(sigMSM)) + as_scalar(Ytildi_nu_i_ui.t()*inv_sympd(sigMSM)*Ytildi_nu_i_ui));
-
+                //vec Ytildi_nu_i_ui = vectorise(Ytildi)-Lambda_nr;
+                vec Ytildi_nu_i_ui = Ytildik-Lambda_nr;
+                out2 = -0.5*(nik*log(2*M_PI) + log(det(Sig_k)) + as_scalar(Ytildi_nu_i_ui.t()*inv_sympd(Sig_k)*Ytildi_nu_i_ui));
+cout <<  endl<< "out2 "<<out2<< " log_Jac_Phi " <<log_Jac_Phi<< " nik "<< nik << " Sig_k "<<Sig_k;
+                cout << " Ytildik " <<Ytildik.t();
+                cout << " Ytildi_nu_i_ui " <<Ytildi_nu_i_ui.t();
                 // if(nr==0){
                 //   cout << " sum(k_i) "<< sum(k_i) 
                 //        <<  " log(2*M_PI) "<< log(2*M_PI)
@@ -1027,7 +1034,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
   
   //Computering of log-likelihood as sum of individuals contributions
   double loglik0=0;
-  for(int n= 0; n < N; n++ ){
+  for(int n= 0; n < 1; n++ ){
 
     //if(n%200==0)
       //cout << "indiv "<< n <<endl;
@@ -1041,9 +1048,9 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
     //mat G_mat_A_0_to_t_i = GmatA0totaui(nD, vec_alpha_ij, deltaT_ptGK_ti(span(n*15, (n+1)*15-1), DeltaT, modA_mat_predGK_ti(span(n*15,((n+1)*15-1)), span(0,(L-1))));
     //mat G_mat_A_0_to_t_0i = GmatA0totaui(nD, vec_alpha_ij, deltaT_ptGK_t0i(span(n*15, (n+1)*15-1), DeltaT, modA_mat_predGK_t0i(span(n*15,((n+1)*15-1)), span(0,(L-1))));
     
-    double t_i; 
-    double t_0i; 
-    double delta_i;
+    double t_i=0.0; 
+    double t_0i=0.0; 
+    double delta_i=0.0;
     vec xti1 = zeros<vec>(Xsurv1.n_cols); 
     vec xti2 = zeros<vec>(Xsurv2.n_cols); 
 

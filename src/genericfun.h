@@ -8,6 +8,7 @@ arma::mat ProdA(int K, int t2, int t1, double DeltaT, arma::vec& vec_alpha_ij, a
 arma::mat GmatA0totaui( int K, arma::vec& vec_alpha_ij, arma::vec& tau_i, double DeltaT, arma::mat modA_mat);
 arma::mat GmatprodAstotau( int K, arma::vec& vec_alpha_ij, arma::vec& tau, int t_ini, double DeltaT, arma::mat modA_mat);
 arma::mat tsGmatprodA0totau(int K, arma::vec& vec_alpha_ij, arma::vec& tau, double DeltaT, arma::mat modA_mat);
+arma::vec matTik(arma::vec X_ik, arma::vec tau);
 arma::mat matHit(arma::vec X_i_t);
 arma::vec compoYiNA(arma::mat& Yi);
 arma::vec YiwoNA(arma::vec Yi);

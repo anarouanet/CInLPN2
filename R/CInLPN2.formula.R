@@ -523,7 +523,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
   
   nmes <- sapply(unique_id, function(x) 
     length(which(!is.na(data[which(data[,subject]==x),outcomes]))))
-  
+
   Survdata <- NULL
   knots_surv <- NULL
   

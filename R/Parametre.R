@@ -151,6 +151,7 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
     p <- p+n_col_x
     cpt1 <- cpt1 + n_col_x
     #alpha_D parameters for cholesky of all random effects
+
     alpha_D <- paras.ini[(p+1):(p+nb_paraD)]
     to_nrow <- nb_RE
     i_alpha_D <- 0

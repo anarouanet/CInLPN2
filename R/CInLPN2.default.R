@@ -154,6 +154,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
     if(typeof(as.matrix(Survdata))!="double")
       stop("Remove the factor labels in data so that the matrix is all numeric.")
   }
+
   # estimation
   est <- CInLPN2.estim(K = K, nD = nD, mapping.to.LP = mapping.to.LP, data = data_F, if_link = if_link, 
                       DeltaT = DeltaT, MCnr = MCnr, nmes = nmes, data_surv = Survdata, 

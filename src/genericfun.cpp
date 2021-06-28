@@ -508,6 +508,7 @@ arma::vec YiNui(int nD, arma::mat matrixP, arma::vec& tau, arma::vec& tau_i, dou
                 arma::mat& xi, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i){
   // Yi : matrice of observation of subject i
   mat Nu_cp = matNui(nD, tau, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i);
+
   mat Nu_cp_i = zeros(Yi.n_rows,nD);
   for(int i=0; i<(int)tau_i.size(); i++){
     Nu_cp_i.row(i) = Nu_cp.row(tau_i(i));
@@ -515,6 +516,7 @@ arma::vec YiNui(int nD, arma::mat matrixP, arma::vec& tau, arma::vec& tau_i, dou
 
   // Nu_cp : Expectation of overall times
   mat M =  Yi - Nu_cp_i*matrixP.t();
+
   return(YiwoNA(vectorise(M)));
 }
 
@@ -764,35 +766,20 @@ arma::vec matNui_ui(int nD, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arm
   colvec ui=randomeffects.subvec( 0, nD-1 );//randomeffects(linspace(0, nD-1, nD));
   colvec vi=randomeffects.subvec( nD, randomeffects.size()-1 );
 
+
   //Verify Xi, Zi with randomeffects.size()>1
 
   int i = 0;
   for(int t=0; t< T; t++){
-    cout << " t "<<t<<endl;
     if(t==0){
       Mu_t = x0i*alpha_mu0+ ui;
     }else{
-      
-      
-      if(t==1){
-        cout << " randomeffects.size() "<<randomeffects.size()<<endl;
-        cout << "alpha_mu  "<<alpha_mu.n_rows << " "<<alpha_mu.n_cols<<endl
-             << " xi "<< 1*nD << " x"<< (1+1)*nD-1 <<" vs "<< 0  << " x "<< n_cols_xi-1<<endl
-             << " prod "<<xi(span(t*nD,(t+1)*nD-1), span(0,n_cols_xi-1))*alpha_mu<<endl;
-        cout << "vi  "<<vi.n_rows << " "<<vi.n_cols<<endl
-             << " zi "<< 1*nD << " x"<< (1+1)*nD-1 <<" vs "<< 0  << " x "<< n_cols_zi-1<<endl;
-        cout << "Mu_t  "<<Mu_t.n_rows << " "<<Mu_t.n_cols<<endl
-             << " Gmat "<< 0 << " x"<< nD-1 <<" vs "<< nD*(1-1)  << " x "<< nD*(1-1)+nD-1<<endl
-             << " prod "<<G_mat_A_0_to_tau_i(span(0,nD-1),span(nD*(t-1),nD*(t-1)+nD-1))*Mu_t<<endl;
-        
-      }
-      
       Mu_t = DeltaT*(xi(span(t*nD,(t+1)*nD-1), span(0,n_cols_xi-1))*alpha_mu +
       zi(span(t*nD,(t+1)*nD-1), span(0,n_cols_zi-1))*vi) +
       G_mat_A_0_to_tau_i(span(0,nD-1),span(nD*(t-1),nD*(t-1)+nD-1))*Mu_t;
     }
 
-  
+
     if(ordered){
       if(t ==(int)tau_i(i)){
         matNu_i(span(i,i), span(0,nD-1)) = Mu_t.t();
@@ -1076,9 +1063,7 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
              <<" cumrisq(i,j) "<< cumrisq(i,j) << " alpha(j) "<< alpha(j) << " curlev(i) "<< curlev(i)<<endl;
       }
     }
-    
-    cout << endl<<endl << " out "<< out.t()<<endl;
-    //if(interactions)
+        //if(interactions)
     // arma::colvec& xti1, arma::colvec& xti2, 
     // arma::colvec& param_surv, 
     
@@ -1292,13 +1277,13 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
     }
     
     vec hazard(1);
-    haz(0,0)=1;
+    hazard.fill(1);
     
     if(delta_i!=0)
-      hazard= fct_pred_curlev_slope(deltaT_ptGK_ti, event, xti1, xti2, ui_r, delta_i, param_surv, assoc, 
+      hazard = fct_pred_curlev_slope(deltaT_ptGK_ti, event, xti1, xti2, ui_r, delta_i, param_surv, assoc, 
                                     nD, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, param_basehaz, basehaz, knots_surv, 
                                     gamma_X, nE, false, delta_i-1); // trans = delta_i-1
-    
+
     double test = fct_risq_base(t_i, 0, param_basehaz, basehaz, knots_surv, nE, gamma_X, true, -1);
 
     double surv = 1;

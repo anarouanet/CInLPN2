@@ -791,7 +791,6 @@ arma::vec matNui_ui(int nD, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arm
   colvec ui=randomeffects.subvec( 0, nD-1 );//randomeffects(linspace(0, nD-1, nD));
   colvec vi=randomeffects.subvec( nD, randomeffects.size()-1 );
 
-
   //Verify Xi, Zi with randomeffects.size()>1
 
   int i = 0;

@@ -343,7 +343,7 @@ arma::mat matHit(arma::vec X_i_t){
 }
 
 
-// function that provides the vector of times (from tau) that correspond to outcomes values ()
+// function that provides the vector of times (from tau) that correspond to observed outcomes values (X_ik)
 arma::vec matTik(arma::vec X_ik, arma::vec tau){
   // X_ik : vector of observation
 

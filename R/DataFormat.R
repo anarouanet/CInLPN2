@@ -68,7 +68,7 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
       }else if(link[k]=="thresholds"){
 
         linkSpe[[k]] <- "t"
-        print("check Imat!")
+        print("check Imat! soit ne pas rajouter de colonnes soit mettre NA ")
 
         Imat     <- matrix(0, nrow = dim(Y)[1], ncol = length(unique(Y[,k]))-1)
         Imat[,1] <- Y[,k]
@@ -127,7 +127,7 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
 
         ## if two quantiles are equal
         if(nknots<3) 
-          stop("Splines for the outcome transformation should contain at least 3 knots (including 2 external knots)")
+          stop("Splines for the outcome transformation should contain at least 3 knots (including 1 internal knot)")
         for(nk in 3:nknots){
           if(knots[[k]][nk]== knots[[k]][nk-1]) knots[[k]][nk-1] <- knots[[k]][nk-1] - (max(Y[,col[k]], na.rm = TRUE)-min(Y[,col[k]], na.rm = TRUE))/5
         }
@@ -136,7 +136,7 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
         }else{
           int_knots <- NULL
         }
-        
+
         modISpline <- paste("~ 1 + splines2::iSpline(",col[k],",knots=","int_knots",",","degree=", degree[k],
                             ",", "intercept = T,", "derivs= 0,", "Boundary.knots= c(",minY[k],",",maxY[k],"))")
         
@@ -158,6 +158,7 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
     Mod.MatrixYprim <- as.matrix(Mod.MatrixYprim)
     colnames(Mod.MatrixY) <- colnamesY
     colnames(Mod.MatrixYprim) <- colnamesYPrim 
+
     return(list(minY = minY, maxY =maxY, degree = degree, knots=knots, df=df, Mod.MatrixY = Mod.MatrixY, 
                 Mod.MatrixYprim = Mod.MatrixYprim))
     na.action = current.na.action

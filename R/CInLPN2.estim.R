@@ -23,8 +23,7 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, DeltaT=
   cl <- match.call()
   #  non parall Optimisation 
   # package loading
-
-  browser()
+browser()
   debug=0
   if(debug==1){
     browser()
@@ -41,7 +40,7 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, DeltaT=
            tau = data$tau, tau_is=data$tau_is, 
            modA_mat = data$modA_mat, DeltaT)
     
-    CInLPN:::Loglik(K = K, nD = nD, mapping =  mapping.to.LP, paras$paraOpt,  paraFixe = paras$paraFixe, posfix = paras$posfix, 
+    Mod.MatrixYprimCInLPN:::Loglik(K = K, nD = nD, mapping =  mapping.to.LP, paras$paraOpt,  paraFixe = paras$paraFixe, posfix = paras$posfix, 
                     m_is = data$m_i, Mod_MatrixY = data$Mod.MatrixY, Mod_MatrixYprim = data$Mod.MatrixYprim, df=data$df,
                     x = data$x, z = data$z, q = data$q,nb_paraD = data$nb_paraD,
                     x0 = data$x0, z0 = data$z0, q0 = data$q0,
@@ -74,6 +73,7 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, DeltaT=
   #source("/Users/anais/Documents/2019 Postdoc Bordeaux/code/R/MLM/marqLevAlg_AR.R")
   #source("/Users/anais/Documents/2019 Postdoc Bordeaux/code/R/MLM/deriva_AR.R")
   if(requireNamespace("marqLevAlg", quietly = TRUE)){#marqLevAlg::marqLevAlg
+    ptm<-proc.time()
     temp <- try(marqLevAlg::marqLevAlg(b = paras$paraOpt, fn = Loglik, nproc = nproc, .packages = NULL, epsa=epsa, epsb=epsb, epsd=epsd,
                            maxiter=maxiter, print.info = print.info,  minimize = FALSE,
                            DeltaT=DeltaT, paraFixe = paras$paraFixe, posfix = paras$posfix,
@@ -85,8 +85,13 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, DeltaT=
                            x0 = data$x0, z0 = data$z0, q0 = data$q0,tau = data$tau, tau_is=data$tau_is,
                            modA_mat = data$modA_mat, data_surv = as.matrix(data_surv), basehaz = ifelse(paras$basehaz=="Weibull", 0, 1), knots_surv = paras$knots_surv, 
                            np_surv = paras$np_surv, survival = (!is.null(data_surv)), assoc =  paras$assoc, truncation = paras$truncation, 
-                           nE = data$nE, Xsurv1 = data$Xsurv1, Xsurv2 = data$Xsurv2)
+                           nE = data$nE, Xsurv1 = data$Xsurv1, Xsurv2 = data$Xsurv2, clustertype="FORK")
     ,silent = FALSE)
+    time=proc.time()-ptm
+    h=floor(time[3]/3600)
+    m=floor((time[3]-h*3600)/60)
+    s=floor(time[3]-h*3600-m*60)
+    cat(h,"heures ",m, "minutes ", s, "seconds")
     if(inherits(temp ,'try-error')){
       est <- list(istop=20, v=rep(0,length=((length(paras$paraOpt))*((length(paras$paraOpt)+1)/2))) ,
                   fn.value=100000000, b=paras$paraOpt, ca=1,cb=1,rdm=1,ier=-1)

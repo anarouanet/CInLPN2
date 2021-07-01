@@ -235,8 +235,11 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
   }
 
   if(!is.null(paras.ini)){
-    if(length(paras) != p || length(paras.ini) != p )
-      stop("The length of paras.ini is not correct.")
+    if(length(paras) != p || length(paras.ini) != p ){
+      message("The length of paras.ini is not correct.")
+      browser()
+      stop("The length of paras.ini is not correct.") 
+    }
   }else{
     if(length(paras) != p )
       stop("The length of paras.ini is not correct.")
@@ -404,6 +407,7 @@ f_paras.ini <- function(data, outcomes, mapped.to.LP, fixed_X0.models, fixed_Del
   #Survival sub model
   if(!is.null(Survdata)){
     if(basehaz == "Weibull"){
+      browser()
       mod_S <- coxph(Surv(Event, StatusEvent) ~ 1, data=lung)
       mod_S <- survreg(Surv(Event, StatusEvent, type='left') ~ 1,
                        data=Survdata, dist='weibull')

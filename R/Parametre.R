@@ -250,6 +250,7 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
   posfix <- rep(0,length(paras)) # 0 = non fixe 1 = fixe # initialisation
   # constraining of parameters==============
   indexFixe <- indexparaFixeForIden
+
   if(!is.null(indexparaFixeUser)){
     if(length(indexparaFixeUser) != length(paraFixeUser)){
       stop("The length of paraFixe does not correspond with the length of indexparaFixe")

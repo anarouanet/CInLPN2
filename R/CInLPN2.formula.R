@@ -450,9 +450,9 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
       }else{
         Y0tmp <- Y0
       }
-      
-      if (!all(Y0tmp %in% minY0[i]:maxY0[i]))
-        stop("With the threshold link function, problem with the outcome data, must be discrete (remove NAs)")
+
+      if (!all(Y0tmp[which(!is.na(Y0tmp))] %in% minY0[i]:maxY0[i]))
+        stop("With the threshold link function, problem with the outcome data, must be discrete")
 
       IND <- sort(unique(Y0tmp))
       IND <- IND[1:(length(IND) - 1)] - minY0[i] + 1

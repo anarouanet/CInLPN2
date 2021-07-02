@@ -325,7 +325,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
   double loglik_i2=0;
   double loglik_i0 = 0;
   double log_Jac_Phi = sum(log(YiwoNA(vectorise(YtildPrimi))));
-
+cout << " log_Jac_Phi "<<log_Jac_Phi<<endl;
   if((max(if_link) == 1 && !survival)|| check>0 ){
     // To check the linear closed form of likelihood
     double abs_det_matVY_i = abs(det(matVY_i));
@@ -438,20 +438,21 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
         double out1;
         double out2;
         double vrais =0;
-        int k_t=0;
+ 
         //double log_Jac_Phi=0;
         double vraisr_surv=1;
         double vrais_surv_check=1;
         double vrais_survtot =0;
         double vraisY_tot =0;
-        double min_vraisr=0;
-        double max_vraisr=0;
+        double min_lvraisr=0;
+        double max_lvraisr=0;
         int pb_QMC = 0;
 
         //log_Jac_Phi = sum(log(YiwoNA(vectorise(YtildPrimi))));
         
         for(int nr=0; nr < MCnr; nr++){
-
+          
+          int k_t=0;
           vec ui_r = ui.row(nr).t();
           if(nD>1)
             cout << " choisir les bons ui_r"<<endl;
@@ -462,7 +463,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
           vec Lambda_nr;
           //vec Lambda_nr = matNui_ui(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi, true);
      
-          double vraisr=0;
+          double lvraisr=0;
           int kk = 0;
           for (int k = 0 ; k < K; k++){
             vec ParaTransformYk = ParamTransformY(span(kk, (kk+df[k]-1)));
@@ -506,24 +507,25 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
                 //   cout << " Ytildi_nu_i_uik "<< Ytildi_nu_i_uik.t()<<endl
                 //        << " inv_sympd(sigMSM) "<< inv_sympd(sigMSM) <<endl<<endl;
                 // }
-                if(out2<=min_vraisr){
-                  min_vraisr = out2;
+                if(out2<=min_lvraisr){
+                  min_lvraisr = out2;
                 }
                 
-                if(out2>=max_vraisr){
-                  max_vraisr = out2;
+                if(out2>=max_lvraisr){
+                  max_lvraisr = out2;
                 }
                 
                 if(exp(out2)==0)
                   pb_QMC++;
-                vraisr += (out2);
+                lvraisr += (out2);
 
               }else if(if_link(k)==2){ // thresholds
 
                 double phi1;
                 double phi2;
-                
+                double lvraisk=0;
                 for (int j = 0 ; j < k_i.size(); j++){
+
                   if(k_i(j)>0){ // change: if k_i(j,k)==1
                     
                     // double binf = ParaTransformYk(0);
@@ -534,58 +536,105 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
                     //      binf = binf +  pow(ParaTransformYk_b(m), 2);
                     //   }
                     // }
-                    
-                    
+
                     int mm=0; //index in ParaTransformYk
+                    double inf=-10;
+                    double sup=-10;
                     
-                    for (int m = 0 ; m <= (zitr(2*k_t+1)-zitr(2*k_t)); m++){ // m values between Ymin and Ymax
-                      //if(ide(kk + max(mm-1, 0))==1){ // check ide contains ide of k=0, k=1, ...
-                      if(Ytildi(j, k)==(zitr(2*k_t) + m)){
+                    if(Ytildi(j, k)==(zitr(2*k_t))){
+                      double value = (ParaTransformYk(0)-Lambda_nr(j))/abs(Sig(k,k));//(ParaTransformYk(mm)-Lambda_nr(j))/abs(Sig(k,k));
+                      phi1 = normalCDF(value);
+                      phi2 = 0;
+                    }else{
+                      
+                      inf=ParaTransformYk(0);
+                      sup=ParaTransformYk(0);
+                      for (int m = 0 ; m < (df[k]-1); m++){
+                        inf = sup;
+                        sup += pow(ParaTransformYk(m+1),2);
                         
-                        if(m==0){
-                          double value = (ParaTransformYk(mm)-Lambda_nr(j))/abs(Sig(k,k));
+                        if(Ytildi(j, k)==(zitr(2*k_t) + m+1)){
+                          double value = (sup-Lambda_nr(j))/abs(Sig(k,k));//(ParaTransformYk(mm)-Lambda_nr(j))/abs(Sig(k,k));
                           phi1 = normalCDF(value);
-                          phi2 = 0;
-                        }else if(m==(zitr(2*k_t+1)-zitr(2*k_t))){
-                          phi1 = 1;
-                          double value = (ParaTransformYk(mm-1)-Lambda_nr(j))/abs(Sig(k,k));
-                          phi2 = normalCDF(value);
-                        }else{
-                          double value = (ParaTransformYk(mm)-Lambda_nr(j))/abs(Sig(k,k));
-                          phi1 = normalCDF(value);
-                          value = (ParaTransformYk(mm-1)-Lambda_nr(j))/abs(Sig(k,k));
+                          value = (inf-Lambda_nr(j))/abs(Sig(k,k));//(ParaTransformYk(mm-1)-Lambda_nr(j))/abs(Sig(k,k));
                           phi2 = normalCDF(value);
                         }
-                        
-                        if(phi1< phi2){
-                          cout << " j "<< j //<< " PT "<< ParaTransformYk.t()<<endl
-                               << " exp " <<(exp(phi1) - exp(phi2))
-                               << " phi1 "<< phi1
-                               << " phi2 "<< phi2 <<endl; 
-                        }
-                        
-                        //vrais *= (exp(phi1) - exp(phi2));
-                        // cout << " j "<< j << " phi1 "<< exp(phi1) - exp(phi2) <<  " phi1 "<<exp(phi1) << " phi2 "<< exp(phi2) <<endl
-                        //     <<" ParaTransformYk(m+1) " << ParaTransformYk(m+1) <<" ParaTransformYk(m) " << ParaTransformYk(m) << "Sig(k,k) "<< Sig(k,k) <<endl;
-                        
-                        //cout << "m "<<m<<" ParaTransformY(ind_m) "<<ParaTransformY(ind_m) << " lambda "<<Lambda_nr(j)<<endl;
-                        vraisr *= (phi1-phi2);
-                        cout << " changer en somme des lvrais"<<endl;
-                        if(nr<10){
-                          cout << nr << " m "<<m<<" vraisr " << vraisr << " phi1 "<< phi1 << " phi2 "<< phi2<<endl; 
-                        }
-                        //if(nr==10)
-                        //  cout << nr << " ParaTransformY "<< ParaTransformY.t()<<endl; 
-                        
-                      }//if Y=m
-                      mm++;
-                    } // for m in Mk
+                      }
+                      if(Ytildi(j, k)==(zitr(2*k_t+1))){
+                        phi1 = 1;
+                        double value = (inf-Lambda_nr(j))/abs(Sig(k,k));//(ParaTransformYk(mm-1)-Lambda_nr(j))/abs(Sig(k,k));
+                        phi2 = normalCDF(value);
+                      }
+                    }
+                    
+                    if(phi1< phi2){
+                      cout << " j "<< j //<< " PT "<< ParaTransformYk.t()<<endl
+                           << " exp " <<(exp(phi1) - exp(phi2))
+                           << " phi1 "<< phi1
+                           << " phi2 "<< phi2 <<endl; 
+                    }
+
+                    lvraisk += log(phi1-phi2);
+
+                    if(phi1==phi2 || isinf(lvraisk) )
+                      cout << " k "<<k << " j "<< j << " Ytildi(j, k) "<<Ytildi(j, k)
+                           << " zitr(2*k_t) "<< zitr(2*k_t) << " zitr(2*k_t+1) "<< zitr(2*k_t+1) <<" inf "<<inf << " sup "<<sup
+                           << " phi1 "<<phi1 << " phi2 "<<phi2<< " log(phi1-phi2) "<< log(phi1-phi2) <<" lvraisk "<<lvraisk << " lvrais " << lvrais<<endl;
+                      
+                    if(2<1){
+                      double inf;
+                      double sup;
+                      for (int m = 0 ; m <= (zitr(2*k_t+1)-zitr(2*k_t)); m++){ // m values between Ymin and Ymax
+                        cout << " m2 "<<m<<endl;
+                        //if(ide(kk + max(mm-1, 0))==1){ // check ide contains ide of k=0, k=1, ...
+                        if(Ytildi(j, k)==(zitr(2*k_t) + m)){
+                          
+                          if(m==0){
+                            double value = (sup-Lambda_nr(j))/abs(Sig(k,k));//(ParaTransformYk(mm)-Lambda_nr(j))/abs(Sig(k,k));
+                            phi1 = normalCDF(value);
+                            phi2 = 0;
+                          }else if(m==(zitr(2*k_t+1)-zitr(2*k_t))){
+                            phi1 = 1;
+                            double value = (inf-Lambda_nr(j))/abs(Sig(k,k));//(ParaTransformYk(mm-1)-Lambda_nr(j))/abs(Sig(k,k));
+                            phi2 = normalCDF(value);
+                          }else{
+                            double value = (sup-Lambda_nr(j))/abs(Sig(k,k));//(ParaTransformYk(mm)-Lambda_nr(j))/abs(Sig(k,k));
+                            phi1 = normalCDF(value);
+                            value = (inf-Lambda_nr(j))/abs(Sig(k,k));//(ParaTransformYk(mm-1)-Lambda_nr(j))/abs(Sig(k,k));
+                            phi2 = normalCDF(value);
+                          }
+                          
+                          if(phi1< phi2){
+                            cout << " j "<< j //<< " PT "<< ParaTransformYk.t()<<endl
+                                 << " exp " <<(exp(phi1) - exp(phi2))
+                                 << " phi1 "<< phi1
+                                 << " phi2 "<< phi2 <<endl; 
+                          }
+                          
+                          //vrais *= (exp(phi1) - exp(phi2));
+                          // cout << " j "<< j << " phi1 "<< exp(phi1) - exp(phi2) <<  " phi1 "<<exp(phi1) << " phi2 "<< exp(phi2) <<endl
+                          //     <<" ParaTransformYk(m+1) " << ParaTransformYk(m+1) <<" ParaTransformYk(m) " << ParaTransformYk(m) << "Sig(k,k) "<< Sig(k,k) <<endl;
+                          
+                          //cout << "m "<<m<<" ParaTransformY(ind_m) "<<ParaTransformY(ind_m) << " lambda "<<Lambda_nr(j)<<endl;
+                          lvraisk += log(phi1-phi2);
+                          
+                          if(nr<0){
+                            cout << nr << " m "<<m<<" lvraisr " << lvraisr << " phi1 "<< phi1 << " phi2 "<< phi2<<endl; 
+                          }
+                          //if(nr==10)
+                          //  cout << nr << " ParaTransformY "<< ParaTransformY.t()<<endl; 
+                          
+                        }//if Y=m
+                        mm++;
+                      } // for m in Mk
+                    }
+ 
                   }// if Yj observed
                 } // for j
                 k_t ++;
+                lvraisr += lvraisk;
               }// if threshold
             } // if QMC
-            
             //if(nr < 10){
             //  cout << " out2 "<< out2 <<endl;
             //        << " pi " << sum(k_i)*log(2*M_PI) 
@@ -607,9 +656,9 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
           }
 
           vrais_survtot += vraisr_surv;
-          vraisY_tot += exp(vraisr);
-          //vrais += exp(vraisr)*vraisr_surv;
-          vrais += exp(vraisr+log(vraisr_surv));
+          vraisY_tot += exp(lvraisr);
+          //vrais += exp(lvraisr)*vraisr_surv;
+          vrais += exp(lvraisr+log(vraisr_surv));
 
           if(2<1){//verification survival likelihood if all regression parameters  =0 and baseline = Weibull
             double s1=exp(-pow(t_i/param_basehaz(1),param_basehaz(0))-pow(t_i/param_basehaz(3),param_basehaz(2)));
@@ -638,7 +687,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
                  //<< " vrais_survtot/MCnr "<<vrais_survtot/MCnr<< // << " vraisTi "<< vrais_survtot/MCnr << endl;
           
             //cout << " loglik_i "<<loglik_i<< " log(vraisY_tot/MCnr) "<< log(vraisY_tot/MCnr)<< " diffT "<<log(vrais_surv_check)-log(vrais_survtot/MCnr) <<" pb_QMC" <<pb_QMC<< " minY "<< minY << " vrais / MCnr "<<endl;// << " vraisTi "<< vrais_survtot/MCnr << endl;
-          //cout << " max_vraisr "<< max_vraisr << " min_vraisr "<< min_vraisr << " pb_QMC" <<pb_QMC<< " log_Jac_Phi "<< log_Jac_Phi <<endl;
+          //cout << " max_lvraisr "<< max_lvraisr << " min_lvraisr "<< min_lvraisr << " pb_QMC" <<pb_QMC<< " log_Jac_Phi "<< log_Jac_Phi <<endl;
         }
 
         
@@ -1036,7 +1085,8 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
       Ytild.col(k) = Mod_MatrixY.col(kk);
       ParamTransformY(kk) = ParaTransformY(kk);
       for(int j= 1; j < df[k]; j++ ){
-        ParamTransformY(kk+j)= ParamTransformY(kk+j-1) + ParaTransformY(kk+j)*ParaTransformY(kk+j);
+        //ParamTransformY(kk+j)= ParamTransformY(kk+j-1) + ParaTransformY(kk+j)*ParaTransformY(kk+j);
+        ParamTransformY(kk+j)= ParaTransformY(kk+j);
       }
       
       kk += df[k];

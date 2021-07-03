@@ -262,6 +262,49 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
   res$Time <- Time 
   res$DeltaT <- DeltaT
   res$colnames <- c(colnames(data_F$x0), colnames(data_F$x), L, Col.matA, sig,ParaTransformY)
+  if(!is.null(Survdata)){
+    param_survie <-c()
+    if(data_F$nE==1){
+      if(paras$basehaz=="Weibull"){
+        param_survie <-c("shape", "scale")
+      }else{
+        message("rename survival parameters if not Weibull")
+      }
+      Xsurv <- as.matrix(model.matrix(as.formula(paste("",fixed.survival.models, sep="~")),data=Survdata)[,-1])
+      param_survie <- c(param_survie, names(Xsurv))
+
+    }else if(data_F$nE==2){
+      param_survie<-c()
+      for(ij in 1:2){
+        if(paras$basehaz=="Weibull"){
+          param_survie <- c(param_survie, paste("shape",ij,sep="."), paste("scale",ij,sep="."))
+        }else{
+          message("rename survival parameters if not Weibull")
+        }
+        Xsurv <- as.data.frame(model.matrix(as.formula(paste("",fixed.survival.models[ij], sep="~")),data=Survdata)[,-1])
+        for(ip in 1:length(names(Xsurv))){
+          param_survie <- c(param_survie, paste(names(Xsurv)[ip],ij,sep="."))
+        }
+        
+        if(assoc==0){
+          name_assoc <- "r.inter"
+        }else if(assoc==1){
+          name_assoc <- "r.slope"
+        }else if(assoc==2){
+          name_assoc <- c("r.inter", "r.slope")
+        }else if(assoc==3){
+          name_assoc <- "c.value"
+        }else if(assoc==4){
+          name_assoc <- "c.slope"
+        }else if(assoc==5){
+          name_assoc <- c("c.value", "c.slope")
+        }
+        param_survie <- c(param_survie, name_assoc)
+      }
+    }
+    res$colnames <- c(res$colnames, param_survie)
+  }
+    
   res$coefficients <- as.matrix(res$coefficients)
   rownames(res$coefficients) <- res$colnames
   colnames(res$coefficients) <- "Coef."

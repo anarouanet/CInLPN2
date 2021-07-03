@@ -155,11 +155,11 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
 
   vec Ytildi_nu_i;
   mat matVY_i;
-  vec k_i;
+  vec k_i = zeros<vec>(m_i);// vector of number of observed marker at each observation time
   vec PNu_cp_i;
   mat matV_i;
   mat sigMSM;
-  int check=1; // 1 both, 2 close likelihood only
+  int check=0; // 1 both, 2 close likelihood only
   //cout << " max(if_link) "<<max(if_link)<< " survival "<< survival << " check "<< check <<endl;
 
   if((max(if_link) < 2 && !survival) || check==1){//|| check==1){
@@ -181,7 +181,6 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     matV_i = zeros(m_i*nD, m_i*nD); // Computation of the covariance matrix
     
     //mat matVY_icheck = zeros(sizeYi,sizeYi); // initialization of the  matVY_i to zero
-    k_i = zeros<vec>(m_i);// vector of number of observed marker at each observation time
     int q = zi.n_cols; // number of random effets on the slope
     
     // found the max of the vector tau_i
@@ -313,6 +312,31 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     //vec ViY_check = vectorise(matVY_icheck);
     sigMSM =diagmat(MSigmaM);
     
+  }else{
+    int p_j=0; // loop variable
+    int p_k =0; // loop variable
+
+    for( int j =0 ; j < m_i; j++){
+      p_k = p_j;
+      // ###### computing of the matrix H_i_t_j  ##############
+      mat matH_i_t_j = matHit(Ytildi.row(j).t()); // Yi.row(j) = vector of observations at time j;
+      
+      for( int k =j ; k < m_i; k++){
+        // ###### computering of the matrix H_i_t_k ##############
+        mat matH_i_t_k = matH_i_t_j;
+        if(k!=j) {
+          matH_i_t_k = matHit(Ytildi.row(k).t()); // Yi.row(k) = vector of observations at time k;
+        }
+        if(sum(sum(matH_i_t_k)) == 0){ // #### this mean that there is no observation at this time
+          k_i(k) = 0;
+        }
+        else{
+          k_i(k) = matH_i_t_k.n_rows;
+        }
+        p_k += k_i(k); // incrementation of p_k
+      }
+      p_j += k_i(j);// incrementation of p_j
+    }
   }
   
   //double ya=0;
@@ -325,8 +349,8 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
   double loglik_i2=0;
   double loglik_i0 = 0;
   double log_Jac_Phi = sum(log(YiwoNA(vectorise(YtildPrimi))));
-cout << " log_Jac_Phi "<<log_Jac_Phi<<endl;
-  if((max(if_link) == 1 && !survival)|| check>0 ){
+
+  if((max(if_link) == 1 && !survival)|| check==1 ){
     // To check the linear closed form of likelihood
     double abs_det_matVY_i = abs(det(matVY_i));
     
@@ -467,16 +491,12 @@ cout << " log_Jac_Phi "<<log_Jac_Phi<<endl;
           int kk = 0;
           for (int k = 0 ; k < K; k++){
             vec ParaTransformYk = ParamTransformY(span(kk, (kk+df[k]-1)));
-
             vec tau_ik = matTik(Ytildi.col(k), tau_i);
-
             Lambda_nr = matNui_ui(nD, tau_ik, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi, true);
-
             vec Ytildik = YiwoNA(vectorise(Ytildi.col(k)));
-            
-            int nik = Ytildik.size();
+            int nik = YiwoNA(Ytildik).size();
             mat Sig_k = eye(nik,nik)*Sig(k,k);
-
+            
             if(type_int == -1){ //-1 MC 0 AMC 
               cout << " develop likelihood computation with integral ui for MC or AMC "<<endl;
 
@@ -524,8 +544,7 @@ cout << " log_Jac_Phi "<<log_Jac_Phi<<endl;
                 double phi1;
                 double phi2;
                 double lvraisk=0;
-                for (int j = 0 ; j < k_i.size(); j++){
-
+                for (int j = 0 ; j < nik; j++){//NA!!
                   if(k_i(j)>0){ // change: if k_i(j,k)==1
                     
                     // double binf = ParaTransformYk(0);
@@ -576,10 +595,10 @@ cout << " log_Jac_Phi "<<log_Jac_Phi<<endl;
 
                     lvraisk += log(phi1-phi2);
 
-                    if(phi1==phi2 || isinf(lvraisk) )
-                      cout << " k "<<k << " j "<< j << " Ytildi(j, k) "<<Ytildi(j, k)
-                           << " zitr(2*k_t) "<< zitr(2*k_t) << " zitr(2*k_t+1) "<< zitr(2*k_t+1) <<" inf "<<inf << " sup "<<sup
-                           << " phi1 "<<phi1 << " phi2 "<<phi2<< " log(phi1-phi2) "<< log(phi1-phi2) <<" lvraisk "<<lvraisk << " lvrais " << lvrais<<endl;
+                    // if(phi1==phi2 || isinf(lvraisk) )
+                    //   cout << " nr "<< nr <<" k " << k <<"j"<<j<<" Ytildi(j, k) "<<Ytildi(j, k)<< " k_i "<<k_i.t()
+                    //        << " zitr(2*k_t) "<< zitr(2*k_t) << " zitr(2*k_t+1) "<< zitr(2*k_t+1) <<" inf "<<inf << " sup "<<sup
+                    //        << " Lambda_nr(j) "<< Lambda_nr(j)<< " phi1 "<<phi1 << " phi2 "<<phi2<< " log(phi1-phi2) "<< log(phi1-phi2) <<" lvraisk "<<lvraisk << " lvraisr " << lvraisr<< " lvrais " << lvrais<< " vrais " << vrais<<endl;
                       
                     if(2<1){
                       double inf;
@@ -627,7 +646,7 @@ cout << " log_Jac_Phi "<<log_Jac_Phi<<endl;
                         }//if Y=m
                         mm++;
                       } // for m in Mk
-                    }
+                    }//2<1
  
                   }// if Yj observed
                 } // for j
@@ -673,7 +692,7 @@ cout << " log_Jac_Phi "<<log_Jac_Phi<<endl;
           }
         }//nr
         
-        if(!check){
+        if(check){
           double minY = pow(10,10);
           for(int j = 0 ; j < Ytildi.size(); j++){
             if(Ytildi(j)<minY)
@@ -1088,6 +1107,8 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
         //ParamTransformY(kk+j)= ParamTransformY(kk+j-1) + ParaTransformY(kk+j)*ParaTransformY(kk+j);
         ParamTransformY(kk+j)= ParaTransformY(kk+j);
       }
+
+      YtildPrim.col(k).fill(1);
       
       kk += df[k];
       kkp += df[k]-1;
@@ -1107,7 +1128,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
   
   //Computering of log-likelihood as sum of individuals contributions
   double loglik0=0;
-  for(int n= 0; n < N; n++ ){
+  for(int n= 0; n < N ; n++ ){
 
     //if(n%200==0)
       //cout << "indiv "<< n <<endl;
@@ -1162,7 +1183,6 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
     //  std::cout << "All the elements are equal to 2.\n";
     //cout << " n "<<n;
     double out1 =0;
-    //cout << " n "<<n ;
     out1= Loglikei_GLM(K, nD, matrixP, m_is(n), tau, tau_is(span(p,(p+m_is(n)-1))), Ytild(span(p,(p+m_is(n)-1)), span(0,(K-1))),
                                  YtildPrim(span(p,(p+m_is(n)-1)), span(0,(K-1))), x0(span(n*nD,(n+1)*nD-1), span(0,(ncol_x0-1))),
                                  z0(span(n*nD,(n+1)*nD-1), span(0,(ncol_z0-1))), x(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_x-1))),

@@ -68,7 +68,6 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
       }else if(link[k]=="thresholds"){
 
         linkSpe[[k]] <- "t"
-        print("check Imat! soit ne pas rajouter de colonnes soit mettre NA ")
 
         Imat     <- matrix(0, nrow = dim(Y)[1], ncol = length(unique(Y[which(!is.na(Y[,k])),k]))-1)
         Imat[,1] <- Y[,k]
@@ -81,7 +80,6 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
         #check!
         Mod.MatrixY <- cbind(Mod.MatrixY, Imat)
         Mod.MatrixYprim <- cbind(Mod.MatrixYprim, Imat[,-1])
-        browser()
         
         df <-c(df, ncol(Imat))
         degree[k] <- 0 # conventionnellement
@@ -156,6 +154,10 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
     }
 
     Mod.MatrixY <- as.matrix(Mod.MatrixY)
+
+    if(all(link=="thresholds")) # If only thresholds links, so that Log_jacobien = 0
+      Mod.MatrixYprim<-Mod.MatrixYprim+1
+    
     Mod.MatrixYprim <- as.matrix(Mod.MatrixYprim)
     colnames(Mod.MatrixY) <- colnamesY
     colnames(Mod.MatrixYprim) <- colnamesYPrim 

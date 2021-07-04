@@ -368,17 +368,6 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
 
   if(check==1 || max(if_link)>1 || survival){
 
-    // MatrixXd precMat = matV_i;
-    // LLT<MatrixXd> lltOfA(matV_i); // compute the Cholesky decomposition of A
-    // MatrixXd L = lltOfA.matrixL();
-    // double logDetPrecMat=  2*L.diagonal().array().log().sum();
-    //fout2 << " logDetPrecMat " << logDetPrecMat<<endl;
-    
-    //precMat = L.inverse().transpose()*L.inverse();
-    
-    // Computation choleski
-    //cout << " Add cholesky for V_Lambda_i !"<<endl;
-    //mat Chol_matV_i = mvrnormArma(matV_i);//chol(matV_i); //chol.t()*chol = mat
     vec K2_lambda = zeros<vec>(K); // which latent process linked to the K markers
     
     for(int j =0 ; j < K; j++){
@@ -395,8 +384,8 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     int ind=0;
     //sum(k_i) number of observations for subject i
 
+    vec markers = zeros<vec>(K); // which lambda corresponds to marker k
     for(int j =0 ; j < Ytildi.n_rows; j++){
-      vec markers = zeros<vec>(K);
       for(int b = 0 ; b < Ytildi.n_cols; b++){
         if(!isnan(Ytildi(j,b))){
           if(markers[b]==0){
@@ -411,12 +400,8 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
       }
     }
     
-    vec paraSig(Ytildi.n_cols);
-    
-    int integral_ui = 1;
-    lvrais = 0;
-    
-    if(integral_ui ==1 || survival){
+    if(check == 1 || max(if_link)>1 || survival){
+      lvrais = 0;
       int nq = matDw_u.n_cols + matDw.n_cols ;
       mat var_RE = zeros<mat>(nq, nq);
       mat ui;
@@ -474,22 +459,36 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
 
         //log_Jac_Phi = sum(log(YiwoNA(vectorise(YtildPrimi))));
         
-        for(int nr=0; nr < MCnr; nr++){
-          
+        for(int nr=0; nr < 1; nr++){
           int k_t=0;
-          vec ui_r = ui.row(nr).t();
-          if(nD>1)
-            cout << " choisir les bons ui_r"<<endl;
-          
-          //ui_r.fill(0);
-          //cout << " ui_r "<<ui_r.t();
-          
+          int nb_RE = nq/nD;
+          vec ui_r; 
           vec Lambda_nr;
           //vec Lambda_nr = matNui_ui(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi, true);
      
           double lvraisr=0;
           int kk = 0;
           for (int k = 0 ; k < K; k++){
+            cout << " k "<<k<<endl;
+            if(nD>1){
+              ui_r = zeros<vec>(nb_RE);
+              cout << " ui_rall "<<endl;
+              vec ui_rall = ui.row(nr).t();
+              cout << " d_act "<<endl;
+              int d_act = markers(k); // latent process corresponding to marker k
+              cout << " choisir les bons ui_r"<< nb_RE<< " markers "<<markers.t()<<endl;
+              int t_re=0;
+              for(int i=0; i < nb_RE; i++){
+                ui_r(i) = ui_rall(t_re + d_act);
+                t_re += nD;
+              }
+              cout << " ui "<<ui.row(nr).t();
+              cout << " ui_r "<<ui_r.t();
+            }else{
+              ui_r = ui.row(nr).t();
+            }
+            //ui_r.fill(0);
+            
             vec ParaTransformYk = ParamTransformY(span(kk, (kk+df[k]-1)));
             vec tau_ik = matTik(Ytildi.col(k), tau_i);
             Lambda_nr = matNui_ui(nD, tau_ik, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi, true);
@@ -716,190 +715,8 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
         if(pb_QMC > MCnr*0.15*K)
           lvrais=-pow(10,10);
       }
-      
 
-      
-    }else{ //Integral on lambda ------------------
-      ind_lambda = ind_lambda.head(sizeLambda);
-      int ind2=0;
-      ind=0;
-      vec mean_lambdai(sizeLambda);
-      
-      if(sizeLambda != PNu_cp_i.size()){ // if one Y obs = nan or there are doublons in lambda_k(t)
-        
-        int ind3=0;
-        for(int b = 0 ; b < PNu_cp_i.size(); b++){
-          if(binary_search(ind_lambda.begin(), ind_lambda.end(), b)){
-            mean_lambdai[ind3]= PNu_cp_i[b];
-            ind3++;
-          }else{
-            matV_i.shed_col(b);
-            matV_i.shed_row(b);
-          }
-        }
-      }else{
-        mean_lambdai=PNu_cp_i;
-      }
-      
-      //LLT<MatrixXd> lltOfA(precMat); // compute the Cholesky decomposition of A
-      //MatrixXd L = lltOfA.matrixL();
-      //logDetPrecMat=  2*L.diagonal().array().log().sum();
-      //precMat = L.inverse().transpose()*L.inverse();
-      // cout << " det(matV_i) "<< det(matV_i) <<endl;
-      // mat U;
-      // vec s;
-      // mat V;
-      // 
-      // svd(U,s,V,matV_i);
-      // 
-      // mat X= U*diagmat(s)*V.t();
-      // 
-      // cout << " matV_i-X "<< matV_i-X <<endl;
-      
-      //cout << " chol(matV_i) "<< chol(matV_i) <<endl;
-      mat D;
-      
-      const bool chol_status = op_chol::apply_direct(D, matV_i, 1);  // '1' means "lower triangular"
-      
-      if(chol_status == false)
-      {
-        // C is not symmetric positive definite, so find approximate square root of C
-        
-        colvec eigval;  // NOTE: eT is constrained to be real (ie. float or double) in fn_mvnrnd.hpp
-        mat eigvec;
-        
-        const bool eig_status = eig_sym_helper(eigval, eigvec, matV_i, 'd', "mvnrnd()");
-        
-        if(eig_status == false)  { return false; }
-        
-        double*   eigval_mem    = eigval.memptr();
-        const uword eigval_n_elem = eigval.n_elem;
-        
-        // since we're doing an approximation, tolerate tiny negative eigenvalues
-        
-        const double tol = double(-100) * Datum<double>::eps * norm(matV_i, "fro");
-        
-        if(arma_isfinite(tol) == false)  { return false; }
-        
-        for(uword i=0; i<eigval_n_elem; ++i){
-          const double val = eigval_mem[i];
-          
-          if( (val < tol) || (arma_isfinite(val) == false) )  { return false; }
-        }
-        
-        for(uword i=0; i<eigval_n_elem; ++i)  { if(eigval_mem[i] < double(0))  { eigval_mem[i] = double(0); } }
-        
-        mat DD = eigvec * diagmat(sqrt(eigval));
-        D.steal_mem(DD); //matV_i = D*D.t();
-      }
-      
-      
-      mat MatVi2=matV_i+0.0001*eye(matV_i.n_rows, matV_i.n_rows);
-      mat invmatV_i= inv_sympd(MatVi2);
-      mat D_bis = D+0.0001*eye(matV_i.n_rows, matV_i.n_rows);
-      
-      double log_det=log(det(MatVi2));
-      //double log_det_D=2*log(det(D_bis));
-      //cout << " log_det "<< log_det << " vs "<< log(det(matV_i))<< " vs " <<log_det_D << endl;
-      // double logDetPrecMat=  2*L.diagonal().array().log().sum();
-      //fout2 << " logDetPrecMat " << logDetPrecMat<<endl;
-      
-      //precMat = L.inverse().transpose()*L.inverse();
-      //mat out = D * randn< Mat<double> >(D.n_rows, MCnr);
-      
-      mat Lambda;
-      
-      if(type_int<=0){// MC (-1) or aMC (0) (QMC = 1)
-        Lambda = D * randn< Mat<double> >(D.n_rows, MCnr);
-      }else{ // QMC
-        //Lambda =  (D* seq_i.t()).t();
-        Lambda =  seq_i;
-      }
-      
-      bool aMC=true;
-      double lvrais2 =0;
-      
-      if(aMC){
-        int MCnr_d;
-        
-        if(type_int == -1){ //MC
-          
-          for(int nr=0; nr < 0; nr++){
-            vec zero_lambda = zeros<vec>(mean_lambdai.size());
-            //vec Lambda_nrMC = mvnrnd(mean_lambdai, matV_i);//chol(matV_i); //chol.t()*chol = mat
-            vec Lambda_nrMC(Lambda.n_rows);// changer ! matrice nT x nD
-            for(int i=0; i < Lambda.n_rows; i++){
-              Lambda_nrMC(i) = mean_lambdai(i) + Lambda(i,nr);
-            }
-            
-            //Lambda_nr = mvnrnd(mean_lambdai, matV_i);
-            double out2 = f_marker(Lambda_nrMC, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, ParamTransformY, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda);
-            lvrais += out2;
-          }
-          lvrais /= MCnr;
-        }else if(type_int > 0 ){ //QMC
-          MCnr_d = MCnr;
-          double cstant = 0;
-          vec lvrais_nr(MCnr);
-          // Approximation of the likelihood by antithetic MC
-          //Number of pairs of draws for antithetic MC
-          //cout << " det(matV_i) "<<det(matV_i)<<endl;
-          //vec s = svd( matV_i );
-          //  cout << " svd "<<s.t()<<endl;
-          //type_int = 0 if antithetic MC, 1 if halton, 2 if sobol
-          for(int nr=0; nr < MCnr; nr++){
-            vec zero_lambda = zeros<vec>(mean_lambdai.size());
-            
-            //vec Lambda_nrMC = mvnrnd(mean_lambdai, matV_i);//chol(matV_i); //chol.t()*chol = mat
-            vec Lambda_nrMC(Lambda.n_cols);
-            vec resid_nrMC(Lambda.n_cols);
-            for(int i=0; i < Lambda.n_cols; i++){
-              Lambda_nrMC(i) = mean_lambdai(i) + Lambda(nr,i);
-              resid_nrMC(i) = Lambda(nr,i);
-            }
-            
-            //Lambda_nr = mvnrnd(mean_lambdai, matV_i);
-            double logout2 = f_marker(Lambda_nrMC, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, ParamTransformY, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda);
-            
-            
-            double test = -0.5*(Lambda_nrMC.size()*log(2*M_PI) + log_det + as_scalar(resid_nrMC.t()*invmatV_i*resid_nrMC)) ;
-            lvrais_nr(nr)=logout2;
-            //if(type)
-            // Sampling of Lambda_i
-            //arma::vec sampled = mvnorm((nr+1)*666, zeros(matV_i.n_cols), eye(matV_i.n_cols, matV_i.n_cols));
-            //arma::vec Lambda_nr = PNu_cp_i + Chol_matV_i*sampled;
-            //vec Lambda_nr0 = mvnrnd(zero_lambda, matV_i);//chol(matV_i); //chol.t()*chol = mat
-            //for(int i=0; i < Lambda.n_cols; i++){
-            //  Lambda_nrMC(i) = mean_lambdai(i) - Lambda(nr,i);
-            //}      //Lambda_nr = mvnrnd(mean_lambdai, matV_i);
-            
-            //double out = f_marker(Lambda_nrMC, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, ParaTransformY, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda);
-            //vrais += out;
-          }
-          
-          //cstant=max(lvrais_nr)-700;//(min(lvrais_nr)+max(lvrais_nr))/2;
-          cstant=0;
-          double vrais=0;
-          //cstant=0;
-          int n0=0;
-          for(int nr=0; nr < MCnr_d; nr++){
-            vrais += exp(lvrais_nr(nr)-cstant);
-            if(exp(lvrais_nr(nr)-cstant)<pow(10,-5)){
-              n0 +=1;
-            }
-          }
-          
-          cout << " n0 "<< n0<< " cstant "<< cstant <<
-            " vrais "<< vrais <<
-              " log(vrais) "<< log(vrais) << endl;
-          
-          lvrais =log(vrais)+cstant;
-          lvrais2 =lvrais - log(MCnr_d-n0);
-          lvrais -=log(MCnr/2);
-        }
-        
-      }
-    }// --- end if integration on lambda
+    }
   }
   return(lvrais);
 }

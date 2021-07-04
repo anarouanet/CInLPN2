@@ -158,6 +158,7 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
     if(all(link=="thresholds")) # If only thresholds links, so that Log_jacobien = 0
       Mod.MatrixYprim<-Mod.MatrixYprim+1
     
+    
     Mod.MatrixYprim <- as.matrix(Mod.MatrixYprim)
     colnames(Mod.MatrixY) <- colnamesY
     colnames(Mod.MatrixYprim) <- colnamesYPrim 
@@ -502,7 +503,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
     if(n==2)
       Xsurv2 <- Xsurv
     
-    np_surv <- c(np_surv, dim(Xsurv)[2] + ifelse(assoc%in%c(0, 1, 3, 4),1,2))
+    np_surv <- c(np_surv, dim(Xsurv)[2] + ifelse(assoc%in%c(0, 1, 3, 4),1,2)*nD)
   }
 
   return(list(nb_subject=I, nb_obs = length(na.omit(as.vector(Y))), K=K, nD = nD, all.preds = all.preds, id_and_Time=id_and_Time,Tmax = Tmax, m_i = m_i, Y = Y, Mod.MatrixY=Mod.MatrixY,  

@@ -512,7 +512,6 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
                 vec Ytildi_nu_i_uik = Ytildik-Lambda_nrk;
                 out2 = -0.5*(nik*log(2*M_PI) + log(det(Sig_k)) + as_scalar(Ytildi_nu_i_uik.t()*inv_sympd(Sig_k)*Ytildi_nu_i_uik));
 
-                cout <<" nr "<< nr << " k "<< k << " : "<<out2<<endl;
                 //cout << nik<<  " out2 "<< out2 <<" Sig_k "<< Sig_k(0,0) << " Ytildik" << Ytildik.t()<<" Ytildi_nu_i_uik "<< Ytildi_nu_i_uik.t();
               
                 // if(nr==0){
@@ -646,7 +645,6 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
                 } // for j
                 k_t ++;
                 lvraisr += lvraisk;
-                cout << " nr "<< nr << " k "<< k << " lvraisr "<<lvraisr<<endl;
               }// if threshold
             } // if QMC
             //if(nr < 10){
@@ -674,9 +672,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
           vrais += exp(lvraisr+log(vraisr_surv));
           if(exp(lvraisr+log(vraisr_surv))==0)
             pb_QMC++;
-          cout <<" nr "<< nr <<  " lvraisr "<< lvraisr <<" lvraisr_surv "<< log(vraisr_surv)
-               << " vrais "<< vrais <<endl;
-          
+
           if(2<1){//verification survival likelihood if all regression parameters  =0 and baseline = Weibull
             double s1=exp(-pow(t_i/param_basehaz(1),param_basehaz(0))-pow(t_i/param_basehaz(3),param_basehaz(2)));
             double lambdat=1;
@@ -999,17 +995,14 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
     //  std::cout << "All the elements are equal to 2.\n";
     //cout << " n "<<n;
     double out1 =0;
-    if(n==116){
-      out1= Loglikei_GLM(K, nD, matrixP, m_is(n), tau, tau_is(span(p,(p+m_is(n)-1))), Ytild(span(p,(p+m_is(n)-1)), span(0,(K-1))),
+    out1= Loglikei_GLM(K, nD, matrixP, m_is(n), tau, tau_is(span(p,(p+m_is(n)-1))), Ytild(span(p,(p+m_is(n)-1)), span(0,(K-1))),
                          YtildPrim(span(p,(p+m_is(n)-1)), span(0,(K-1))), x0(span(n*nD,(n+1)*nD-1), span(0,(ncol_x0-1))),
                          z0(span(n*nD,(n+1)*nD-1), span(0,(ncol_z0-1))), x(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_x-1))),
                          z(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_z-1))),alpha_mu0, alpha_mu, matDw, matDw_u, matDu,
                          matB, Sig, G_mat_A_0_to_tau_i, G_mat_prod_A_0_to_tau,  DeltaT, ParamTransformY, df, if_link, zitr, ide, paras_k,
                          t_0i, t_i, delta_i, xti1, xti2, basehaz, knots_surv, survival, param_surv, param_basehaz, assoc, truncation,
                          sequence, type_int, ind_seq_i, MCnr, n, nE);
-      cout << " n "<< n << " out1 " << out1 << " loglik "<<loglik<<endl;
-      
-    }
+
     loglik += out1;
 
     

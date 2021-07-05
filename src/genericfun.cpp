@@ -780,7 +780,7 @@ arma::vec matNui_ui(int nD, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arm
                  arma::mat& xi, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::vec& randomeffects, arma::mat& zi,
                  bool ordered){
   // matNu_i : matrix of size xi.n_rows*nD containing expectation of processes
-
+  
   int n_cols_xi = xi.n_cols;
   int n_cols_zi = zi.n_cols;
   int mi=tau_i.size(); // number of observations
@@ -790,6 +790,7 @@ arma::vec matNui_ui(int nD, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arm
 
   colvec ui=randomeffects.subvec( 0, nD-1 );//randomeffects(linspace(0, nD-1, nD));
   colvec vi=randomeffects.subvec( nD, randomeffects.size()-1 );
+
 
   //Verify Xi, Zi with randomeffects.size()>1
 
@@ -1043,9 +1044,9 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
   vec curslope = zeros(ptGK_delta.size());
 
   int nA = 1; // length of vector of association parameters
-  if(assoc == 5)
+  if(assoc == 2 || assoc == 5)
     nA++;
-  
+  nA *= nD;
   vec alpha = zeros(nA*nE) ; // association params for event 1, then for event 2
   
   for( int i=0; i<nE; i++){
@@ -1053,16 +1054,18 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
       alpha(i*nA+j)= param_surv(xti1.size() + i*(nA + xti2.size()) + j);
     }
   }
-  
-  
+
   // prediction Y(t)
   if(assoc == 3 || assoc == 5){ 
-    
     curlev = matNui_ui(nD, ptGK_delta, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi, false);
-    
-    for( int i=0; i<curlev.size(); i++)
-      curlev(i) = exp(alpha(DeltaT-1)*curlev(i));
-    
+
+    int mq=0;
+    for( int i=0; i<curlev.size(); i++){
+      if(mq==nD)
+        mq=0;
+      curlev(i) = exp(alpha((delta_i-1)*(nD)+mq)*curlev(i));
+      mq ++;
+    }
   }
   if(assoc == 4 || assoc == 5){
     cout << " to develop !"<<endl;
@@ -1295,11 +1298,11 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
     vec deltaT_ptGK_ti(1);
     
     for( int j=0; j<tau_i.size(); j++){
-      if(tau_i(j)<=t_i){
+      if(tau_i(j)*DeltaT<=t_i){
         deltaT_ptGK_ti(0) = tau_i(j);
       }
     }
-    
+
     vec hazard(1);
     hazard.fill(1);
     
@@ -1313,7 +1316,6 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
     double surv = 1;
     surv = fct_surv_Konrod(t_i, xti1, xti2, ui_r, delta_i, param_basehaz, basehaz, param_surv, knots_surv, assoc, truncation,
                            nD, tau, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, nE, gamma_X);
-    
     if(truncation){
       surv0 = fct_surv_Konrod(t_0i, xti1, xti2, ui_r, 0, param_basehaz, basehaz, param_surv, knots_surv, assoc, truncation,
                               nD, tau, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, nE, gamma_X);

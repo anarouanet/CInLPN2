@@ -1058,15 +1058,8 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
   // prediction Y(t)
   if(assoc == 3 || assoc == 5){ 
     curlev = matNui_ui(nD, ptGK_delta, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi, false);
-
-    int mq=0;
-    for( int i=0; i<curlev.size(); i++){
-      if(mq==nD)
-        mq=0;
-      curlev(i) = exp(alpha((delta_i-1)*(nD)+mq)*curlev(i));
-      mq ++;
-    }
   }
+  
   if(assoc == 4 || assoc == 5){
     cout << " to develop !"<<endl;
   }
@@ -1095,29 +1088,58 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
     // arma::colvec& param_surv, 
     
   }else{ // Computation of the risk
-    
+
     if(trans==-1){
-      mat risq = zeros(ptGK_delta.size(),nE);
       
-      for(int j=0; j<nE; j++){
+      mat risq = zeros(ptGK_delta.size(),nE);
+      for( int j=0; j<nE; j++){
+        // alpha * Yt
+        int mq=0;
+        for( int i=0; i<curlev.size(); i++){
+          if(mq==nD)
+            mq=0;
+          curlev(i) = exp(alpha(j*(nD)+mq)*curlev(i));
+          mq ++;
+        }
+        
         for( int i=0; i<ptGK.size(); i++){// Instantaneous risk with regression parameters
           risq(i,j) = fct_risq_base(ptGK(i), j+1, param_basehaz, basehaz, knots_surv, nE, gamma_X, false, j);
-          out(i) += risq(i,j)*exp(alpha(j)*curlev(i));
+          out(i) += risq(i,j)*curlev(i); // curlev(i) = exp(alpha Yt)
         } 
+        
       }
+
+
       
       //cout << " risq(i,span(0,nE)) "<<risq(0,span(0,nE))<<endl;
       //cout << " alpha*curlev(0) "<<alpha*curlev(0)<<endl;
       //cout << " risq*alpha*curvlev "<<risq(0,span(0,nE))*alpha*curlev(0)<<endl;
 
     }else {
+
+      // alpha * Yt
+      int mq=0;
+      for( int i=0; i<curlev.size(); i++){
+        if(mq==nD)
+          mq=0;
+        curlev(i) = exp(alpha((trans)*(nD)+mq)*curlev(i));
+        mq ++;
+      }
+    
+    
       vec risq = zeros(ptGK_delta.size());
       
       for( int i=0; i<ptGK.size(); i++) // Instantaneous risk with regression parameters
         risq(i) = fct_risq_base(ptGK(i), delta_i, param_basehaz, basehaz, knots_surv, nE, gamma_X, false, trans);
       
-      for( int i=0; i<ptGK.size(); i++) 
-        out(i) = risq(i)*exp(alpha(trans)*curlev(i));
+      int tp =0;
+      for( int i=0; i<ptGK.size(); i++) {
+        for( int j=0; j<nD; j++) {
+          out(i) += risq(i)*curlev(tp);
+          tp++;
+        }
+      }
+
     }
   }
   
@@ -1282,7 +1304,7 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
     
     
     fti = surv(0,0)*haz(0,0);
-    
+
     if(truncation){
       surv0 = fct_risq_base(t_0i, 0, param_basehaz, basehaz, knots_surv, nE, gamma_X, true, -1);
     }
@@ -1322,7 +1344,6 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
     }
     
     fti = surv*hazard(0,0);
-    
     fti /= surv0;
   }
 

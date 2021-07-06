@@ -52,7 +52,7 @@ summary.CInLPN2 <- function(object, ...){
     }
   }
   
-  cat(" \n")
+  mod_cogn_deprcat(" \n")
   cat("Optimisation process:", "\n")
   
   if(x$conv==1) cat("     Convergence criteria satisfied")

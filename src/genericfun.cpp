@@ -1209,7 +1209,7 @@ double fct_surv_Konrod(double t_i, arma::colvec& xti1, arma::colvec& xti2, arma:
   
   cumrisk *= t_i/2;
   surv=exp(-cumrisk);
-
+  
   return(surv); 
 }
 
@@ -1250,9 +1250,9 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
   
 
   int nA = 1;
-  if(assoc == 3) //random intercept + slope
+  if(assoc == 2 || assoc == 5) //random intercept + slope
     nA ++;
-  
+
   gammaX(span(0,0), span(0,0)) = xti1.t()*param_surv(span(0, xti1.size()-1));
   if(nE==2)
     gammaX(span(1,1), span(0,0)) = xti2.t()*param_surv(span(xti1.size() + nA, xti1.size() + nA + xti2.size()-1));
@@ -1292,7 +1292,7 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
     
     for( int j=0; j<nE; j++)
       gamma_X(j) = gammaX(j,0);
-    
+
     vec event(1);
     event(0)=t_i;
     vec deltaT_ptGK_ti(1);
@@ -1311,7 +1311,7 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
                                     nD, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, param_basehaz, basehaz, knots_surv, 
                                     gamma_X, nE, false, delta_i-1); // trans = delta_i-1
 
-    double test = fct_risq_base(t_i, 0, param_basehaz, basehaz, knots_surv, nE, gamma_X, true, -1);
+    //double test = fct_risq_base(t_i, 0, param_basehaz, basehaz, knots_surv, nE, gamma_X, true, -1);
 
     double surv = 1;
     surv = fct_surv_Konrod(t_i, xti1, xti2, ui_r, delta_i, param_basehaz, basehaz, param_surv, knots_surv, assoc, truncation,

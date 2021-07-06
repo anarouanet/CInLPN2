@@ -160,7 +160,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
                       DeltaT = DeltaT, MCnr = MCnr, nmes = nmes, data_surv = Survdata, 
                       paras = paras, maxiter = maxiter, nproc = nproc, epsa = epsa, epsb = epsb,
                       epsd = epsd, print.info = print.info)
-
+ 
   res <- list(conv = est$istop, v = est$v, best = est$b, ca = est$ca, cb = est$cb, rdm = est$rdm, 
               #niter = est$iter, 
               niter = est$ni, coefficients = est$coefficients, posfix = est$posfix)

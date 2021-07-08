@@ -1033,7 +1033,6 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
                          sequence, type_int, ind_seq_i, MCnr, n, nE);
     //}
 
-    cout << " n "<<n<< " out1 "<<out1<<endl;
     loglik += out1;
 
 

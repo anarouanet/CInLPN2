@@ -258,7 +258,12 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   tau_is <- data[,Time]/DeltaT # vector of individuals visits vectors
   tau_is <- as.numeric(as.character(tau_is)) # verify that all integer?
 
+
   Tmax <- max(tau_is,na.rm = TRUE)
+
+  if(!is.null(Survdata) && assoc %in%c(3,5))
+    Tmax <- max(Tmax, floor(max(Survdata$Event,na.rm = TRUE)/DeltaT))#If
+  
   tau <- 0:Tmax  
   Y <- NULL
   IND <- NULL
@@ -489,22 +494,27 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
     StatusEvent <- surv_obj[,2]
     message("check use of mstate here....")
   }
-  
+
   nE <- length(fixed.survival.models)
-  Xsurv1 <- NULL
-  Xsurv2 <- NULL
+  Xsurv1 <- 0
+  Xsurv2 <- 0
   np_surv <- NULL
-  for( n in 1: nE){
-    all.pred.fixed.survival.models <- list(strsplit(fixed.survival.models[n],"[+*]")[[1]])
-    Xsurv <- as.matrix(model.matrix(as.formula(paste("",fixed.survival.models[n], sep="~")),data=Survdata)[,-1])
-    
-    if(n==1)
-      Xsurv1 <- Xsurv
-    if(n==2)
-      Xsurv2 <- Xsurv
-    
-    np_surv <- c(np_surv, dim(Xsurv)[2] + ifelse(assoc%in%c(0, 1, 3, 4),1,2)*nD)
+  if(nE>0){
+    for(n in 1: nE){
+      all.pred.fixed.survival.models <- list(strsplit(fixed.survival.models[n],"[+*]")[[1]])
+      Xsurv <- as.matrix(model.matrix(as.formula(paste("",fixed.survival.models[n], sep="~")),data=Survdata)[,-1])
+      
+      if(n==1)
+        Xsurv1 <- Xsurv
+      if(n==2)
+        Xsurv2 <- Xsurv
+      
+      np_surv <- c(np_surv, dim(Xsurv)[2] + ifelse(assoc%in%c(0, 1, 3, 4),1,2)*nD)
+    }   
+  }else{
+    np_surv <-0
   }
+
 
   return(list(nb_subject=I, nb_obs = length(na.omit(as.vector(Y))), K=K, nD = nD, all.preds = all.preds, id_and_Time=id_and_Time,Tmax = Tmax, m_i = m_i, Y = Y, Mod.MatrixY=Mod.MatrixY,  
               Mod.MatrixYprim=Mod.MatrixYprim, minY = minY, maxY = maxY, knots = knots, zitr = zitr, ide = ide, df = df, degree = degree, x = x, x0 = x0, 

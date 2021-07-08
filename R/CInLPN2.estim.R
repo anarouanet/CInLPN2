@@ -23,7 +23,6 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, DeltaT=
   cl <- match.call()
   #  non parall Optimisation 
   # package loading
- 
   debug=0
   if(debug==1){
     browser()
@@ -34,12 +33,12 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, DeltaT=
            x = data$x, z = data$z, q = data$q, nb_paraD = data$nb_paraD,
            x0 = data$x0, z0 = data$z0, q0 = data$q0,
            data_surv = as.matrix(data_surv), basehaz = ifelse(paras$basehaz=="Weibull", 0, 1), knots_surv = paras$knots_surv, 
-           np_surv = paras$np_surv, survival = (!is.null(data_surv)), assoc =  paras$assoc, truncation = paras$truncation, 
-           nE = data$nE, Xsurv1 = data$Xsurv1, Xsurv2 = data$Xsurv2,
+           np_surv = paras$np_surv, survival = (data$nE>0), assoc =  paras$assoc, truncation = paras$truncation, 
+           nE = data$nE, Xsurv1 = as.matrix(data$Xsurv1), Xsurv2 = as.matrix(data$Xsurv2),
            if_link = if_link, zitr = data$zitr, ide = data$ide,
            tau = data$tau, tau_is=data$tau_is, 
            modA_mat = data$modA_mat, DeltaT)
-    
+
     Mod.MatrixYprimCInLPN:::Loglik(K = K, nD = nD, mapping =  mapping.to.LP, paras$paraOpt,  paraFixe = paras$paraFixe, posfix = paras$posfix, 
                     m_is = data$m_i, Mod_MatrixY = data$Mod.MatrixY, Mod_MatrixYprim = data$Mod.MatrixYprim, df=data$df,
                     x = data$x, z = data$z, q = data$q,nb_paraD = data$nb_paraD,

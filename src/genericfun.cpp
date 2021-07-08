@@ -716,11 +716,6 @@ double f_marker(arma::mat& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, a
      logvrais += log(vrais);
 
      }else if (if_link[k]==0){// linear
-       
-       // vec params_lin(paras_k[k]);
-       // for(int r=0; r<paras_k[k]; r++){
-       //   params_lin[r] = paraEtha2[param + r];
-       // }
 
        // ##### computering of the likelihood ##########################
        double log_det= Lambdai_k.size()*log(paraSig[k]);
@@ -787,13 +782,11 @@ arma::vec matNui_ui(int nD, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arm
   int T = max(tau_i)+1;
   mat matNu_i = zeros(mi,nD);
   mat Mu_t = zeros(nD,1);
-
+  
   colvec ui=randomeffects.subvec( 0, nD-1 );//randomeffects(linspace(0, nD-1, nD));
   colvec vi=randomeffects.subvec( nD, randomeffects.size()-1 );
 
-
   //Verify Xi, Zi with randomeffects.size()>1
-
   int i = 0;
   for(int t=0; t< T; t++){
     if(t==0){
@@ -803,7 +796,6 @@ arma::vec matNui_ui(int nD, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arm
       zi(span(t*nD,(t+1)*nD-1), span(0,n_cols_zi-1))*vi) +
       G_mat_A_0_to_tau_i(span(0,nD-1),span(nD*(t-1),nD*(t-1)+nD-1))*Mu_t;
     }
-
 
     if(ordered){
       if(t ==(int)tau_i(i)){
@@ -1048,7 +1040,7 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
     nA++;
   nA *= nD;
   vec alpha = zeros(nA*nE) ; // association params for event 1, then for event 2
-  
+
   for( int i=0; i<nE; i++){
     for(int j=0; j<nA; j++){
       alpha(i*nA+j)= param_surv(xti1.size() + i*(nA + xti2.size()) + j);
@@ -1059,7 +1051,7 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
   if(assoc == 3 || assoc == 5){ 
     curlev = matNui_ui(nD, ptGK_delta, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi, false);
   }
-  
+
   if(assoc == 4 || assoc == 5){
     cout << " to develop !"<<endl;
   }
@@ -1106,14 +1098,7 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
           risq(i,j) = fct_risq_base(ptGK(i), j+1, param_basehaz, basehaz, knots_surv, nE, gamma_X, false, j);
           out(i) += risq(i,j)*curlev(i); // curlev(i) = exp(alpha Yt)
         } 
-        
       }
-
-
-      
-      //cout << " risq(i,span(0,nE)) "<<risq(0,span(0,nE))<<endl;
-      //cout << " alpha*curlev(0) "<<alpha*curlev(0)<<endl;
-      //cout << " risq*alpha*curvlev "<<risq(0,span(0,nE))*alpha*curlev(0)<<endl;
 
     }else {
 
@@ -1219,16 +1204,15 @@ double fct_surv_Konrod(double t_i, arma::colvec& xti1, arma::colvec& xti2, arma:
     // Correspondance ptGK_ti and tau_i for computation of current Y
     deltaT_ptGK_ti(i) = floor(ptGK_ti(i)/ (double) DeltaT); // search for last tau_i before ptGK_ti(i)
   }
-  
+
   risq_GK_event= fct_pred_curlev_slope(deltaT_ptGK_ti, ptGK_ti, xti1, xti2, ui_r, 1, param_surv, assoc, 
                                        nD, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, param_basehaz, basehaz, knots_surv, 
                                        gamma_X, nE, false,-1);
-
   double cumrisk=0;
   for( int i=0; i<15; i++){
     cumrisk += wgk_15(i)*risq_GK_event(i);
   }
-  
+
   cumrisk *= t_i/2;
   surv=exp(-cumrisk);
   
@@ -1270,7 +1254,6 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
   vec  gamma_X(nE);
   mat gammaX = zeros(nE,1);
   
-
   int nA = 1;
   if(assoc == 2 || assoc == 5) //random intercept + slope
     nA ++;
@@ -1280,7 +1263,6 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
     gammaX(span(1,1), span(0,0)) = xti2.t()*param_surv(span(xti1.size() + nA, xti1.size() + nA + xti2.size()-1));
   
   if(assoc <= 2){// random intercept (0), random slope (1) or both (2)
-    
     int tp = xti1.size();
     for( int j=0; j<nE; j++){
       
@@ -1297,19 +1279,16 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
     
     for( int j=0; j<nE; j++)
       gamma_X(j) = gammaX(j,0);
-    
     surv(0,0) = fct_risq_base(t_i, 0, param_basehaz, basehaz, knots_surv, nE, gamma_X, true, -1);
     cout << " check use of fct_risq_base for survival computation ! (surv and surv0)"<<endl;
     haz(0,0) = fct_risq_base(t_i, delta_i, param_basehaz, basehaz, knots_surv, nE, gamma_X, false, -1);
     
     
     fti = surv(0,0)*haz(0,0);
-
     if(truncation){
       surv0 = fct_risq_base(t_0i, 0, param_basehaz, basehaz, knots_surv, nE, gamma_X, true, -1);
     }
     fti /=surv0;
-    
   }else{
     
     for( int j=0; j<nE; j++)
@@ -1327,7 +1306,7 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
 
     vec hazard(1);
     hazard.fill(1);
-    
+
     if(delta_i!=0)
       hazard = fct_pred_curlev_slope(deltaT_ptGK_ti, event, xti1, xti2, ui_r, delta_i, param_surv, assoc, 
                                     nD, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, param_basehaz, basehaz, knots_surv, 
@@ -1342,7 +1321,7 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
       surv0 = fct_surv_Konrod(t_0i, xti1, xti2, ui_r, 0, param_basehaz, basehaz, param_surv, knots_surv, assoc, truncation,
                               nD, tau, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, nE, gamma_X);
     }
-    
+
     fti = surv*hazard(0,0);
     fti /= surv0;
   }

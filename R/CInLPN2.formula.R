@@ -365,6 +365,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
   
   ### pre-traitement of fixed effect on survival 
   fixed.survival.models <- NULL
+  truncation = FALSE
   if(survival){
     if(is.null(fixed.survival)){
       fixed.survival<- ~1
@@ -386,9 +387,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
       assocT <- "r.intercept/slope"
       assoc <- 2 # random intercept and slope
     }
-    if(is.null(option$truncation)){
-      truncation = FALSE;
-    }else{
+    if(!is.null(option$truncation)){
       truncation <- option$truncation
     }
   }

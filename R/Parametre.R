@@ -30,6 +30,9 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
   indexparaFixeForIden <- NULL
   # if user not specified initial parameters
   
+  if(is.null(basehaz))
+    basehaz<-"Weibull" #not to have NULL value in C++ code
+  
   if(is.null(paras.ini)){
     p <- 0 # position in the initialize parameters
     cpt1 <- 0 # compteur pour tous les paras
@@ -48,7 +51,6 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
     alpha_mu <-rep(.3,n_col_x)
     p <- p+n_col_x
     cpt1 <- cpt1 + n_col_x
-    
     
     alpha_D <-rep(.1,nb_paraD)
     to_nrow <- nb_RE
@@ -126,8 +128,8 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
         para_surv <- c(mod_surv$coefficients[2:(1+np_surv-1)], rep(0, ifelse(assoc%in%c(0, 1, 3, 4),1,2)))
       }
       p <- p + length(para_basehaz) + length(para_surv)
+      np_baz <- length(para_basehaz)/nE
     }
-    np_baz <- length(para_basehaz)/nE
   }
   
 
@@ -151,7 +153,6 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
     p <- p+n_col_x
     cpt1 <- cpt1 + n_col_x
     #alpha_D parameters for cholesky of all random effects
-
     alpha_D <- paras.ini[(p+1):(p+nb_paraD)]
     to_nrow <- nb_RE
     i_alpha_D <- 0
@@ -200,7 +201,6 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
     #Survival
     para_surv <- NULL
     para_basehaz <- NULL
-
     knots_surv <- c(0,0) # changer !!
     if(!is.null(Survdata)){
       # if(nE ==1){
@@ -228,11 +228,15 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
   paras <- c(alpha_mu0, alpha_mu, alpha_D, vec_alpha_ij,  paraB, paraSig, ParaTransformY)
   t1 <- 0
   t2 <- 0
-  for(jj in 1:nE){
-    paras <- c(paras, para_basehaz[(t1+1) : (t1 + np_baz)], para_surv[(t2 + 1) : (t2 + np_surv[jj])]) # change 0!!
-    t1 <- t1 + np_baz
-    t2 <- t2 + np_surv[jj]
+  
+  if(nE>0){
+    for(jj in 1:nE){
+      paras <- c(paras, para_basehaz[(t1+1) : (t1 + np_baz)], para_surv[(t2 + 1) : (t2 + np_surv[jj])]) # change 0!!
+      t1 <- t1 + np_baz
+      t2 <- t2 + np_surv[jj]
+    }
   }
+
 
   if(!is.null(paras.ini)){
     if(length(paras) != p || length(paras.ini) != p ){

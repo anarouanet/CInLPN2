@@ -153,6 +153,8 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
     paras$basehaz <- basehaz
     if(typeof(as.matrix(Survdata))!="double")
       stop("Remove the factor labels in data so that the matrix is all numeric.")
+  }else{
+    Survdata<-0
   }
 
   # estimation

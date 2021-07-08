@@ -157,9 +157,8 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
   mat matVY_i;
   vec k_i = zeros<vec>(m_i);// vector of number of observed marker at each observation time
   vec PNu_cp_i;
-  mat matV_i;
   mat sigMSM;
-  int check=1; // 1 both, 2 close likelihood only
+  int check=0; // 1 both, 2 close likelihood only
   //cout << " max(if_link) "<<max(if_link)<< " survival "<< survival << " check "<< check <<endl;
 
   if((max(if_link) < 2 && !survival) || check==1){//|| check==1){
@@ -178,8 +177,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     //  ##### computing of the  matrix  matVY_i #####
     int sizeYi = Ytildi_nu_i.size();
     matVY_i = zeros(sizeYi,sizeYi); // initialization of the  matVY_i to zero
-    matV_i = zeros(m_i*nD, m_i*nD); // Computation of the covariance matrix
-    
+
     //mat matVY_icheck = zeros(sizeYi,sizeYi); // initialization of the  matVY_i to zero
     int q = zi.n_cols; // number of random effets on the slope
     
@@ -196,45 +194,29 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     int add = 0;
     vec MSigmaM=zeros<vec>(sizeYi);
     int aa = 0;
-    
+    if(check==1)
+      cout << " Gmat "<<G_mat_A_0_to_tau_i;
     // ##### computering of GrdZi ####################################
     //  GrdZi : this matrix contains all model.matrix at each time of tau_i
     for(int t = 0; t<= maxTau_i; t++){
       if(t==0){
         GrdZi(span(t*nD,(t+1)*nD-1), span(0,q-1)) = 0.e0*zi(span(t*nD,(t+1)*nD-1), span(0,q-1));
+        if(check==1)
+          cout << t<<" grad "<<0.e0*zi(span(t*nD,(t+1)*nD-1), span(0,q-1));
       }
       else{
         GrdZi(span(t*nD,(t+1)*nD-1), span(0,q-1)) = (DeltaT*zi(span(t*nD,(t+1)*nD-1), span(0,q-1)) +
           G_mat_A_0_to_tau_i(span(0,nD-1),span(nD*(t-1),t*nD-1))*GrdZi(span((t-1)*nD,t*nD-1), span(0,q-1)));
-      }
-    }
-    
-    for( int j =0 ; j < m_i; j++){
-      for( int k =j ; k < m_i; k++){
-        mat phi_0_j_0 = diagmat(vect);
-        mat phi_0_k_0 = diagmat(vect);
-        if(tau_i(j)>0){
-          phi_0_j_0 = G_mat_prod_A_0_to_tau(span(0,nD-1),span(nD*(tau_i(j)-1),nD*(tau_i(j)-1)+nD-1));
-        }
-        if(tau_i(k)>0){
-          phi_0_k_0 = G_mat_prod_A_0_to_tau(span(0,nD-1),span(nD*(tau_i(k)-1),nD*(tau_i(k)-1)+nD-1));
-        }
         
-        if(nD>1)
-          add = nD-1;
-        
-        matV_i(span(j*nD,j*nD+add),span(k*nD,k*nD+add)) =(phi_0_j_0*z0i)*matDw* (z0i*phi_0_k_0).t() +
-          (phi_0_j_0*z0i)*matDw_u*(GrdZi(span(tau_i(k)*nD,(tau_i(k)+1)*nD-1), span(0,q-1))).t() +
-          (GrdZi(span(tau_i(j)*nD,(tau_i(j)+1)*nD-1), span(0,q-1)))*matDw_u.t()*(z0i*phi_0_k_0).t() +
-          (GrdZi(span(tau_i(j)*nD,(tau_i(j)+1)*nD-1), span(0,q-1)))*matDu*(GrdZi(span(tau_i(k)*nD,(tau_i(k)+1)*nD-1), span(0,q-1))).t()
-          ;
-        
-        if(k != j){
-          matV_i(span(k*nD,k*nD+add), span(j*nD,j*nD+add)) = matV_i(span(j*nD,j*nD+add),span(k*nD,k*nD+add)).t();
+        if(t<38 && check==1){
+          cout <<t<< " zi(t) "<<zi(span(t*nD,(t+1)*nD-1), span(0,q-1));
+          cout << " grad "<<GrdZi(span((t-1)*nD,t*nD-1), span(0,q-1))
+               << " G_mat "<<G_mat_A_0_to_tau_i(span(0,nD-1),span(nD*(t-1),t*nD-1))
+               << " Grad final "<<GrdZi(span(t*nD,(t+1)*nD-1), span(0,q-1)) ;
         }
       }
     }
-    
+
     // ######################################################################################################
     for( int j =0 ; j < m_i; j++){
       
@@ -271,14 +253,45 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
             phi_0_k_0 = G_mat_prod_A_0_to_tau(span(0,nD-1),span(nD*(tau_i(k)-1),nD*(tau_i(k)-1)+nD-1));
           }
 
+
+
+          if(p_j==0 && p_k ==0&& check==1){
+            cout << " p_j "<<p_j<< " p_k "<<p_k<< " k_i(j) "<<k_i(j)<< " k_i(k) "<<k_i(k) << " tau_i(j) "<<tau_i(j)<<endl;
+            cout << " matDw "<<(phi_0_j_0*z0i)*matDw* (z0i*phi_0_k_0).t()
+                 << "matVY_i " << matVY_i(span(p_j,(p_j+k_i(j)-1)), span((p_k), (p_k+k_i(k)-1))) + matH_i_t_j*( matrixP*
+            ((phi_0_j_0*z0i)*matDw* (z0i*phi_0_k_0).t() )*matrixP.t())*matH_i_t_k.t()
+                 << " matDw_u "<<(phi_0_j_0*z0i)*matDw_u*(GrdZi(span(tau_i(k)*nD,(tau_i(k)+1)*nD-1), span(0,q-1))).t() 
+                 << "matVY_i " << matVY_i(span(p_j,(p_j+k_i(j)-1)), span((p_k), (p_k+k_i(k)-1)))+ matH_i_t_j*( matrixP*
+            ((phi_0_j_0*z0i)*matDw* (z0i*phi_0_k_0).t() +
+            (phi_0_j_0*z0i)*matDw_u*(GrdZi(span(tau_i(k)*nD,(tau_i(k)+1)*nD-1), span(0,q-1))).t())*matrixP.t())*matH_i_t_k.t()
+              << " matDw_u.t() "<<   (GrdZi(span(tau_i(j)*nD,(tau_i(j)+1)*nD-1), span(0,q-1)))*matDw_u.t()*(z0i*phi_0_k_0).t() 
+              << " matVY_i "<< matVY_i(span(p_j,(p_j+k_i(j)-1)), span((p_k), (p_k+k_i(k)-1))) + matH_i_t_j*( matrixP*
+            ((phi_0_j_0*z0i)*matDw* (z0i*phi_0_k_0).t() +
+            (phi_0_j_0*z0i)*matDw_u*(GrdZi(span(tau_i(k)*nD,(tau_i(k)+1)*nD-1), span(0,q-1))).t() +
+            (GrdZi(span(tau_i(j)*nD,(tau_i(j)+1)*nD-1), span(0,q-1)))*matDw_u.t()*(z0i*phi_0_k_0).t() 
+            )*matrixP.t())*matH_i_t_k.t()
+            << " matDu "<<(GrdZi(span(tau_i(j)*nD,(tau_i(j)+1)*nD-1), span(0,q-1)))*matDu*(GrdZi(span(tau_i(k)*nD,(tau_i(k)+1)*nD-1), span(0,q-1))).t()
+                 << " matVY_i "<<matVY_i(span(p_j,(p_j+k_i(j)-1)), span((p_k), (p_k+k_i(k)-1))) + matH_i_t_j*( matrixP*
+            ((phi_0_j_0*z0i)*matDw* (z0i*phi_0_k_0).t() +
+            (phi_0_j_0*z0i)*matDw_u*(GrdZi(span(tau_i(k)*nD,(tau_i(k)+1)*nD-1), span(0,q-1))).t() +
+            (GrdZi(span(tau_i(j)*nD,(tau_i(j)+1)*nD-1), span(0,q-1)))*matDw_u.t()*(z0i*phi_0_k_0).t() +
+            (GrdZi(span(tau_i(j)*nD,(tau_i(j)+1)*nD-1), span(0,q-1)))*matDu*(GrdZi(span(tau_i(k)*nD,(tau_i(k)+1)*nD-1), span(0,q-1))).t()
+            )*matrixP.t())*matH_i_t_k.t()
+              << " grad "<<GrdZi(span(tau_i(j)*nD,(tau_i(j)+1)*nD-1), span(0,q-1))
+              << " tau_i(j)*nD "<<tau_i(j)*nD << " (tau_i(j)+1)*nD-1 "<<(tau_i(j)+1)*nD-1<< " q-1 "<<q-1<<endl<<endl;
+
+          }
           matVY_i(span(p_j,(p_j+k_i(j)-1)), span((p_k), (p_k+k_i(k)-1))) += matH_i_t_j*( matrixP*
             ((phi_0_j_0*z0i)*matDw* (z0i*phi_0_k_0).t() +
             (phi_0_j_0*z0i)*matDw_u*(GrdZi(span(tau_i(k)*nD,(tau_i(k)+1)*nD-1), span(0,q-1))).t() +
             (GrdZi(span(tau_i(j)*nD,(tau_i(j)+1)*nD-1), span(0,q-1)))*matDw_u.t()*(z0i*phi_0_k_0).t() +
             (GrdZi(span(tau_i(j)*nD,(tau_i(j)+1)*nD-1), span(0,q-1)))*matDu*(GrdZi(span(tau_i(k)*nD,(tau_i(k)+1)*nD-1), span(0,q-1))).t()
             )*matrixP.t())*matH_i_t_k.t();
-
-            
+          
+          //  matDw       matDw_u
+          //  matDw_u.t() matDu
+          
+          
           //cout << "matVY_icheck\n "<< matVY_icheck(span(p_j,(p_j+k_i(j)-1)), span((p_k), (p_k+k_i(k)-1)));
           //cout << "matV_i2 "<< matH_i_t_j*( matrixP*
           //  (matV_i(span(j*nD,j*nD+add),span(k*nD,k*nD+add)))*matrixP.t())*matH_i_t_k.t();
@@ -357,6 +370,11 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     
     // ##### computering of the likelihood ########################## all linear
     loglik_i = -0.5*(sum(k_i)*log(2*M_PI) + log(abs_det_matVY_i) + as_scalar(Ytildi_nu_i.t()*inv_sympd(matVY_i)*Ytildi_nu_i)) + log_Jac_Phi;
+    cout << " loglik_i "<<loglik_i<< " sum(k_i) "<<sum(k_i) <<  " log(det) "<<log(abs_det_matVY_i)<< " scalar "<< as_scalar(Ytildi_nu_i.t()*inv_sympd(matVY_i)*Ytildi_nu_i) << " log_Jac_Phi "<<log_Jac_Phi<<endl;
+    cout <<  " tau_i " <<tau_i.t()
+         <<" Ytildi_nu_i.t() "<<Ytildi_nu_i.t()
+         << " matVY_i "<<matVY_i;
+    
     loglik_i0 = -0.5*(sum(k_i)*log(2*M_PI) + log(abs_det_matVY_i) + as_scalar(Ytildi_nu_i.t()*inv_sympd(matVY_i)*Ytildi_nu_i)) ;//+ log_Jac_Phi;
 
     //cout << " loglik_i "<<loglik_i<< " k_i "<<k_i.t();
@@ -675,8 +693,10 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
           vrais_survtot += vraisr_surv;
           vraisY_tot += exp(lvraisr);
           //vrais += exp(lvraisr)*vraisr_surv;
-          vrais += exp(lvraisr+log(vraisr_surv));
-          //vrais += exp(lvraisr);
+          //vrais += exp(lvraisr+log(vraisr_surv));
+          vrais += exp(lvraisr);
+          if(check==1)
+            cout << nr<<" vrais " << vrais << " lvraisr "<< lvraisr << endl;
           if(exp(lvraisr+log(vraisr_surv))==0)
             pb_QMC++;
 
@@ -700,7 +720,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
               minY = Ytildi(j);
           }
           //if(abs(loglik_i- log(vraisY_tot/MCnr) )>1)
-          int printa=1;
+          int printa=0;
           if(printa==1){
             cout << " diffY "<<loglik_i-log_Jac_Phi- log(vraisY_tot/MCnr)<< " MCnr "<<MCnr<<" pb_QMC" <<pb_QMC<< " minY "<< minY << " vrais / MCnr "<<vrais / MCnr;
             cout << " loglik_i "<< loglik_i-log_Jac_Phi<< " loglik_i2 "<<loglik_i2<<" log(vraisY_tot/MCnr) "<< log(vraisY_tot/MCnr)<< " log_Jac_Phi "<<log_Jac_Phi << " vrais "<<vrais<<endl;
@@ -1003,13 +1023,16 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
     //cout << " n "<<n;
 
     double out1 =0;
-    out1= Loglikei_GLM(K, nD, matrixP, m_is(n), tau, tau_is(span(p,(p+m_is(n)-1))), Ytild(span(p,(p+m_is(n)-1)), span(0,(K-1))),
-                       YtildPrim(span(p,(p+m_is(n)-1)), span(0,(K-1))), x0(span(n*nD,(n+1)*nD-1), span(0,(ncol_x0-1))),
-                       z0(span(n*nD,(n+1)*nD-1), span(0,(ncol_z0-1))), x(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_x-1))),
-                       z(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_z-1))),alpha_mu0, alpha_mu, matDw, matDw_u, matDu,
-                       matB, Sig, G_mat_A_0_to_tau_i, G_mat_prod_A_0_to_tau,  DeltaT, ParamTransformY, df, if_link, zitr, ide, paras_k,
-                       t_0i, t_i, delta_i, xti1, xti2, basehaz, knots_surv, survival, param_surv, param_basehaz, assoc, truncation,
-                       sequence, type_int, ind_seq_i, MCnr, n, nE);
+    //if(n==12){
+      out1= Loglikei_GLM(K, nD, matrixP, m_is(n), tau, tau_is(span(p,(p+m_is(n)-1))), Ytild(span(p,(p+m_is(n)-1)), span(0,(K-1))),
+                         YtildPrim(span(p,(p+m_is(n)-1)), span(0,(K-1))), x0(span(n*nD,(n+1)*nD-1), span(0,(ncol_x0-1))),
+                         z0(span(n*nD,(n+1)*nD-1), span(0,(ncol_z0-1))), x(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_x-1))),
+                         z(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_z-1))),alpha_mu0, alpha_mu, matDw, matDw_u, matDu,
+                         matB, Sig, G_mat_A_0_to_tau_i, G_mat_prod_A_0_to_tau,  DeltaT, ParamTransformY, df, if_link, zitr, ide, paras_k,
+                         t_0i, t_i, delta_i, xti1, xti2, basehaz, knots_surv, survival, param_surv, param_basehaz, assoc, truncation,
+                         sequence, type_int, ind_seq_i, MCnr, n, nE);
+    //}
+
     cout << " n "<<n<< " out1 "<<out1<<endl;
     loglik += out1;
 

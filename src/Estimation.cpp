@@ -194,21 +194,21 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     int add = 0;
     vec MSigmaM=zeros<vec>(sizeYi);
     int aa = 0;
-    if(check==1)
+    if(check==2)
       cout << " Gmat "<<G_mat_A_0_to_tau_i;
     // ##### computering of GrdZi ####################################
     //  GrdZi : this matrix contains all model.matrix at each time of tau_i
     for(int t = 0; t<= maxTau_i; t++){
       if(t==0){
         GrdZi(span(t*nD,(t+1)*nD-1), span(0,q-1)) = 0.e0*zi(span(t*nD,(t+1)*nD-1), span(0,q-1));
-        if(check==1)
+        if(check==2)
           cout << t<<" grad "<<0.e0*zi(span(t*nD,(t+1)*nD-1), span(0,q-1));
       }
       else{
         GrdZi(span(t*nD,(t+1)*nD-1), span(0,q-1)) = (DeltaT*zi(span(t*nD,(t+1)*nD-1), span(0,q-1)) +
           G_mat_A_0_to_tau_i(span(0,nD-1),span(nD*(t-1),t*nD-1))*GrdZi(span((t-1)*nD,t*nD-1), span(0,q-1)));
         
-        if(t<38 && check==1){
+        if(t<38 && check==2){
           cout <<t<< " zi(t) "<<zi(span(t*nD,(t+1)*nD-1), span(0,q-1));
           cout << " grad "<<GrdZi(span((t-1)*nD,t*nD-1), span(0,q-1))
                << " G_mat "<<G_mat_A_0_to_tau_i(span(0,nD-1),span(nD*(t-1),t*nD-1))
@@ -255,7 +255,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
 
 
 
-          if(p_j==0 && p_k ==0&& check==1){
+          if(p_j==0 && p_k ==0&& check==2){
             cout << " p_j "<<p_j<< " p_k "<<p_k<< " k_i(j) "<<k_i(j)<< " k_i(k) "<<k_i(k) << " tau_i(j) "<<tau_i(j)<<endl;
             cout << " matDw "<<(phi_0_j_0*z0i)*matDw* (z0i*phi_0_k_0).t()
                  << "matVY_i " << matVY_i(span(p_j,(p_j+k_i(j)-1)), span((p_k), (p_k+k_i(k)-1))) + matH_i_t_j*( matrixP*
@@ -695,8 +695,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
           //vrais += exp(lvraisr)*vraisr_surv;
           //vrais += exp(lvraisr+log(vraisr_surv));
           vrais += exp(lvraisr);
-          if(check==1)
-            cout << nr<<" vrais " << vrais << " lvraisr "<< lvraisr << endl;
+
           if(exp(lvraisr+log(vraisr_surv))==0)
             pb_QMC++;
 
@@ -720,7 +719,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
               minY = Ytildi(j);
           }
           //if(abs(loglik_i- log(vraisY_tot/MCnr) )>1)
-          int printa=0;
+          int printa=1;
           if(printa==1){
             cout << " diffY "<<loglik_i-log_Jac_Phi- log(vraisY_tot/MCnr)<< " MCnr "<<MCnr<<" pb_QMC" <<pb_QMC<< " minY "<< minY << " vrais / MCnr "<<vrais / MCnr;
             cout << " loglik_i "<< loglik_i-log_Jac_Phi<< " loglik_i2 "<<loglik_i2<<" log(vraisY_tot/MCnr) "<< log(vraisY_tot/MCnr)<< " log_Jac_Phi "<<log_Jac_Phi << " vrais "<<vrais<<endl;
@@ -1024,15 +1023,16 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
 
     double out1 =0;
     //if(n==12){
-      out1= Loglikei_GLM(K, nD, matrixP, m_is(n), tau, tau_is(span(p,(p+m_is(n)-1))), Ytild(span(p,(p+m_is(n)-1)), span(0,(K-1))),
-                         YtildPrim(span(p,(p+m_is(n)-1)), span(0,(K-1))), x0(span(n*nD,(n+1)*nD-1), span(0,(ncol_x0-1))),
-                         z0(span(n*nD,(n+1)*nD-1), span(0,(ncol_z0-1))), x(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_x-1))),
-                         z(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_z-1))),alpha_mu0, alpha_mu, matDw, matDw_u, matDu,
-                         matB, Sig, G_mat_A_0_to_tau_i, G_mat_prod_A_0_to_tau,  DeltaT, ParamTransformY, df, if_link, zitr, ide, paras_k,
-                         t_0i, t_i, delta_i, xti1, xti2, basehaz, knots_surv, survival, param_surv, param_basehaz, assoc, truncation,
-                         sequence, type_int, ind_seq_i, MCnr, n, nE);
+    out1= Loglikei_GLM(K, nD, matrixP, m_is(n), tau, tau_is(span(p,(p+m_is(n)-1))), Ytild(span(p,(p+m_is(n)-1)), span(0,(K-1))),
+                       YtildPrim(span(p,(p+m_is(n)-1)), span(0,(K-1))), x0(span(n*nD,(n+1)*nD-1), span(0,(ncol_x0-1))),
+                       z0(span(n*nD,(n+1)*nD-1), span(0,(ncol_z0-1))), x(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_x-1))),
+                       z(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_z-1))),alpha_mu0, alpha_mu, matDw, matDw_u, matDu,
+                       matB, Sig, G_mat_A_0_to_tau_i, G_mat_prod_A_0_to_tau,  DeltaT, ParamTransformY, df, if_link, zitr, ide, paras_k,
+                       t_0i, t_i, delta_i, xti1, xti2, basehaz, knots_surv, survival, param_surv, param_basehaz, assoc, truncation,
+                       sequence, type_int, ind_seq_i, MCnr, n, nE);
     //}
-
+    //if(out1==-pow(10,10))
+      cout << " n "<< n << "loglik_i "<<out1<<endl;
     loglik += out1;
 
 

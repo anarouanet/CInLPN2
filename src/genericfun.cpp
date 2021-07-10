@@ -1052,6 +1052,7 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
     curlev = matNui_ui(nD, ptGK_delta, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi, false);
   }
 
+  
   if(assoc == 4 || assoc == 5){
     cout << " to develop !"<<endl;
   }
@@ -1071,8 +1072,6 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
     for( int i=0; i<ptGK.size(); i++){
       for( int j=0; j<nE; j++){
         out(i) *= exp(-cumrisq(i,j)*exp(alpha(j)*curlev(i)));
-        cout << " outi "<< exp(-cumrisq(i,j)*exp(alpha(j)*curlev(i)))
-             <<" cumrisq(i,j) "<< cumrisq(i,j) << " alpha(j) "<< alpha(j) << " curlev(i) "<< curlev(i)<<endl;
       }
     }
         //if(interactions)
@@ -1324,9 +1323,8 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
 
     fti = surv*hazard(0,0);
     fti /= surv0;
-  }
 
-  
+  }
  return(fti); 
 }
 

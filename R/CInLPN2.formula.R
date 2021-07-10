@@ -472,52 +472,10 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
     ide0  <- 0 
   }
 
-  if(  any(link=="thresholds") || !is.null(type_int)){ 
-    
-    int_ui = TRUE
-    if(int_ui == FALSE){ #Sequence defined for Lambda
-      # Generation of quasi-random sequence
-      unique_id <- unique(data[,subject])
-      
-      nmes <- sapply(unique_id, function(x) 
-        length(which(!is.na(data[which(data[,subject]==x),outcomes]))))
-      
-      sequence<-matrix(NA,option$MCnr/2*length(unique(nmes)),max(nmes)) 
-      nmes_seq <- rep(0,option$MCnr/2*length(unique(nmes)))
-      uniq_nmes <- unique(nmes)[order(unique(nmes))] 
-      
-      j=0
-      for(i in uniq_nmes){
-        if(type_int == "sobol"){
-          sequence[(j+1):(j+option$MCnr/2),1:i]  <- randtoolbox::sobol(n = option$MCnr/2, dim = i, scrambling = 1, normal = FALSE, init=T)
-        }else if(type_int == "halton"){
-          sequence[(j+1):(j+option$MCnr/2),1:i]  <- randtoolbox::halton(n = option$MCnr/2, dim = i, normal = FALSE, init=T) 
-        }else if(type_int == "torus"){
-          sequence[(j+1):(j+option$MCnr/2),1:i]  <- randtoolbox::torus(n = option$MCnr/2, dim = i,normal = FALSE, init=T) 
-        }
-        nmes_seq[(j+1):(j+option$MCnr/2)] <- i
-        j <- j+option$MCnr/2
-      }
-      
-      ind_seq_i <- sapply(nmes, function(x) which(nmes_seq==x)[1]-1)
-      
-    }else{ #Sequence defined for ui
-      
-      #sequence<-matrix(NA,option$MCnr/2*length(unique(nmes)),max(nmes)) 
-      #randtoolbox::sobol(nMC, dim = sum(r), normal = TRUE, 
-      #                   scrambling = 1)
-      #define sequence in CInLPN2.default
-      sequence  <- 0
-      ind_seq_i <- 0
-      unique_id <- unique(data[,subject])
-    }
-
-  }else{
-    sequence  <- 0
-    ind_seq_i <- 0
-    nmes      <- 0
-  }
   
+  sequence  <- 0
+  ind_seq_i <- 0
+
   unique_id <- unique(data[,subject])
   
   nmes <- sapply(unique_id, function(x) 

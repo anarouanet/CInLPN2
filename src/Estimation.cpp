@@ -732,7 +732,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
             << " param_basehaz "<<param_basehaz.t() ;
       }
       vrais /= MCnr;
-      lvrais += log(vrais) ;//+ log_Jac_Phi; CHANGER
+      lvrais += log(vrais) + log_Jac_Phi; 
       
       if(pb_QMC > MCnr*0.15*K)
         lvrais=-pow(10,10);

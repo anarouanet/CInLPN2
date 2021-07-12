@@ -100,6 +100,7 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
         if(!(linkSpe[[k]][2] %in% c("quant", "manual", "equi"))){
           stop("the type of knots must be within: quant, manual or equi")
         }
+
         if(linkSpe[[k]][2] == "manual" & (is.null(knots[[k]]) | (length(knots[[k]])!=nknots))){
           stop("When specified manually, the number of knots must match 
                the first argument of the link function specification")
@@ -135,7 +136,7 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
         }else{
           int_knots <- NULL
         }
-
+  
         modISpline <- paste("~ 1 + splines2::iSpline(",col[k],",knots=","int_knots",",","degree=", degree[k],
                             ",", "intercept = T,", "derivs= 0,", "Boundary.knots= c(",minY[k],",",maxY[k],"))")
         

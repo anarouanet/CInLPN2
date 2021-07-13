@@ -6,6 +6,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // Loglik
 double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& paraFixe, arma::vec& posfix, arma::vec& paras_k, arma::mat& sequence, int type_int, arma::vec& ind_seq_i, int MCnr, arma::vec& nmes, arma::vec& m_is, arma::mat& Mod_MatrixY, arma::mat& Mod_MatrixYprim, arma::vec& df, arma::mat& x, arma::mat& z, arma::vec& q, int nb_paraD, arma::mat& x0, arma::mat& z0, arma::vec& q0, arma::mat& data_surv, int basehaz, arma::vec& knots_surv, arma::vec& np_surv, bool survival, int assoc, bool truncation, int nE, arma::mat& Xsurv1, arma::mat& Xsurv2, arma::vec& if_link, arma::vec& zitr, arma::vec& ide, arma::vec& tau, arma::vec& tau_is, arma::mat& modA_mat, double DeltaT);
 RcppExport SEXP _CInLPN2_Loglik(SEXP KSEXP, SEXP nDSEXP, SEXP mappingSEXP, SEXP paraOptSEXP, SEXP paraFixeSEXP, SEXP posfixSEXP, SEXP paras_kSEXP, SEXP sequenceSEXP, SEXP type_intSEXP, SEXP ind_seq_iSEXP, SEXP MCnrSEXP, SEXP nmesSEXP, SEXP m_isSEXP, SEXP Mod_MatrixYSEXP, SEXP Mod_MatrixYprimSEXP, SEXP dfSEXP, SEXP xSEXP, SEXP zSEXP, SEXP qSEXP, SEXP nb_paraDSEXP, SEXP x0SEXP, SEXP z0SEXP, SEXP q0SEXP, SEXP data_survSEXP, SEXP basehazSEXP, SEXP knots_survSEXP, SEXP np_survSEXP, SEXP survivalSEXP, SEXP assocSEXP, SEXP truncationSEXP, SEXP nESEXP, SEXP Xsurv1SEXP, SEXP Xsurv2SEXP, SEXP if_linkSEXP, SEXP zitrSEXP, SEXP ideSEXP, SEXP tauSEXP, SEXP tau_isSEXP, SEXP modA_matSEXP, SEXP DeltaTSEXP) {

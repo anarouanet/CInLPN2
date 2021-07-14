@@ -502,8 +502,9 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
     first_line <- sapply(unique(data[,subject]), function(x) which(data[,subject]==x)[1])
 
     if(!(Tentry %in%names(data))) data$Tentry <- 0
-    Survdata <- data[first_line, c(Tentry, Event, StatusEvent, covsurv)]
-    names(Survdata)[1:3] <- c("Tentry", "Event", "StatusEvent")
+    Survdata <- data[first_line, c(Tentry, Event, StatusEvent)]
+    names(Survdata) <- c("Tentry", "Event", "StatusEvent")
+    Survdata <- cbind(Survdata, data[first_line, covsurv])
   }
 
   #### call of CInLPN2.default function to compute estimation and predictions

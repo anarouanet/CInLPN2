@@ -1071,7 +1071,7 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
 
     for( int i=0; i<ptGK.size(); i++){
       for( int j=0; j<nE; j++){
-        out(i) *= exp(-cumrisq(i,j)*exp(alpha(j)*curlev(i)));
+        out(i) *= exp(-cumrisq(i,j)*exp(alpha(j)*curlev(i)));//Changer alpha avec nD
       }
     }
         //if(interactions)
@@ -1106,7 +1106,7 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
       for( int i=0; i<curlev.size(); i++){
         if(mq==nD)
           mq=0;
-        curlev(i) = exp(alpha((trans)*(nD)+mq)*curlev(i));
+        curlev(i) = exp(alpha(trans*nD+mq)*curlev(i));
         mq ++;
       }
     
@@ -1249,7 +1249,6 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
   mat haz(1,1);
   haz(0,0) = 1;
   double fti = 1 ;
-  double surv0 = 1;
   vec  gamma_X(nE);
   mat gammaX = zeros(nE,1);
   
@@ -1283,12 +1282,8 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
     cout << " check use of fct_risq_base for survival computation ! (surv and surv0)"<<endl;
     haz(0,0) = fct_risq_base(t_i, delta_i, param_basehaz, basehaz, knots_surv, nE, gamma_X, false, -1);
     
-    
     fti = surv(0,0)*haz(0,0);
-    if(truncation){
-      surv0 = fct_risq_base(t_0i, 0, param_basehaz, basehaz, knots_surv, nE, gamma_X, true, -1);
-    }
-    fti /=surv0;
+    //fti /=surv0;
   }else{
     
     for( int j=0; j<nE; j++)
@@ -1317,13 +1312,9 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
     double surv = 1;
     surv = fct_surv_Konrod(t_i, xti1, xti2, ui_r, delta_i, param_basehaz, basehaz, param_surv, knots_surv, assoc, truncation,
                            nD, tau, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, nE, gamma_X);
-    if(truncation){
-      surv0 = fct_surv_Konrod(t_0i, xti1, xti2, ui_r, 0, param_basehaz, basehaz, param_surv, knots_surv, assoc, truncation,
-                              nD, tau, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, nE, gamma_X);
-    }
 
     fti = surv*hazard(0,0);
-    fti /= surv0;
+    //fti /= surv0;
 
   }
  return(fti); 

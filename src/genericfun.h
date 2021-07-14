@@ -30,7 +30,9 @@ arma::mat f_inv_mat(arma::mat& B);
 int f_mat_print( arma::mat& B);
 double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma::colvec&xti1, arma::colvec&xti2, arma::vec& param_surv, arma::vec& param_basehaz, int basehaz, arma::vec& knots_surv, int assoc, bool truncation, int nD, arma::vec& tau, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arma::colvec& alpha_mu0,
                      arma::mat& xi, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::mat& zi, int nE);
-double fct_surv_Konrod(double t_i, double t_0i, arma::colvec&xti1, arma::colvec&xti2, arma::vec& ui_r, int delta_i, arma::vec& param_basehaz, int basehaz, arma::colvec& param_surv, 
-                       arma::vec& knots_surv, int assoc, bool truncation, int nD, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arma::colvec& alpha_mu0, arma::mat& xi, 
+double fct_surv_Konrod(double t_i, arma::colvec&xti1, arma::colvec&xti2, arma::vec& ui_r, int delta_i, arma::vec& param_basehaz, int basehaz, arma::colvec& param_surv, 
+                       arma::vec& knots_surv, int assoc, bool truncation, int nD, arma::vec& tau, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arma::colvec& alpha_mu0, arma::mat& xi, 
                        arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::mat& zi, int nE, arma::vec& gamma_X);
 arma::vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec&xti1, arma::colvec&xti2, arma::vec& ui_r, int delta_i, arma::colvec& param_surv, int assoc, int nD, double DeltaT, arma::mat& x0i, arma::colvec& alpha_mu0, arma::mat& xi, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::mat& zi, arma::vec& param_basehaz, int basehaz, arma::vec& knots_surv, arma::vec& gamma_X, int nE, bool survfunc);
+double fct_risq_base(double t,  int status, arma::vec& param_basehaz, int basehaz, arma::vec& knots_surv, int nE, arma::vec& gammaX, bool surv, int trans);
+  

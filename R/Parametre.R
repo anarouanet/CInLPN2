@@ -116,16 +116,16 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
         #   exp(survreg's intercept) = rweibull scale b
         # (a/b) (x/b)^(a-1) shape a, scale b
         para_basehaz <- c(1/(mod_surv$coefficients[["(Intercept)"]]), exp(mod_surv$icoef[2]),1/(mod_surv$coefficients[["(Intercept)"]]+mod_surv$coefficients[["factor(trans)2"]]), exp(mod_surv$icoef[3]))
-        n1 <- 1+np_surv[1]-1+ifelse(assoc%in%c(0, 1, 3, 4),1,2)
-        para_surv <- c(mod_surv$coefficients[2:(1+np_surv[1]-1)], rep(0, ifelse(assoc%in%c(0, 1, 3, 4),1,2)), 
-                       mod_surv$coefficients[(n1):(n1-1+np_surv[1]-1)], rep(0, ifelse(assoc%in%c(0, 1, 3, 4),1,2)))
+        n1 <- 1+np_surv[1]-1+ifelse(assoc%in%c(0, 1, 3, 4),1,2)*nD
+        para_surv <- c(mod_surv$coefficients[2:(1+np_surv[1]-1)], rep(0, ifelse(assoc%in%c(0, 1, 3, 4),1,2)*nD), 
+                       mod_surv$coefficients[(n1):(n1-1+np_surv[1]-1)], rep(0, ifelse(assoc%in%c(0, 1, 3, 4),1,2)*nD))
 
       }else if (nE==1){
         
         form <- as.formula(paste("Surv(Event, StatusEvent) ~ ",cov_surv, sep=""))
         mod_surv <- survreg(form, data = Survdata, dist="weibull")
         para_basehaz <- c(1/(mod_surv$coefficients[["(Intercept)"]]), exp(mod_surv$icoef[2]))
-        para_surv <- c(mod_surv$coefficients[2:(1+np_surv-1)], rep(0, ifelse(assoc%in%c(0, 1, 3, 4),1,2)))
+        para_surv <- c(mod_surv$coefficients[2:(1+np_surv-1)], rep(0, ifelse(assoc%in%c(0, 1, 3, 4),1,2)*nD))
       }
       p <- p + length(para_basehaz) + length(para_surv)
       np_baz <- length(para_basehaz)/nE

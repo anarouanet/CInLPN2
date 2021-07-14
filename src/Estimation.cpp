@@ -709,6 +709,57 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
           pb_QMC++;
       }//nr
       
+
+      double surv0=1;
+      if(truncation){
+        surv0=0;
+        vec  gamma_X(nE);
+        mat gammaX = zeros(nE,1);
+        
+        int nA = 1;
+        if(assoc == 2 || assoc == 5) //random intercept + slope
+          nA ++;
+        nA *= nD;
+        gammaX(span(0,0), span(0,0)) = xti1.t()*param_surv(span(0, xti1.size()-1));
+        
+        if(nE==2)
+          gammaX(span(1,1), span(0,0)) = xti2.t()*param_surv(span(xti1.size() + nA, xti1.size() + nA + xti2.size()-1));
+        
+        if(assoc>2){
+          for( int j=0; j<nE; j++)
+            gamma_X(j) = gammaX(j,0);
+        }
+  
+        for(int nr=0; nr < MCnr; nr++){
+          vec ui_r = ui.row(nr).t();
+          if(assoc <= 2){// random intercept (0), random slope (1) or both (2)
+            
+            int tp = xti1.size();
+            
+            for( int j=0; j<nE; j++){
+              if(assoc == 0){
+                gammaX(span(j,j), span(0,0)) += ui_r(0)*param_surv(tp);
+              }else if(assoc == 1){
+                gammaX(span(j,j), span(0,0)) += ui_r(1)*param_surv(tp);
+              }else if(assoc == 2){
+                gammaX(span(j,j), span(0,0)) += ui_r.t()*param_surv(span(tp, tp+nA));
+              }
+              tp += nA + xti2.size();
+            }
+            for( int j=0; j<nE; j++)
+              gamma_X(j) = gammaX(j,0);
+            
+            surv0 += fct_risq_base(t_0i, 0, param_basehaz, basehaz, knots_surv, nE, gamma_X, true, -1);
+            cout << " modify S(T_0i) computation, add ui_r part "<<endl;
+          }else{
+            surv0 += fct_surv_Konrod(t_0i, xti1, xti2, ui_r, 0, param_basehaz, basehaz, param_surv, knots_surv, assoc, truncation,
+                                    nD, tau, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, nE, gamma_X);
+          }
+        }//nr
+        surv0 /= MCnr;
+      }//if truncation
+       
+      
       if(check){
         double minY = pow(10,10);
         for(int j = 0 ; j < Ytildi.size(); j++){
@@ -742,7 +793,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
             << " param_basehaz "<<param_basehaz.t() ;
       }
       vrais /= MCnr;
-      lvrais += log(vrais) + log_Jac_Phi; 
+      lvrais += log(vrais) + log_Jac_Phi - log(surv0); 
       
       if(pb_QMC > MCnr*0.15*K)
         lvrais=-pow(10,10);

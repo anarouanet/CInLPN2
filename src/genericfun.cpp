@@ -611,12 +611,9 @@ double f_marker(arma::mat& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, a
 
   int K = matrixP.n_rows;
   double logvrais = 0.0;
-  
-  double vrais = 0.0;
 
   int param = 0;
   int K_t = 0;
-  double out=0;
 
   for(int k=0; k<K; k++){
     // Retrieve part of Ytildi and Lambdai that corresponds to marker k
@@ -667,7 +664,6 @@ double f_marker(arma::mat& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, a
 
          if (Ytildik(j,k)==zitr[K_t*2]){ // if Ytildi == minY
            double gamma0 =  params_thresholds[0] - Lambdai_k[j]; 
-           double temp = normalCDF(gamma0);
            
            vrais  *= normalCDF(gamma0, lower);
 
@@ -684,9 +680,6 @@ double f_marker(arma::mat& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, a
                if(Ytildik(j,k) == (zitr[K_t*2]+p)){
                  double gamma1 = sup - Lambdai_k[j];
                  double gamma0 = inf - Lambdai_k[j];
-                 
-                 double temp = (normalCDF(gamma1) - normalCDF(gamma0));
-                 
                  vrais  *= (normalCDF(gamma1) - normalCDF(gamma0));
                  
                  //cout << " p "<<p << " pp "<<pp << endl;
@@ -707,7 +700,6 @@ double f_marker(arma::mat& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, a
            
            if (Ytildik(j,k)==zitr[K_t*2 + 1]){ // if Ytildi == maxY
              double gamma0 =  sup - Lambdai_k[j]; 
-             double temp = normalCDF(gamma0);
              vrais  *= (1-normalCDF(gamma0));
            }
          }
@@ -821,13 +813,10 @@ double f_marker_ui(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau
   
   int K = matrixP.n_rows;
   double logvrais = 0.0;
-  
-  double vrais = 0.0;
-  
+
   int param = 0;
   int K_t = 0;
-  double out=0;
-  
+
   for(int k=0; k<K; k++){
     // Retrieve part of Ytildi and Lambdai that corresponds to marker k
     vec Ytildik=Ytildi.col(k);
@@ -877,7 +866,6 @@ double f_marker_ui(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau
         
         if (Ytildik(j,k)==zitr[K_t*2]){ // if Ytildi == minY
           double gamma0 =  params_thresholds[0] - Lambdai_k[j]; 
-          double temp = normalCDF(gamma0);
           
           vrais  *= normalCDF(gamma0, lower);
           
@@ -894,9 +882,6 @@ double f_marker_ui(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau
               if(Ytildik(j,k) == (zitr[K_t*2]+p)){
                 double gamma1 = sup - Lambdai_k[j];
                 double gamma0 = inf - Lambdai_k[j];
-                
-                double temp = (normalCDF(gamma1) - normalCDF(gamma0));
-                
                 vrais  *= (normalCDF(gamma1) - normalCDF(gamma0));
                 
                 //cout << " p "<<p << " pp "<<pp << endl;
@@ -917,7 +902,6 @@ double f_marker_ui(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau
           
           if (Ytildik(j,k)==zitr[K_t*2 + 1]){ // if Ytildi == maxY
             double gamma0 =  sup - Lambdai_k[j]; 
-            double temp = normalCDF(gamma0);
             vrais  *= (1-normalCDF(gamma0));
           }
         }
@@ -975,7 +959,7 @@ double f_marker_ui(arma::vec& Lambdai, int nD, arma::mat matrixP, arma::vec& tau
 //' @param trans: index for computation of survival function on all transitions (-1), on first transition(0), or second transition (1)
 //' when 
 double fct_risq_base(double t,  int status, arma::vec& param_basehaz, int basehaz, arma::vec& knots_surv, int nE, arma::vec& gammaX, bool surv, int trans){
-  double out;
+  double out=0;
   
   if(basehaz==0){
     
@@ -1081,49 +1065,39 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
   }else{ // Computation of the risk
 
     if(trans==-1){
-      
+
       mat risq = zeros(ptGK_delta.size(),nE);
+      mat alphaY = zeros(ptGK.size(), nE);
       for( int j=0; j<nE; j++){
         // alpha * Yt
-        int mq=0;
-        for( int i=0; i<curlev.size(); i++){
-          if(mq==nD)
-            mq=0;
-          curlev(i) = exp(alpha(j*(nD)+mq)*curlev(i));
-          mq ++;
+        for( int i=0; i<ptGK.size(); i++){
+          for( int nd=0; nd<nD; nd++){
+            alphaY(i, j) += alpha(j*(nD)+nd)*curlev(i*nD+nd);
+          }
         }
         
         for( int i=0; i<ptGK.size(); i++){// Instantaneous risk with regression parameters
           risq(i,j) = fct_risq_base(ptGK(i), j+1, param_basehaz, basehaz, knots_surv, nE, gamma_X, false, j);
-          out(i) += risq(i,j)*curlev(i); // curlev(i) = exp(alpha Yt)
+          out(i) += risq(i,j)*exp(alphaY(i,j)); // curlev(i) = exp(alpha Yt)
         } 
       }
-
+      
     }else {
 
       // alpha * Yt
-      int mq=0;
-      for( int i=0; i<curlev.size(); i++){
-        if(mq==nD)
-          mq=0;
-        curlev(i) = exp(alpha(trans*nD+mq)*curlev(i));
-        mq ++;
-      }
-    
-    
-      vec risq = zeros(ptGK_delta.size());
-      
-      for( int i=0; i<ptGK.size(); i++) // Instantaneous risk with regression parameters
-        risq(i) = fct_risq_base(ptGK(i), delta_i, param_basehaz, basehaz, knots_surv, nE, gamma_X, false, trans);
-      
-      int tp =0;
-      for( int i=0; i<ptGK.size(); i++) {
-        for( int j=0; j<nD; j++) {
-          out(i) += risq(i)*curlev(tp);
-          tp++;
+      vec alphaY= zeros(ptGK.size());
+      for( int i=0; i<ptGK.size(); i++){
+        for( int nd=0; nd<nD; nd++){
+          alphaY(i) += alpha(trans*nD+nd)*curlev(i*nD+nd);// trans=0 or 1
         }
       }
+      
+      vec risq = zeros(ptGK_delta.size());
+      for( int i=0; i<ptGK.size(); i++) // Instantaneous risk with regression parameters for transition trans
+        risq(i) = fct_risq_base(ptGK(i), delta_i, param_basehaz, basehaz, knots_surv, nE, gamma_X, false, trans); //trans = delta_i-1
 
+      for( int i=0; i<ptGK.size(); i++) 
+          out(i) += risq(i)*exp(alphaY(i));
     }
   }
   
@@ -1140,7 +1114,7 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
 // combines a 7-point Gauss rule with a 15-point Kronrod rule (Kahaner, Moler & Nash 1989, §5.5).
 // Gauss points are incorporated into the Kronrod points
 double fct_surv_Konrod(double t_i, arma::colvec& xti1, arma::colvec& xti2, arma::vec& ui_r, int delta_i, arma::vec& param_basehaz, int basehaz, arma::colvec& param_surv, arma::vec& knots_surv, int assoc, bool truncation,
-                       int nD, arma::vec& tau, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arma::colvec& alpha_mu0, arma::mat& xi, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::mat& zi,
+                       int nD, double DeltaT, arma::mat& x0i, arma::colvec& alpha_mu0, arma::mat& xi, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::mat& zi,
                        int nE, arma::vec& gamma_X){
 
   // Konrod weights
@@ -1201,7 +1175,7 @@ double fct_surv_Konrod(double t_i, arma::colvec& xti1, arma::colvec& xti2, arma:
     // projection of GK nodes onto [0, ti]
     ptGK_ti(i) = ptGK(i)*(t_i-0)/2+(t_i+0)/2;
     // Correspondance ptGK_ti and tau_i for computation of current Y
-    deltaT_ptGK_ti(i) = floor(ptGK_ti(i)/ (double) DeltaT); // search for last tau_i before ptGK_ti(i)
+    deltaT_ptGK_ti(i) = round(ptGK_ti(i)/ (double) DeltaT); // search for last tau_i before ptGK_ti(i)
   }
 
   risq_GK_event= fct_pred_curlev_slope(deltaT_ptGK_ti, ptGK_ti, xti1, xti2, ui_r, 1, param_surv, assoc, 
@@ -1237,9 +1211,9 @@ double fct_surv_Konrod(double t_i, arma::colvec& xti1, arma::colvec& xti2, arma:
 //' //'    (0: random intercept, 1: random slope, 2: random intercept and slope, 3: current value, 4: current slope, 5: current value and slope)
 //' @param truncation: boolean, indicating if left truncation or not
 //' 
-double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma::colvec& xti1, arma::colvec& xti2, arma::colvec& param_surv,
+arma::vec f_survival_ui(arma::vec& ui_r, double t_0i, double t_i,int delta_i, arma::colvec& xti1, arma::colvec& xti2, arma::colvec& param_surv,
                      arma::vec& param_basehaz, int basehaz, arma::vec& knots_surv, int assoc, bool truncation,
-                     int nD, arma::vec& tau, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arma::colvec& alpha_mu0,
+                     int nD, double DeltaT, arma::mat& x0i, arma::colvec& alpha_mu0,
                      arma::mat& xi, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::mat& zi,
                      int nE){
 
@@ -1248,7 +1222,7 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
   surv(0,0) = 0;
   mat haz(1,1);
   haz(0,0) = 1;
-  double fti = 1 ;
+  vec fti = ones(2);
   vec  gamma_X(nE);
   mat gammaX = zeros(nE,1);
   
@@ -1260,7 +1234,7 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
 
   if(nE==2)
     gammaX(span(1,1), span(0,0)) = xti2.t()*param_surv(span(xti1.size() + nA, xti1.size() + nA + xti2.size()-1));
-
+  
   if(assoc <= 2){// random intercept (0), random slope (1) or both (2)
     int tp = xti1.size();
     for( int j=0; j<nE; j++){
@@ -1282,7 +1256,7 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
     cout << " check use of fct_risq_base for survival computation ! (surv and surv0)"<<endl;
     haz(0,0) = fct_risq_base(t_i, delta_i, param_basehaz, basehaz, knots_surv, nE, gamma_X, false, -1);
     
-    fti = surv(0,0)*haz(0,0);
+    fti(0) = surv(0,0)*haz(0,0);
     //fti /=surv0;
   }else{
     
@@ -1292,12 +1266,7 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
     vec event(1);
     event(0)=t_i;
     vec deltaT_ptGK_ti(1);
-    
-    for( int j=0; j<tau_i.size(); j++){
-      if(tau_i(j)*DeltaT<=t_i){
-        deltaT_ptGK_ti(0) = tau_i(j);
-      }
-    }
+    deltaT_ptGK_ti (0) = round(t_i/ (double) DeltaT);
 
     vec hazard(1);
     hazard.fill(1);
@@ -1311,11 +1280,17 @@ double f_survival_ui(arma::vec& ui_r, double t_0i, double t_i, int delta_i, arma
 
     double surv = 1;
     surv = fct_surv_Konrod(t_i, xti1, xti2, ui_r, delta_i, param_basehaz, basehaz, param_surv, knots_surv, assoc, truncation,
-                           nD, tau, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, nE, gamma_X);
+                           nD, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, nE, gamma_X);
 
-    fti = surv*hazard(0,0);
+    fti(0) = surv*hazard(0,0);
+    
+    double surv0 = 1;
+    if(truncation)
+      surv0 = fct_surv_Konrod(t_0i, xti1, xti2, ui_r, delta_i, param_basehaz, basehaz, param_surv, knots_surv, assoc, truncation,
+                           nD, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, nE, gamma_X);
+    
+    fti(1) = surv0;
     //fti /= surv0;
-
   }
  return(fti); 
 }

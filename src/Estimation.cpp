@@ -708,7 +708,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
       vrais /= MCnr;
       lvrais += log(vrais) + log_Jac_Phi - log(surv0); 
       if(pb_QMC > MCnr*0.15*K)
-        lvrais=-pow(10,10);
+        lvrais=-pow(10,9);
     }
   }
   return(lvrais);
@@ -986,7 +986,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
     //}
     // }else if( std::all_of(if_link.begin(), if_link.end(), compFun1) ){
     //  std::cout << "All the elements are equal to 2.\n";
-    //cout << " n "<<n;
+    
     
     double out1 =0;
     out1= Loglikei_GLM(K, nD, matrixP, m_is(n), tau, tau_is(span(p,(p+m_is(n)-1))), Ytild(span(p,(p+m_is(n)-1)), span(0,(K-1))),
@@ -996,10 +996,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
                        matB, Sig, G_mat_A_0_to_tau_i, G_mat_prod_A_0_to_tau,  DeltaT, ParamTransformY, df, if_link, zitr, ide, paras_k,
                        t_0i, t_i, delta_i, xti1, xti2, basehaz, knots_surv, survival, param_surv, param_basehaz, assoc, truncation,
                        sequence, type_int, ind_seq_i, MCnr, n, nE);
-    
-    
     loglik += out1;
-    
 
     // double out2 =  Loglikei(K, nD, matrixP, m_is(n), tau, tau_is(span(p,(p+m_is(n)-1))), Ytild(span(p,(p+m_is(n)-1)), span(0,(K-1))),
     //                     YtildPrim(span(p,(p+m_is(n)-1)), span(0,(K-1))), x0(span(n*nD,(n+1)*nD-1), span(0,(ncol_x0-1))),
@@ -1011,6 +1008,8 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
     
     p += m_is[n];
   }
+  if(loglik <= -pow(10,9))
+    loglik=-pow(10,9);
   //cout << "   "<<loglik0 << " "<< loglik<<endl;
   
   // int n = 0;

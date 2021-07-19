@@ -474,6 +474,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
       for(int nr=0; nr < MCnr; nr++){
         int k_t=0;
         vec ui_r = ui.row(nr).t();
+
         vec Lambda_nr;
         //vec Lambda_nr = matNui_ui(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi, true);
         
@@ -562,6 +563,16 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
               lvraisr += (out2);
               
             }else if(if_link(k)==2){ // thresholds
+              if(printa==1&& nr==0){
+                cout << nr << " ui_r "<<ui_r.t();
+                cout << " Ytildik "<<Ytildik.t();
+                cout << " tau_i "<<tau_i.t();
+                cout << " Lambda_nrk "<<Lambda_nrk.t();
+                cout << " ParaTransformYk "<<ParaTransformYk.t();
+                cout << " Sig(k,k) "<<abs(pow(Sig(k,k),0.5))<< " zitr "<<zitr.t() <<endl;
+                cout<< "alpha_mu0 "<<alpha_mu0.t();
+                cout<< "alpha_mu "<<alpha_mu.t();
+              }
               
               double phi1;
               double phi2;
@@ -626,6 +637,8 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
                   }
                   
                   vraisk *= (phi1-phi2);
+                  if(phi1==phi2 && printa==1)
+                    cout << nr << " j "<<j<<" Ytildi(j, k) "<<Ytildi(j, k)<< " phi "<<(phi1-phi2)<< " vraisk " <<vraisk<<endl;
 
                   // if(phi1==phi2 || isinf(lvraisk) )
                   //   cout << " nr "<< nr <<" k " << k <<"j"<<j<<" Ytildi(j, k) "<<Ytildi(j, k)<< " k_i "<<k_i.t()
@@ -996,8 +1009,9 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
                        matB, Sig, G_mat_A_0_to_tau_i, G_mat_prod_A_0_to_tau,  DeltaT, ParamTransformY, df, if_link, zitr, ide, paras_k,
                        t_0i, t_i, delta_i, xti1, xti2, basehaz, knots_surv, survival, param_surv, param_basehaz, assoc, truncation,
                        sequence, type_int, ind_seq_i, MCnr, n, nE);
+    
     loglik += out1;
-
+    
     // double out2 =  Loglikei(K, nD, matrixP, m_is(n), tau, tau_is(span(p,(p+m_is(n)-1))), Ytild(span(p,(p+m_is(n)-1)), span(0,(K-1))),
     //                     YtildPrim(span(p,(p+m_is(n)-1)), span(0,(K-1))), x0(span(n*nD,(n+1)*nD-1), span(0,(ncol_x0-1))),
     //                     z0(span(n*nD,(n+1)*nD-1), span(0,(ncol_z0-1))), x(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_x-1))),

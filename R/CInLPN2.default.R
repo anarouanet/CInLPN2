@@ -274,7 +274,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
       }
       Xsurv <- as.matrix(model.matrix(as.formula(paste("",fixed.survival.models, sep="~")),data=Survdata)[,-1])
       param_survie <- c(param_survie, names(Xsurv))
-
+      browser()
     }else if(data_F$nE==2){
       param_survie<-c()
       for(ij in 1:2){
@@ -301,6 +301,8 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
         }else if(assoc==5){
           name_assoc <- c("c.value", "c.slope")
         }
+        if(nD>1)
+          name_assoc <- paste(name_assoc, 1:nD,sep=".")
         param_survie <- c(param_survie, name_assoc)
       }
     }

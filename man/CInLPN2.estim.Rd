@@ -10,6 +10,7 @@ CInLPN2.estim(
   mapping.to.LP,
   data,
   if_link = if_link,
+  cholesky = FALSE,
   DeltaT = 1,
   MCnr = NULL,
   nmes = NULL,

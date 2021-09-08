@@ -31,6 +31,7 @@ CInLPN2.default(
   sequence = NULL,
   ind_seq_i = NULL,
   nmes = NULL,
+  cholesky = FALSE,
   paras.ini = NULL,
   indexparaFixeUser,
   paraFixeUser,

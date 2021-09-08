@@ -18,6 +18,7 @@ CInLPN2(
   data,
   seed = NULL,
   TimeDiscretization = TRUE,
+  cholesky = FALSE,
   ...
 )
 }
@@ -63,6 +64,8 @@ default value is NULL}}
 \item{subject}{indicates the name of the covariate representing the grouping structure}
 
 \item{data}{indicates the data frame containing all the variables for estimating the model.}
+
+\item{cholesky}{logical indicating if the variance covariance matrix is parameterized using the cholesky (TRUE) or the correlation (FALSE, by default)}
 
 \item{\dots}{other optional arguments}
 }

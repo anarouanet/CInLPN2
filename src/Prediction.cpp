@@ -373,7 +373,7 @@ Predictions for overall individuals
 //' 
 // [[Rcpp::export]]
 arma::mat pred(int K, int nD, arma::vec& mapping, arma::vec& paras, arma::vec& m_is,
-               arma::mat& Mod_MatrixY, arma::vec df, arma::mat& x, arma::mat& z, arma::vec& q,
+               arma::mat& Mod_MatrixY, arma::vec df, arma::mat& x, arma::mat& z, arma::vec& q, bool cholesky,
                int nb_paraD, arma::mat& x0, arma::mat& z0, arma::vec& q0, arma::vec if_link, arma::vec tau,
                arma::vec& tau_is, arma::mat& modA_mat, double DeltaT, int MCnr, arma::vec minY, arma::vec maxY,
                List& knots, arma::vec degree, double epsPred){
@@ -416,7 +416,37 @@ arma::mat pred(int K, int nD, arma::vec& mapping, arma::vec& paras, arma::vec& m
   ipara += nbParaTransformY;
 
   int nb_RE = sum(sum(q0)+sum(q));
-  mat matD = DparChol(nb_RE, alpha_D);
+  Mat<double> matD;
+  // alpha_D contains initial parameters (corr)
+  if(cholesky==false){
+    mat prmea = zeros(nb_RE, nb_RE);
+    int ii=0;
+    for(int i=0; i<nb_RE;i++){
+      for(int j=0; j<=i;j++){
+        prmea(i,j)=alpha_D(ii);
+        ii++;
+      }
+    }
+    
+    mat DI=zeros(nb_RE, nb_RE);
+    DI.diag() = prmea.diag();
+    prmea = prmea + prmea.t() - DI;
+    
+    colvec sea = abs(prmea.diag());
+    mat corr = (exp(prmea)-1)/(exp(prmea)+1);
+    for(int i=0; i<nb_RE;i++)
+      corr(i,i)=1;
+    
+    matD = corr;
+    for(int i=0; i<nb_RE;i++)
+      matD.col(i)=matD.col(i)*sea(i);
+    for(int i=0; i<nb_RE;i++)
+      matD.row(i)=matD.row(i)*sea(i);
+    
+  }else{
+    matD = DparChol(nb_RE, alpha_D);
+  }
+
   int n_cols_matD = matD.n_cols;
   mat matDw = matD(span(0,nD-1),span(0,nD-1));
   mat matDw_u = DeltaT*matD(span(0,nD-1),span(nD,n_cols_matD-1));

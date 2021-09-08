@@ -15,6 +15,7 @@ pred(
   x,
   z,
   q,
+  cholesky,
   nb_paraD,
   x0,
   z0,

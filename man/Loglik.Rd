@@ -28,6 +28,7 @@ Loglik(
   x0,
   z0,
   q0,
+  cholesky,
   data_surv,
   basehaz,
   knots_surv,
@@ -82,6 +83,8 @@ outcomes and latents processes}
 \item{z0}{model.matrix for baseline's random effects submodel}
 
 \item{q0}{a vector of number of random effects on each initial latent process level}
+
+\item{cholesky}{logical indicating if the variance covariance matrix is parameterized using the cholesky (TRUE, by default) or the correlation (FALSE)}
 
 \item{data_surv}{matrix of Tentry, Event, StatusEvent and covariates for survival models}
 

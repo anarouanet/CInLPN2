@@ -441,6 +441,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     
     mat chol_var_RE = chol(var_RE).t();
     
+    
     if(type_int == -1){// MC
       mat uii = chol_var_RE * randn< Mat<double> >(chol_var_RE.n_rows, MCnr);
       ui = uii.t();
@@ -787,6 +788,7 @@ bool compFun1(int i) {
 //' @param z0 model.matrix for baseline's random effects submodel
 //' @param z model.matrix for change's random effects submodel
 //' @param q0 a vector of number of random effects on each initial latent process level
+//' @param cholesky logical indicating if the variance covariance matrix is parameterized using the cholesky (TRUE, by default) or the correlation (FALSE)
 //' @param q a vector of number of random effects on each change latent process over time
 //' @param if_link indicates if non linear link is used to transform an outcome
 //' @param tau a vector of integers indicating times (including maximum time)
@@ -817,7 +819,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
               arma::vec& paras_k, arma::mat& sequence, int type_int, arma::vec& ind_seq_i, int MCnr,  arma::vec& nmes, arma::vec& m_is,
               arma::mat& Mod_MatrixY, arma::mat& Mod_MatrixYprim, arma::vec& df, arma::mat& x,
               arma::mat& z, arma::vec& q, int nb_paraD, arma::mat& x0, arma::mat& z0,
-              arma::vec& q0, 
+              arma::vec& q0, bool cholesky,
               arma::mat& data_surv, int basehaz, arma::vec& knots_surv, arma::vec& np_surv, bool survival, int assoc, bool truncation,
               int nE, arma::mat& Xsurv1, arma::mat& Xsurv2,
               arma::vec& if_link, arma::vec& zitr, arma::vec& ide, 
@@ -891,12 +893,44 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
   }
 
   int nb_RE = sum(sum(q0)+sum(q));
-  Mat<double> matD = DparChol(nb_RE, alpha_D);
+  Mat<double> matD;
+  // alpha_D contains initial parameters (corr)
+  if(cholesky==false){
+    mat prmea = zeros(nb_RE, nb_RE);
+    int ii=0;
+    for(int i=0; i<nb_RE;i++){
+      for(int j=0; j<=i;j++){
+        prmea(i,j)=alpha_D(ii);
+        ii++;
+      }
+    }
+    
+    mat DI=zeros(nb_RE, nb_RE);
+    DI.diag() = prmea.diag();
+    prmea = prmea + prmea.t() - DI;
+    
+    colvec sea = abs(prmea.diag());
+    mat corr = (exp(prmea)-1)/(exp(prmea)+1);
+    for(int i=0; i<nb_RE;i++)
+      corr(i,i)=1;
+    
+    matD = corr;
+    for(int i=0; i<nb_RE;i++)
+      matD.col(i)=matD.col(i)*sea(i);
+    for(int i=0; i<nb_RE;i++)
+      matD.row(i)=matD.row(i)*sea(i);
+
+  }else{
+    matD = DparChol(nb_RE, alpha_D);
+  }
+  
   int n_cols_matD = matD.n_cols;
   Mat<double> matDw = matD(span(0,nD-1),span(0,nD-1));
   Mat<double> matDw_u = matD(span(0,nD-1),span(nD,n_cols_matD-1));
   Mat<double> matDu = (matD(span(nD,n_cols_matD-1),span(nD,n_cols_matD-1)));
   Mat<double> matB = KmatDiag(paraB); // structured variance-covariance matrice
+
+  
   Mat<double> Sig = KmatDiag(paraSig); // noise
   // Computering of Ytild and YtildPrim, the transformed marker and it derivate from
   // Y, model.matrix and transformation parameters

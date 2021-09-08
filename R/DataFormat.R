@@ -84,6 +84,7 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
         df <-c(df, ncol(Imat))
         degree[k] <- 0 # conventionnellement
       }else{
+
         linkSpe[[k]] <- strsplit(gsub("[[:space:]]","",link[k]),"[-]")[[1]]
         temp <- try( linkSpe[[k]][1] <- as.numeric(linkSpe[[k]][1]),silent = FALSE)
         if(inherits(temp ,'try-error') | temp < 2){
@@ -136,7 +137,7 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
         }else{
           int_knots <- NULL
         }
-  
+
         modISpline <- paste("~ 1 + splines2::iSpline(",col[k],",knots=","int_knots",",","degree=", degree[k],
                             ",", "intercept = T,", "derivs= 0,", "Boundary.knots= c(",minY[k],",",maxY[k],"))")
         

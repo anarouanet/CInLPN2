@@ -77,6 +77,7 @@
 #' @param Time indicates the name of the covariate representing the time 
 #' @param subject indicates the name of the covariate representing the grouping structure
 #' @param data indicates the data frame containing all the variables for estimating the model.
+#' @param cholesky logical indicating if the variance covariance matrix is parameterized using the cholesky (TRUE) or the correlation (FALSE, by default)
 #' @param  \dots other optional arguments
 #' @return ---
 #' @export
@@ -197,7 +198,7 @@
 
 CInLPN2 <- function(structural.model, measurement.model, parameters, 
                    option, Time, Tentry ="Tentry", Event = "Event", StatusEvent = "StatusEvent", basehaz = NULL, subject, data, seed=NULL, 
-                   TimeDiscretization = TRUE, ...){
+                   TimeDiscretization = TRUE, cholesky=FALSE,...){
   cl <- match.call()
   ptm <- proc.time()  
   cat("Be patient, CInLPN2 is running ... \n")
@@ -512,7 +513,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
                         randoms_DeltaX.models = randoms_DeltaX.models, mod_trans.model = mod_trans.model, DeltaT = DeltaT , outcomes = outcomes,
                         nD = nD, mapping.to.LP = mapping.to.LP, link = link, knots = knots, subject = subject, data = data, Time = Time, 
                         Survdata = Survdata, basehaz = basehaz, knots_surv = knots_surv, assoc = assoc, truncation = truncation, fixed.survival.models = fixed.survival.models,
-                        makepred = option$makepred, MCnr = option$MCnr, type_int = option$type_int, sequence = sequence, ind_seq_i = ind_seq_i, nmes = nmes,
+                        makepred = option$makepred, MCnr = option$MCnr, type_int = option$type_int, sequence = sequence, ind_seq_i = ind_seq_i, nmes = nmes, cholesky = cholesky,
                         paras.ini= paras.ini, paraFixeUser = paraFixeUser, indexparaFixeUser = indexparaFixeUser,  
                         maxiter = maxiter, zitr = zitr, ide = ide0, univarmaxiter = univarmaxiter, nproc = nproc, epsa = epsa, epsb = epsb, epsd = epsd, 
                         print.info = print.info, TimeDiscretization = TimeDiscretization, Tentry = Tentry, Event = Event, StatusEvent = StatusEvent)

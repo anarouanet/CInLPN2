@@ -20,6 +20,7 @@
 #' @param z0 model.matrix for baseline's random effects submodel
 #' @param z model.matrix for change's random effects submodel
 #' @param q0 a vector of number of random effects on each initial latent process level
+#' @param cholesky logical indicating if the variance covariance matrix is parameterized using the cholesky (TRUE, by default) or the correlation (FALSE)
 #' @param q a vector of number of random effects on each change latent process over time
 #' @param if_link indicates if non linear link is used to transform an outcome
 #' @param tau a vector of integers indicating times (including maximum time)
@@ -45,8 +46,8 @@
 #' @return double 
 #' @export
 #' 
-Loglik <- function(K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, data_surv, basehaz, knots_surv, np_surv, survival, assoc, truncation, nE, Xsurv1, Xsurv2, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT) {
-    .Call(`_CInLPN2_Loglik`, K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, data_surv, basehaz, knots_surv, np_surv, survival, assoc, truncation, nE, Xsurv1, Xsurv2, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT)
+Loglik <- function(K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, cholesky, data_surv, basehaz, knots_surv, np_surv, survival, assoc, truncation, nE, Xsurv1, Xsurv2, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT) {
+    .Call(`_CInLPN2_Loglik`, K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, cholesky, data_surv, basehaz, knots_surv, np_surv, survival, assoc, truncation, nE, Xsurv1, Xsurv2, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT)
 }
 
 #' Function that computes the predictions (marginal and subject-specific) for individuals
@@ -81,8 +82,8 @@ Loglik <- function(K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence,
 #' @return a matrix
 #' @export
 #' 
-pred <- function(K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred) {
-    .Call(`_CInLPN2_pred`, K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred)
+pred <- function(K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, cholesky, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred) {
+    .Call(`_CInLPN2_pred`, K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, cholesky, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred)
 }
 
 #' @param gammaX: vector of linear predictors for 1 and 2 transitions (including association on random effects if assoc <=2)

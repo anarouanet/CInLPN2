@@ -43,7 +43,7 @@
 CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.models, randoms_DeltaX.models, mod_trans.model, 
                            DeltaT, outcomes, nD, mapping.to.LP, link, knots=NULL, subject, data, Time, 
                            Survdata = NULL, basehaz = NULL, knots_surv=NULL, assoc = NULL, truncation = FALSE, fixed.survival.models = NULL, 
-                           makepred, MCnr, type_int = NULL, sequence = NULL, ind_seq_i = NULL, nmes = NULL,
+                           makepred, MCnr, type_int = NULL, sequence = NULL, ind_seq_i = NULL, nmes = NULL, cholesky= FALSE,
                            paras.ini= NULL, indexparaFixeUser, paraFixeUser, maxiter, zitr, ide, univarmaxiter, nproc = 1, 
                            epsa =0.0001, epsb = 0.0001, epsd= 0.001, print.info = FALSE, TimeDiscretization = TRUE, 
                            Tentry = NULL, Event = NULL, StatusEvent = NULL, ...)
@@ -103,7 +103,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
 
   paras <- Parametre(K=K, nD = nD, vec_ncol_x0n, n_col_x, nb_RE, indexparaFixeUser = indexparaFixeUser, 
                      paraFixeUser = paraFixeUser, L = L, ncolMod.MatrixY = ncolMod.MatrixY, paras.ini=paras.ini, 
-                     link = link, npara_k = npara_k,
+                     link = link, npara_k = npara_k, 
                      Survdata = Survdata, basehaz = basehaz, knots_surv = knots_surv, assoc = assoc, truncation = truncation,
                      data = data, outcomes = outcomes, df= data_F$df, nE = data_F$nE, np_surv = data_F$np_surv, fixed.survival.models =fixed.survival.models,)
   
@@ -158,7 +158,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
   }
 
   # estimation
-  est <- CInLPN2.estim(K = K, nD = nD, mapping.to.LP = mapping.to.LP, data = data_F, if_link = if_link, 
+  est <- CInLPN2.estim(K = K, nD = nD, mapping.to.LP = mapping.to.LP, data = data_F, if_link = if_link, cholesky = cholesky,
                       DeltaT = DeltaT, MCnr = MCnr, nmes = nmes, data_surv = Survdata, 
                       paras = paras, maxiter = maxiter, nproc = nproc, epsa = epsa, epsb = epsb,
                       epsd = epsd, print.info = print.info)
@@ -188,7 +188,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
     if(requireNamespace("splines2", quietly = TRUE)){
       Predict <- pred(K = K, nD = nD, mapping = mapping.to.LP, paras = res$coefficients,
                       m_is= data_F$m_i, Mod_MatrixY = data_F$Mod.MatrixY, df= data_F$df,
-                      x = data_F$x, z = data_F$z, q = data_F$q, nb_paraD = data_F$nb_paraD, x0 = data_F$x0, z0 = data_F$z0,
+                      x = data_F$x, z = data_F$z, q = data_F$q, cholesky = cholesky, nb_paraD = data_F$nb_paraD, x0 = data_F$x0, z0 = data_F$z0,
                       q0 = data_F$q0, if_link = if_link, tau = data_F$tau,
                       tau_is=data_F$tau_is, modA_mat = data_F$modA_mat, DeltaT=DeltaT, 
                       MCnr = MCnr, minY=data_F$minY, maxY=data_F$maxY, knots=data_F$knots, data_F$degree, epsPred = 1.e-9)
@@ -215,7 +215,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
     cat("Prediction computation took:", p.time2[1], "\n")
   }
   
-  ## Compute number of parameters  per componante of the processes network
+  ## Compute number of parameters  per component of the processes network
   i1 <- 0
   res$length_para_mu0 <- length(which(res$posfix[(i1+1):(i1+ncol(data_F$x0))]==0))
   i1 <- i1 + ncol(data_F$x0)
@@ -308,6 +308,28 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
     }
     res$colnames <- c(res$colnames, param_survie)
   }
+  
+    nb_RE <- data_F$q0+data_F$q
+    
+    if(cholesky){
+      chol <- matrix(0, nb_RE, nb_RE)
+      chol[upper.tri(chol, diag = T)] <- res$coefficients[grep("Chol", res$colnames)]
+      res$varcov <- t(chol)%*%chol
+
+    }else{
+      prmea <- matrix(0, nb_RE, nb_RE)
+      prmea[upper.tri(prmea,diag=TRUE)] <- res$coefficients[grep("Chol", res$colnames)]
+      prmea <- t(prmea)
+      prmea[upper.tri(prmea,diag=TRUE)] <- res$coefficients[grep("Chol", res$colnames)]
+      
+      sea <- abs(diag(prmea))
+      
+      corr <- (exp(prmea)-1)/(exp(prmea)+1)
+      diag(corr) <- 1
+      covea <- sweep(corr,1,sea,"*")
+      covea <- sweep(covea,2,sea,"*")
+      res$varcov <- covea
+    }
     
   res$coefficients <- as.matrix(res$coefficients)
   rownames(res$coefficients) <- res$colnames

@@ -317,7 +317,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
       res$varcov <- t(chol)%*%chol
 
     }else{
-      prmea <- matrix(0, nb_RE, nb_RE)
+      prmea <- matrix(0, nb_RE*nD, nb_RE*nD)
       prmea[upper.tri(prmea,diag=TRUE)] <- res$coefficients[grep("Chol", res$colnames)]
       prmea <- t(prmea)
       prmea[upper.tri(prmea,diag=TRUE)] <- res$coefficients[grep("Chol", res$colnames)]
@@ -330,7 +330,6 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
       covea <- sweep(covea,2,sea,"*")
       res$varcov <- covea
     }
-    
   res$coefficients <- as.matrix(res$coefficients)
   rownames(res$coefficients) <- res$colnames
   colnames(res$coefficients) <- "Coef."

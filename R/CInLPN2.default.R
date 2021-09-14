@@ -106,7 +106,6 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
                      link = link, npara_k = npara_k, 
                      Survdata = Survdata, basehaz = basehaz, knots_surv = knots_surv, assoc = assoc, truncation = truncation,
                      data = data, outcomes = outcomes, df= data_F$df, nE = data_F$nE, np_surv = data_F$np_surv, fixed.survival.models =fixed.survival.models,)
-  
   if_link <- rep(0,K)
   for(k in 1:K){
     if(!link[k] %in%c("linear","thresholds")){
@@ -312,7 +311,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
     nb_RE <- data_F$q0+data_F$q
     
     if(cholesky){
-      chol <- matrix(0, nb_RE, nb_RE)
+      chol <- matrix(0, nb_RE*nD, nb_RE*nD)
       chol[upper.tri(chol, diag = T)] <- res$coefficients[grep("Chol", res$colnames)]
       res$varcov <- t(chol)%*%chol
 

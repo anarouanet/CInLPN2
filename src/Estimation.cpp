@@ -438,9 +438,9 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
         }
       }
     }
-    
+
     mat chol_var_RE = chol(var_RE).t();
-    
+
     
     if(type_int == -1){// MC
       mat uii = chol_var_RE * randn< Mat<double> >(chol_var_RE.n_rows, MCnr);
@@ -899,27 +899,27 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
     mat prmea = zeros(nb_RE, nb_RE);
     int ii=0;
     for(int i=0; i<nb_RE;i++){
-      for(int j=0; j<=i;j++){
-        prmea(i,j)=alpha_D(ii);
+      for(int j=i; j<nb_RE;j++){
+        prmea(j,i)=alpha_D(ii);
         ii++;
       }
     }
-    
+
     mat DI=zeros(nb_RE, nb_RE);
     DI.diag() = prmea.diag();
     prmea = prmea + prmea.t() - DI;
-    
+
     colvec sea = abs(prmea.diag());
     mat corr = (exp(prmea)-1)/(exp(prmea)+1);
     for(int i=0; i<nb_RE;i++)
       corr(i,i)=1;
-    
+
     matD = corr;
     for(int i=0; i<nb_RE;i++)
       matD.col(i)=matD.col(i)*sea(i);
     for(int i=0; i<nb_RE;i++)
       matD.row(i)=matD.row(i)*sea(i);
-
+    
   }else{
     matD = DparChol(nb_RE, alpha_D);
   }

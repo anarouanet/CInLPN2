@@ -88,6 +88,7 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
                            np_surv = paras$np_surv, survival = (data$nE>0), assoc =  paras$assoc, truncation = paras$truncation, 
                            nE = data$nE, Xsurv1 = as.matrix(data$Xsurv1), Xsurv2 = as.matrix(data$Xsurv2), clustertype="FORK")
     ,silent = FALSE)
+
     time=proc.time()-ptm
     h=floor(time[3]/3600)
     m=floor((time[3]-h*3600)/60)

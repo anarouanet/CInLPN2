@@ -928,7 +928,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
   Mat<double> matB = KmatDiag(paraB); // structured variance-covariance matrice
 
   
-  if(2>1){
+  if(1>2){
     int nq = matDw_u.n_cols + matDw.n_cols ;
     mat var_RE = zeros<mat>(nq, nq);
     for(int j =0 ; j < nq; j++){

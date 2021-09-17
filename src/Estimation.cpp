@@ -928,6 +928,32 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
   Mat<double> matB = KmatDiag(paraB); // structured variance-covariance matrice
 
   
+  if(2>1){
+    int nq = matDw_u.n_cols + matDw.n_cols ;
+    mat var_RE = zeros<mat>(nq, nq);
+    for(int j =0 ; j < nq; j++){
+      for(int jj =0 ; jj < nq; jj++){
+        if(j < matDw.n_cols & jj < matDw.n_cols){
+          var_RE(j, jj) = matDw(j, jj);
+          
+        }else if(j >= matDw.n_cols & jj < matDw.n_cols){
+          var_RE(j, jj) = matDw_u(jj, j-matDw.n_cols);
+          
+        }else if(j < matDw.n_cols & jj >= matDw.n_cols){
+          var_RE(j, jj) = matDw_u(j, jj-matDw.n_cols);
+          
+        }else if(j >= matDw.n_cols & jj >= matDw.n_cols){
+          var_RE(j, jj) = matDu(j-matDw.n_cols, jj-matDw.n_cols);
+        }
+      }
+    }
+    cout <<  "var_RE"<<endl << var_RE ;
+    mat chol_var_RE = chol(var_RE).t();
+    cout <<  "chol_var_RE"<<endl << chol_var_RE ;
+    
+  }
+  
+  
   Mat<double> Sig = KmatDiag(paraSig); // noise
   // Computering of Ytild and YtildPrim, the transformed marker and it derivate from
   // Y, model.matrix and transformation parameters

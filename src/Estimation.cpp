@@ -852,6 +852,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
     }
   }
   
+  cout << " paras "<<paras.t();
   //Identification of groups of parameters
   int ipara =0;
   colvec alpha_mu0 = paras(span(ipara,ipara+ncol_x0-1));

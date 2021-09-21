@@ -22,7 +22,7 @@ CInLPN2.default(
   Survdata = NULL,
   basehaz = NULL,
   knots_surv = NULL,
-  assoc = NULL,
+  assoc = 0,
   truncation = FALSE,
   fixed.survival.models = NULL,
   makepred,

@@ -367,6 +367,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
   ### pre-traitement of fixed effect on survival 
   fixed.survival.models <- NULL
   truncation = FALSE
+  browser()
   assoc <- 0
   if(survival){
     if(is.null(fixed.survival)){

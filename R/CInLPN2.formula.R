@@ -202,7 +202,6 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
   cl <- match.call()
   ptm <- proc.time()  
   cat("Be patient, CInLPN2 is running !!!! ... \n")
-browser()
 
   if(!missing(seed))
     set.seed(seed)

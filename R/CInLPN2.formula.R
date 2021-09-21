@@ -201,7 +201,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
                    TimeDiscretization = TRUE, cholesky=FALSE,...){
   cl <- match.call()
   ptm <- proc.time()  
-  cat("Be patient, CInLPN2 is running !!!! ... \n")
+  cat("Be patient, CInLPN2 is running ... \n")
 
   if(!missing(seed))
     set.seed(seed)
@@ -367,7 +367,6 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
   ### pre-traitement of fixed effect on survival 
   fixed.survival.models <- NULL
   truncation = FALSE
-  browser()
   assoc <- 0
   if(survival){
     if(is.null(fixed.survival)){
@@ -509,7 +508,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
     names(Survdata) <- c("Tentry", "Event", "StatusEvent")
     Survdata <- cbind(Survdata, data[first_line, covsurv])
   }
-browser()
+
   #### call of CInLPN2.default function to compute estimation and predictions
   est <- CInLPN2.default(fixed_X0.models = fixed_X0.models, fixed_DeltaX.models = fixed_DeltaX.models, randoms_X0.models = randoms_X0.models, 
                         randoms_DeltaX.models = randoms_DeltaX.models, mod_trans.model = mod_trans.model, DeltaT = DeltaT , outcomes = outcomes,

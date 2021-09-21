@@ -921,8 +921,6 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
     matD = DparChol(nb_RE, alpha_D);
   }
   
-  mat cholmatD = ;
-  cout << " chol matD "<<endl<<  <<endl;
   int n_cols_matD = matD.n_cols;
   Mat<double> matDw = matD(span(0,nD-1),span(0,nD-1));
   Mat<double> matDw_u = matD(span(0,nD-1),span(nD,n_cols_matD-1));
@@ -930,7 +928,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
   Mat<double> matB = KmatDiag(paraB); // structured variance-covariance matrice
 
   
-  if(1>2){
+  if(1<2){
     int nq = matDw_u.n_cols + matDw.n_cols ;
     mat var_RE = zeros<mat>(nq, nq);
     for(int j =0 ; j < nq; j++){

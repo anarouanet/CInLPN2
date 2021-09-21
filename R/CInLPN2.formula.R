@@ -201,7 +201,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
                    TimeDiscretization = TRUE, cholesky=FALSE,...){
   cl <- match.call()
   ptm <- proc.time()  
-  cat("Be patient, CInLPN2 is running ... \n")
+  cat("Be patient, CInLPN2 is running !... \n")
 
   if(!missing(seed))
     set.seed(seed)

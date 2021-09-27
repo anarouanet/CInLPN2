@@ -151,7 +151,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
                     arma::mat& G_mat_prod_A_0_to_tau,  double DeltaT, arma::vec& ParamTransformY, arma::vec& df, arma::vec& if_link,  
                     arma::vec& zitr,  arma::mat& ide, arma::vec& paras_k,
                     double t_0i, double t_i, int delta_i, arma::vec& xti1, arma::vec& xti2, int basehaz, arma::vec& knots_surv, bool survival, arma::vec& param_surv, arma::vec& param_basehaz, int assoc, bool truncation, 
-                    arma::mat& seq_i,  int type_int, arma::vec& ind_seq_i, int MCnr, int sub, int nE){
+                    arma::mat& seq_i,  int type_int, arma::vec& ind_seq_i, int MCnr, int sub, int nE, int add_diag_varcov){
 
   vec Ytildi_nu_i;
   mat matVY_i;
@@ -418,7 +418,6 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     int nq = matDw_u.n_cols + matDw.n_cols ;
     mat var_RE = zeros<mat>(nq, nq);
     mat ui;
-    //Verify it works with nD>1, may have to introduce nD somewhere
     //  matDw       matDw_u
     //  matDw_u.t() matDu
     for(int j =0 ; j < nq; j++){
@@ -438,7 +437,14 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
         }
       }
     }
-
+    
+    if(det(var_RE)<0){
+      for(int j =0 ; j < var_RE.n_cols; j++){
+        var_RE(j, j) += add_diag_varcov;
+      }
+    }
+    
+    
     mat chol_var_RE = chol(var_RE).t();
     
     if(type_int == -1){// MC
@@ -852,7 +858,6 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
     }
   }
   
-  cout << " paras "<<paras.t();
   //Identification of groups of parameters
   int ipara =0;
   colvec alpha_mu0 = paras(span(ipara,ipara+ncol_x0-1));
@@ -929,9 +934,13 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
   Mat<double> matB = KmatDiag(paraB); // structured variance-covariance matrice
 
   
-  if(1<2){
+  int add_diag_varcov = 0; // something to add on the diagonal of var_RE  to make it positive definite for cholesky computation in MC
+  if(max(if_link)>1 || survival){//check condition
     int nq = matDw_u.n_cols + matDw.n_cols ;
     mat var_RE = zeros<mat>(nq, nq);
+    mat ui;
+    //  matDw       matDw_u
+    //  matDw_u.t() matDu
     for(int j =0 ; j < nq; j++){
       for(int jj =0 ; jj < nq; jj++){
         if(j < matDw.n_cols & jj < matDw.n_cols){
@@ -945,15 +954,38 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
           
         }else if(j >= matDw.n_cols & jj >= matDw.n_cols){
           var_RE(j, jj) = matDu(j-matDw.n_cols, jj-matDw.n_cols);
+          
         }
       }
     }
-    cout <<  "var_RE"<<endl << var_RE ;
-    mat chol_var_RE = chol(var_RE).t();
-    cout <<  "chol_var_RE"<<endl << chol_var_RE ;
     
+    // Verify var_RE is positive definite to compute the cholesky.
+    double det_var_RE = det(var_RE);
+    // Add something on the diagonal if varcov matrix is not positive definite
+    if(det_var_RE<0){
+      int p=4;
+      while(det_var_RE<0 & p > 0){
+        double add = pow(10,-p);
+        for(int i=0; i < nq; i++){
+          var_RE(i,i) += add;
+        }
+        det_var_RE = det(var_RE);
+        if(det_var_RE<0)
+          p-=1;
+      }
+      cout <<" proposed varcov not positive definite: "<<pow(10,-p)<< " added on diagonal"<<endl;
+      add_diag_varcov = p;
+      //  matDw       matDw_u
+      //  matDw_u.t() matDu
+      //Add on matDw and  matDu
+      // for(int i=0; i < matDw.n_cols; i++){
+      //   matDw(i,i) += pow(10,-p);
+      // }
+      // for(int i=0; i < matDu.n_cols; i++){
+      //   matDu(i,i) += pow(10,-p);
+      // }
+    }
   }
-  
   
   Mat<double> Sig = KmatDiag(paraSig); // noise
   // Computering of Ytild and YtildPrim, the transformed marker and it derivate from
@@ -1066,7 +1098,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
                        z(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_z-1))),alpha_mu0, alpha_mu, matDw, matDw_u, matDu,
                        matB, Sig, G_mat_A_0_to_tau_i, G_mat_prod_A_0_to_tau,  DeltaT, ParamTransformY, df, if_link, zitr, ide, paras_k,
                        t_0i, t_i, delta_i, xti1, xti2, basehaz, knots_surv, survival, param_surv, param_basehaz, assoc, truncation,
-                       sequence, type_int, ind_seq_i, MCnr, n, nE);
+                       sequence, type_int, ind_seq_i, MCnr, n, nE, add_diag_varcov);
     
     loglik += out1;
 

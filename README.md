@@ -1,1 +1,3 @@
-[![Travis build status](https://travis-ci.org/bachirtadde/CInLPN.svg?branch=master)](https://travis-ci.org/bachirtadde/CInLPN)
+<!-- badges: start -->
+  [![R-CMD-check](https://github.com/anarouanet/CInLPN2/workflows/R-CMD-check/badge.svg)](https://github.com/anarouanet/CInLPN2/actions)
+  <!-- badges: end -->

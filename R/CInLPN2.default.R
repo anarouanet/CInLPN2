@@ -239,7 +239,11 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
   L <- NULL
   #   for(i in 1:K){
   npRE <- data_F$nb_paraD
-  L <- paste("Chol.", 1:npRE,sep="")
+  if(cholesky){
+    L <- paste("Chol.", 1:npRE,sep="")
+  }else{
+    L <- paste("Rho.", 1:npRE,sep="")
+  }
   
   # colname  measurement error
   sig <- paste("sigma",outcomes, sep=".")
@@ -317,9 +321,9 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
 
     }else{
       prmea <- matrix(0, nb_RE*nD, nb_RE*nD)
-      prmea[upper.tri(prmea,diag=TRUE)] <- res$coefficients[grep("Chol", res$colnames)]
+      prmea[upper.tri(prmea,diag=TRUE)] <- res$coefficients[grep("Rho", res$colnames)]
       prmea <- t(prmea)
-      prmea[upper.tri(prmea,diag=TRUE)] <- res$coefficients[grep("Chol", res$colnames)]
+      prmea[upper.tri(prmea,diag=TRUE)] <- res$coefficients[grep("Rho", res$colnames)]
       
       sea <- abs(diag(prmea))
       
@@ -351,7 +355,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
   ##output related big data like predictions, stocked matrix
   # res$fitted.values
   res$modA_mat = data_F$modA_mat
-  
+  res$cholesky <- cholesky
   res$call <- match.call()
   class(res) <- 'CInLPN2'
   res

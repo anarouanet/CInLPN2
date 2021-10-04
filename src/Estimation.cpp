@@ -161,7 +161,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
   int check=0; // 1 both, 2 close likelihood only
   int printa=0;
   //cout << " max(if_link) "<<max(if_link)<< " survival "<< survival << " check "<< check <<endl;
-
+  
   if((max(if_link) < 2 && !survival) || check==1){//|| check==1){
     // ###### compute  Yi - E(Yi) ##### deleting missing values #####
     Ytildi_nu_i = YiNui(nD, matrixP, tau, tau_i, DeltaT, Ytildi, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i);
@@ -364,13 +364,22 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
   double loglik_i0 = 0;
   double log_Jac_Phi = sum(log(YiwoNA(vectorise(YtildPrimi))));
 
-  if((max(if_link) == 1 && !survival)|| check==1 ){
+  if((max(if_link) <= 1 && !survival)|| check==1 ){
     // To check the linear closed form of likelihood
     double abs_det_matVY_i = abs(det(matVY_i));
     
     // ##### computering of the likelihood ########################## all linear
     loglik_i = -0.5*(sum(k_i)*log(2*M_PI) + log(abs_det_matVY_i) + as_scalar(Ytildi_nu_i.t()*inv_sympd(matVY_i)*Ytildi_nu_i)) + log_Jac_Phi;
 
+    // cout << " loglik_i "<<loglik_i<< " ni "<<sum(k_i)
+    //      << " det "<<abs_det_matVY_i<< endl
+    //      << " scalar "<<as_scalar(Ytildi_nu_i.t()*inv_sympd(matVY_i)*Ytildi_nu_i)
+    //      << " log_Jac_Phi "<<log_Jac_Phi<<endl         
+    //      << " Yimean "<<Ytildi_nu_i.t()
+    //      << " Ytildi " <<Ytildi.t()
+    //      << "alpha_mu0 " <<alpha_mu0.t()
+    //      << " Vi "<< matVY_i ;
+    
     loglik_i0 = -0.5*(sum(k_i)*log(2*M_PI) + log(abs_det_matVY_i) + as_scalar(Ytildi_nu_i.t()*inv_sympd(matVY_i)*Ytildi_nu_i)) ;//+ log_Jac_Phi;
 
     //cout << " loglik_i "<<loglik_i<< " k_i "<<k_i.t();
@@ -898,8 +907,9 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
   int nb_RE = sum(sum(q0)+sum(q));
   Mat<double> matD;
   // alpha_D contains initial parameters (corr)
+  mat prmea;
   if(cholesky==false){
-    mat prmea = zeros(nb_RE, nb_RE);
+    prmea = zeros(nb_RE, nb_RE);
     int ii=0;
     for(int i=0; i<nb_RE;i++){
       for(int j=i; j<nb_RE;j++){
@@ -935,41 +945,28 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
 
   
   int add_diag_varcov = 0; // something to add on the diagonal of var_RE  to make it positive definite for cholesky computation in MC
+  
   if(max(if_link)>1 || survival){//check condition
     int nq = matDw_u.n_cols + matDw.n_cols ;
-    mat var_RE = zeros<mat>(nq, nq);
     mat ui;
     //  matDw       matDw_u
     //  matDw_u.t() matDu
-    for(int j =0 ; j < nq; j++){
-      for(int jj =0 ; jj < nq; jj++){
-        if(j < matDw.n_cols & jj < matDw.n_cols){
-          var_RE(j, jj) = matDw(j, jj);
-          
-        }else if(j >= matDw.n_cols & jj < matDw.n_cols){
-          var_RE(j, jj) = matDw_u(jj, j-matDw.n_cols);
-          
-        }else if(j < matDw.n_cols & jj >= matDw.n_cols){
-          var_RE(j, jj) = matDw_u(j, jj-matDw.n_cols);
-          
-        }else if(j >= matDw.n_cols & jj >= matDw.n_cols){
-          var_RE(j, jj) = matDu(j-matDw.n_cols, jj-matDw.n_cols);
-          
-        }
-      }
-    }
-    
     // Verify var_RE is positive definite to compute the cholesky.
-    double det_var_RE = det(var_RE);
+    double det_var_RE = det(matD);
     // Add something on the diagonal if varcov matrix is not positive definite
     if(det_var_RE<0){
+      
+      cout << " var_RE "<<matD;
+      cout << " prmea "<<prmea;
+      cout << " alpha_D "<<alpha_D.t();
+      
       int p=4;
       while(det_var_RE<0 & p > 0){
         double add = pow(10,-p);
         for(int i=0; i < nq; i++){
-          var_RE(i,i) += add;
+          matD(i,i) += add;
         }
-        det_var_RE = det(var_RE);
+        det_var_RE = det(matD);
         if(det_var_RE<0)
           p-=1;
       }
@@ -1028,9 +1025,10 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
       ParamTransformY[kk+1] = 1.e0/ParamTransformY[kk+1];
       
       Ytild.col(k) = Mod_MatrixY.cols(kk, (kk+df[k]-1))*ParamTransformY(span(kk, (kk+df[k]-1)));
-      //cout << " Y "<<Mod_MatrixY.cols(kk, (kk+df[k]-1))<<endl;
-
       YtildPrim.col(k) = ParamTransformY[kk+1]*Mod_MatrixYprim.cols(kkp, (kkp+df[k]-2));
+      //cout << " paramTransf "<<ParaTransformY(span(kk, (kk+df[k]-1))).t()<<endl;
+      //cout << " Yprim "<<1<<endl;
+      //cout << " YtildPrim "<<0.9174<<endl;
       kk += df[k];
       kkp += df[k]-1;
     }
@@ -1089,7 +1087,6 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
     //}
     // }else if( std::all_of(if_link.begin(), if_link.end(), compFun1) ){
     //  std::cout << "All the elements are equal to 2.\n";
-    
     
     double out1 =0;
     out1= Loglikei_GLM(K, nD, matrixP, m_is(n), tau, tau_is(span(p,(p+m_is(n)-1))), Ytild(span(p,(p+m_is(n)-1)), span(0,(K-1))),

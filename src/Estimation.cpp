@@ -402,7 +402,6 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     lvrais = loglik_i;
     
   }else{ //if(check==1 || max(if_link)>1 || survival || check ==3){
-    cout << "check 3: MCnr ="<<MCnr<<endl;
     vec K2_lambda = zeros<vec>(K); // which latent process linked to the K markers
     
     for(int j =0 ; j < K; j++){

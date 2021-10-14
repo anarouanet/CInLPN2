@@ -73,13 +73,16 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
   ncolMod.MatrixY <- ncol(data_F$Mod.MatrixY)
 
   #definition quasi-random sequence
-  if(type_int == "sobol"){
-    sequence  <- randtoolbox::sobol(n = MCnr, dim = nb_RE, scrambling = 1, normal = TRUE, init=T)
-  }else if(type_int == "halton"){
-    sequence  <- randtoolbox::halton(n = MCnr, dim = i, normal = TRUE, init=T) 
-  }else if(type_int == "torus"){
-    sequence  <- randtoolbox::torus(n = MCnr, dim = i,normal = TRUE, init=T) 
+  if(!is.null(type_int)){
+    if(type_int == "sobol"){
+      sequence  <- randtoolbox::sobol(n = MCnr, dim = nb_RE, scrambling = 1, normal = TRUE, init=T)
+    }else if(type_int == "halton"){
+      sequence  <- randtoolbox::halton(n = MCnr, dim = i, normal = TRUE, init=T) 
+    }else if(type_int == "torus"){
+      sequence  <- randtoolbox::torus(n = MCnr, dim = i,normal = TRUE, init=T) 
+    }
   }
+
 
   assocT <- NULL
   if(!is.null(assoc)){
@@ -117,7 +120,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
   paras$npara_k <- npara_k
 
     #add zitr, ide  dans estim(). What about knots? What in dataF
-  if(any(link=="thresholds")|| !is.null(Survdata)){
+  if(any(link=="thresholds")|| !is.null(Survdata) || !is.null(type_int)){
     #  nmes <- c()
     #  for (i in 1:length(unique(data$id))){
     #    for(k in 1:K){

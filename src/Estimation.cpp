@@ -158,11 +158,11 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
   vec k_i = zeros<vec>(m_i);// vector of number of observed marker at each observation time
   vec PNu_cp_i;
   mat sigMSM;
-  int check=0; // 1 both, 2 close likelihood only
+  int check=3; // 1 both, 2 close likelihood only, 3 MC integration
   int printa=0;
   //cout << " max(if_link) "<<max(if_link)<< " survival "<< survival << " check "<< check <<endl;
   
-  if((max(if_link) < 2 && !survival) || check==1){//|| check==1){
+  if((max(if_link) < 2 && !survival)&& check <3 || check==1){//|| check==1){
     // ###### compute  Yi - E(Yi) ##### deleting missing values #####
     Ytildi_nu_i = YiNui(nD, matrixP, tau, tau_i, DeltaT, Ytildi, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i);
 
@@ -363,14 +363,19 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
   double loglik_i2=0;
   double loglik_i0 = 0;
   double log_Jac_Phi = sum(log(YiwoNA(vectorise(YtildPrimi))));
-
-  if((max(if_link) <= 1 && !survival)|| check==1 ){
+  
+  if((max(if_link) < 2 && !survival)&& check <3 || check==1){
     // To check the linear closed form of likelihood
     double abs_det_matVY_i = abs(det(matVY_i));
     
     // ##### computering of the likelihood ########################## all linear
     loglik_i = -0.5*(sum(k_i)*log(2*M_PI) + log(abs_det_matVY_i) + as_scalar(Ytildi_nu_i.t()*inv_sympd(matVY_i)*Ytildi_nu_i)) + log_Jac_Phi;
-
+    //cout << " tau_i "<<tau_i.t();
+    //cout << " x0i "<<x0i.t();
+    //cout << " xi "<<xi;
+    //cout << " matVY_i "<<matVY_i;
+    
+    
     // cout << " loglik_i "<<loglik_i<< " ni "<<sum(k_i)
     //      << " det "<<abs_det_matVY_i<< endl
     //      << " scalar "<<as_scalar(Ytildi_nu_i.t()*inv_sympd(matVY_i)*Ytildi_nu_i)
@@ -394,9 +399,8 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     }
     
     lvrais = loglik_i;
-  }
-
-  if(check==1 || max(if_link)>1 || survival){
+    
+  }else{ //if(check==1 || max(if_link)>1 || survival || check ==3){
     
     vec K2_lambda = zeros<vec>(K); // which latent process linked to the K markers
     
@@ -932,6 +936,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
       matD.col(i)=matD.col(i)*sea(i);
     for(int i=0; i<nb_RE;i++)
       matD.row(i)=matD.row(i)*sea(i);
+    //cout << det(matD)<<" matD "<<matD;
     
   }else{
     matD = DparChol(nb_RE, alpha_D);

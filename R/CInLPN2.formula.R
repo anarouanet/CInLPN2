@@ -242,9 +242,9 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
   if(is.null(option$MCnr)){
     option$MCnr <- 30
   }
-  if(is.null(option$type_int)){
-    option$type_int <- "montecarlo"
-  }
+  #if(is.null(option$type_int)){
+  #  option$type_int <- "montecarlo"
+  #}
   
   # if(is.null(option$parallel)){
   #   option$parallel <- FALSE
@@ -466,9 +466,11 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
       zitr <- c(zitr, minY0[i], maxY0[i])
     }
 
-    if(!type_int %in% c("MC", "sobol", "halton", "torus"))
-      stop("With the thresholds link function, type_int should be either antithetic, sobol, halton or torus. antithetic not developed yet, sorry.")
-    
+    if(!is.null(type_int)){
+      if(!type_int %in% c("MC", "sobol", "halton", "torus"))
+        stop("With the thresholds link function, type_int should be either antithetic, sobol, halton or torus. antithetic not developed yet, sorry.")
+    }
+
   }else{
     zitr <- 0
     ide0  <- 0 

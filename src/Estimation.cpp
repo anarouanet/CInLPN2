@@ -158,7 +158,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
   vec k_i = zeros<vec>(m_i);// vector of number of observed marker at each observation time
   vec PNu_cp_i;
   mat sigMSM;
-  int check=2; // 1 both, 2 close likelihood only if linear/splines, QMC if thresholds, 3 MC integration
+  int check=3; // 1 both, 2 close likelihood only if linear/splines, QMC if thresholds, 3 MC integration
 
   int printa=0;
   //cout << " max(if_link) "<<max(if_link)<< " survival "<< survival << " check "<< check <<endl;
@@ -410,7 +410,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     
     
     mat chol_var_RE = chol(var_RE).t();
-    
+    //cout << " chol_var_RE "<<chol_var_RE<<endl;
     if(type_int == -1){// MC
       mat uii = chol_var_RE * randn< Mat<double> >(chol_var_RE.n_rows, MCnr);
       ui = uii.t();

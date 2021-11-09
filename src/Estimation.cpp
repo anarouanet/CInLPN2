@@ -410,7 +410,6 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     
     
     mat chol_var_RE = chol(var_RE).t();
-    //cout << " chol_var_RE "<<chol_var_RE<<endl;
     if(type_int == -1){// MC
       mat uii = chol_var_RE * randn< Mat<double> >(chol_var_RE.n_rows, MCnr);
       ui = uii.t();
@@ -859,34 +858,65 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
   }
 
   int nb_RE = sum(sum(q0)+sum(q));
-  Mat<double> matD;
+  Mat<double> matD=zeros(nb_RE,nb_RE);
   // alpha_D contains initial parameters (corr)
   mat prmea;
   if(cholesky==false){
-    prmea = zeros(nb_RE, nb_RE);
     int ii=0;
+    prmea = zeros(nb_RE, nb_RE); //triangular inf
     for(int i=0; i<nb_RE;i++){
       for(int j=i; j<nb_RE;j++){
         prmea(j,i)=alpha_D(ii);
         ii++;
       }
     }
+    
+    for(int i=0; i<nb_RE;i++){
+      for(int j=0; j<=i;j++){
+        if(i==j){
+          matD(i,j)=prmea(i,j)*prmea(i,j);
+        }else{
+          matD(i,j)=(exp(prmea(i,j))-1)/(exp(prmea(i,j))+1);
+          matD(j,i)=matD(i,j);
+        }
+      }
+    }
 
-    mat DI=zeros(nb_RE, nb_RE);
-    DI.diag() = prmea.diag();
-    prmea = prmea + prmea.t() - DI;
-
-    colvec sea = abs(prmea.diag());
-    mat corr = (exp(prmea)-1)/(exp(prmea)+1);
-    for(int i=0; i<nb_RE;i++)
-      corr(i,i)=1;
-
-    matD = corr;
-    for(int i=0; i<nb_RE;i++)
-      matD.col(i)=matD.col(i)*sea(i);
-    for(int i=0; i<nb_RE;i++)
-      matD.row(i)=matD.row(i)*sea(i);
-    //cout << det(matD)<<" matD "<<matD;
+    for(int i=0; i<nb_RE;i++){
+      for(int j=1; j<nb_RE;j++){
+        if(i != j ){
+          matD(i,j)= matD(i,j)*pow(matD(i,i),0.5)*pow(matD(j,j),0.5);
+        }
+      }
+    }
+    
+    // prmea = zeros(nb_RE, nb_RE);
+    // int ii=0;
+    // for(int i=0; i<nb_RE;i++){
+    //   for(int j=i; j<nb_RE;j++){
+    //     prmea(j,i)=alpha_D(ii);
+    //     ii++;
+    //   }
+    // }
+    // cout << " prmea0 "<<prmea;
+    // 
+    // mat DI=zeros(nb_RE, nb_RE);
+    // DI.diag() = prmea.diag();
+    // prmea = prmea + prmea.t() - DI;
+    // cout << " prmea "<<prmea;
+    // 
+    // colvec sea = abs(prmea.diag());
+    // mat corr = (exp(prmea)-1)/(exp(prmea)+1);
+    // for(int i=0; i<nb_RE;i++)
+    //   corr(i,i)=1;
+    // 
+    // matD = corr;
+    // for(int i=0; i<nb_RE;i++)
+    //   matD.col(i)=matD.col(i)*sea(i);
+    // for(int i=0; i<nb_RE;i++)
+    //   matD.row(i)=matD.row(i)*sea(i);
+    // //cout << det(matD)<<" matD "<<matD;
+    // cout << " matD "<<matD;
     
   }else{
     matD = DparChol(nb_RE, alpha_D);
@@ -992,9 +1022,9 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
   
   //Computering of log-likelihood as sum of individuals contributions
 
-  for(int n= 0; n < N ; n++ ){
+  for(int n= 0; n < N ; n++ ){ //nsubjects
     //if(n%200==0)
-      //cout << "n "<< n ;
+      //cout << "N= "<< 1 ;
     // printf("\n %d \n",(n+1));
     //Creation of matrix G_mat_prod_A_0_to_tau that contains all products  A(j) from t_i a Tmax: t_i \in 0, Tmax
       mat G_mat_prod_A_0_to_tau = GmatprodAstotau(nD, vec_alpha_ij, tau, 0, DeltaT, modA_mat(span(n*m,((n+1)*m-1)), span(0,(L-1))));

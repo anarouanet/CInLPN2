@@ -132,7 +132,6 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
     }
   }
   
-
   # if user specified initial parameters
   if(!is.null(paras.ini)){
     p <- 0 # position in the initialize parameters

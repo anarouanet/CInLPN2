@@ -52,7 +52,6 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
   
   ################### discretization of the data with discretisation value given by the user ##########################
   #
-
   if(TimeDiscretization){
     data <- TimeDiscretization(rdata=data, subject = subject, outcomes = outcomes, predictors = NULL, 
                                Time = Time, Delta = DeltaT)

@@ -49,7 +49,6 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
     df <- NULL
     colnamesY <- NULL
     colnamesYPrim <- NULL
-    
     for(k in 1:K){
       minY[k] <- min(Y[,col[k]], na.rm = T)
       maxY[k] <- max(Y[,col[k]], na.rm = T)
@@ -76,7 +75,7 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
         #Imat[which(is.na(Imat[,2])),1] <- NA
         
         colnamesY <- c(colnamesY, paste(outcomes[k],"thresholds", seq(1,ncol(Imat)), sep = "."))
-        colnamesYPrim <- c(colnamesYPrim, paste(outcomes[k],"thresholds", seq(1,(ncol(Imat)-1)), sep = "."))
+        colnamesYPrim <- "thresholds"#c(colnamesYPrim, paste(outcomes[k],"thresholds", seq(1,(ncol(Imat)-1)), sep = "."))
         #check!
         Mod.MatrixY <- cbind(Mod.MatrixY, Imat)
         Mod.MatrixYprim <- cbind(Mod.MatrixYprim, Imat[,-1])
@@ -158,7 +157,7 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
     Mod.MatrixY <- as.matrix(Mod.MatrixY)
 
     if(all(link=="thresholds")) # If only thresholds links, so that Log_jacobien = 0
-      Mod.MatrixYprim<-Mod.MatrixYprim+1
+      Mod.MatrixYprim<-matrix(1,dim(Mod.MatrixY)[1],1) #only number of rows needed
     
     
     Mod.MatrixYprim <- as.matrix(Mod.MatrixYprim)
@@ -212,8 +211,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   d <- as.data.frame(data[,outcomes])
   R <- as.numeric(apply(X = d, MARGIN = 1, FUN = is_na_vec))
   data <-data[which(R==0),]
-  
-  
+
   #all predictor of the model==============================================================
   colnames <- colnames(data)
   all.pred.fixed_X0 <- NULL

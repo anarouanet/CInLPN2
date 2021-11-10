@@ -861,6 +861,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
   Mat<double> matD=zeros(nb_RE,nb_RE);
   // alpha_D contains initial parameters (corr)
   mat prmea;
+  
   if(cholesky==false){
     int ii=0;
     prmea = zeros(nb_RE, nb_RE); //triangular inf
@@ -881,15 +882,15 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
         }
       }
     }
-
+    
     for(int i=0; i<nb_RE;i++){
-      for(int j=1; j<nb_RE;j++){
+      for(int j=0; j<nb_RE;j++){
         if(i != j ){
           matD(i,j)= matD(i,j)*pow(matD(i,i),0.5)*pow(matD(j,j),0.5);
         }
       }
     }
-    
+    cout << " matD final : \n"<<matD;
     // prmea = zeros(nb_RE, nb_RE);
     // int ii=0;
     // for(int i=0; i<nb_RE;i++){
@@ -941,8 +942,8 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
     // Add something on the diagonal if varcov matrix is not positive definite
     if(det_var_RE<0){
       
-      cout << " var_RE "<<matD;
-      cout << " prmea "<<prmea;
+      cout << " var_RE \n"<<matD;
+      cout << " prmea \n"<<prmea;
       cout << " alpha_D "<<alpha_D.t();
       
       int p=4;

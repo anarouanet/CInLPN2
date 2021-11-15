@@ -890,7 +890,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
         }
       }
     }
-    cout << " matD final : \n"<<matD;
+
     // prmea = zeros(nb_RE, nb_RE);
     // int ii=0;
     // for(int i=0; i<nb_RE;i++){

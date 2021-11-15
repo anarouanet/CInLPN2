@@ -39,7 +39,9 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
            if_link = if_link, zitr = data$zitr, ide = data$ide,
            tau = data$tau, tau_is=data$tau_is, 
            modA_mat = data$modA_mat, DeltaT)
-
+    #-214.3027
+    #paras$paraOpt[2]=1
+    
     Mod.MatrixYprimCInLPN:::Loglik(K = K, nD = nD, mapping =  mapping.to.LP, paras$paraOpt,  paraFixe = paras$paraFixe, posfix = paras$posfix, 
                     m_is = data$m_i, Mod_MatrixY = data$Mod.MatrixY, Mod_MatrixYprim = data$Mod.MatrixYprim, df=data$df,
                     x = data$x, z = data$z, q = data$q,nb_paraD = data$nb_paraD,
@@ -74,7 +76,7 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
   #source("/Users/anais/Documents/2019 Postdoc Bordeaux/code/R/MLM/deriva_AR.R")
   if(requireNamespace("marqLevAlg", quietly = TRUE)){#marqLevAlg::marqLevAlg
     ptm<-proc.time()
-
+    print.info=TRUE#marqLevAlg_AR
     temp <- try(marqLevAlg::marqLevAlg(b = paras$paraOpt, fn = Loglik, nproc = nproc, .packages = NULL, epsa=epsa, epsb=epsb, epsd=epsd,
                            maxiter=maxiter, print.info = print.info,  minimize = FALSE,
                            DeltaT=DeltaT, paraFixe = paras$paraFixe, posfix = paras$posfix,

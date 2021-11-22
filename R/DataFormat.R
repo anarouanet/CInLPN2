@@ -508,7 +508,6 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
         Xsurv1 <- Xsurv
       if(n==2)
         Xsurv2 <- Xsurv
-      
       np_surv <- c(np_surv, dim(Xsurv)[2] + ifelse(assoc%in%c(0, 1, 3, 4),1,2)*nD)
     }   
   }else{

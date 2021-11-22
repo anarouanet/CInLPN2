@@ -87,8 +87,8 @@ pred <- function(K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, cholesky
 }
 
 #' @param gammaX: vector of linear predictors for 1 and 2 transitions (including association on random effects if assoc <=2)
-#' @param status: event status (0: censored, 1: first event, 2:second event)
-#' @param trans: index for computation of survival function on all transitions (-1), on first transition(0), or second transition (1)
+#' @param surv: Computation of survival funtion (1) or risk function (0)
+#' @param trans: index for computation of survival function on all transitions (-1), on first transition(0), or second transition (1) for nE=2
 #' when 
 NULL
 

@@ -229,7 +229,6 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
   paras <- c(alpha_mu0, alpha_mu, alpha_D, vec_alpha_ij,  paraB, paraSig, ParaTransformY)
   t1 <- 0
   t2 <- 0
-  
   if(nE>0){
     for(jj in 1:nE){
       paras <- c(paras, para_basehaz[(t1+1) : (t1 + np_baz)], para_surv[(t2 + 1) : (t2 + np_surv[jj])]) # change 0!!
@@ -242,7 +241,6 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
   if(!is.null(paras.ini)){
     if(length(paras) != p || length(paras.ini) != p ){
       message("The length of paras.ini is not correct.")
-      browser()
       stop("The length of paras.ini is not correct.") 
     }
   }else{
@@ -330,7 +328,6 @@ f_paras.ini <- function(data, outcomes, mapped.to.LP, fixed_X0.models, fixed_Del
   para.trans <- NULL
   para.Sig <- NULL
   ParaTransformY <- NULL
-  para..survival <- NULL
   paras.ini <- list()
   
   fixed.survival <- NULL

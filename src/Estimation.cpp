@@ -462,7 +462,6 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
         // }
         //ui_r.fill(0);
         Lambda_nr = matNui_ui(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi, true);
-
         double lvraisr=0;
         int kk = 0;
         for (int k = 0 ; k < K; k++){
@@ -532,17 +531,6 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
               lvraisr += out2;
 
             }else if(if_link(k)==2){ // thresholds
-              if(printa==1&& nr==0){
-                cout << nr << " ui_r "<<ui_r.t();
-                cout << " Ytildik "<<Ytildik.t();
-                cout << " tau_i "<<tau_i.t();
-                cout << " Lambda_nrk "<<Lambda_nrk.t();
-                cout << " ParaTransformYk "<<ParaTransformYk.t();
-                cout << " Sig(k,k) "<<abs(pow(Sig(k,k),0.5))<< " zitr "<<zitr.t() <<endl;
-                cout<< "alpha_mu0 "<<alpha_mu0.t();
-                cout<< "alpha_mu "<<alpha_mu.t();
-              }
-              
               double phi1;
               double phi2;
               double vraisk=1;
@@ -561,11 +549,12 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
                   int mm=0; //index in ParaTransformYk
                   double inf=-10;
                   double sup=-10;
-                  
+
                   if(Ytildi(j, k)==(zitr(2*k_t))){
                     double value = (ParaTransformYk(0)-Lambda_nrk(j))/abs(pow(Sig(k,k),0.5));//(ParaTransformYk(mm)-Lambda_nrk(j))/abs(Sig(k,k));
                     phi1 = normalCDF(value);
                     phi2 = 0;
+                    
                     if(printa)
                       cout << nr  << " j "<< j<< " m "<<zitr(2*k_t) << " value "<<value << " ui_r "<<ui_r.t()
                          << "PT "<<ParaTransformYk(0)<< " Lambda_nrk(j) "<<Lambda_nrk(j)<< " phi1 "<<phi1<<" phi "<<phi1-phi2<<endl;
@@ -604,7 +593,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
                          << " phi1 "<< phi1
                          << " phi2 "<< phi2 <<endl; 
                   }
-                  
+
                   vraisk *= (phi1-phi2);
                   if(phi1==phi2 && printa==1)
                     cout << nr << " j "<<j<<" Ytildi(j, k) "<<Ytildi(j, k)<< " phi "<<(phi1-phi2)<< " vraisk " <<vraisk<<endl;
@@ -634,12 +623,11 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
           kk += df[k];
         }//k
         
-        
         if(survival){
           vraisr_surv = f_survival_ui(ui_r, t_0i, t_i, delta_i, xti1, xti2, param_surv, param_basehaz, basehaz, knots_surv, assoc, truncation,
                                       nD, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, nE);
         }
-        
+
         vrais_survtot += vraisr_surv(0);
         vraisY_tot += exp(lvraisr);
         //vrais += exp(lvraisr)*vraisr_surv;
@@ -677,12 +665,10 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
             << " log(vrais_survtot/MCnr) "<<log(vrais_survtot/MCnr)
             << " param_basehaz "<<param_basehaz.t() ;
       }
-      
       surv0 /= MCnr;
-
       vrais /= MCnr;
+
       lvrais = log(vrais) + log_Jac_Phi - log(surv0); 
-      
       if(printa==1 && check==1){
         cout << " diffY "<<loglik_i- lvrais<< " loglik_i "<< loglik_i << " lvrais "<<lvrais<< " log(surv0) "<<log(surv0) <<endl;
         //<< " MCnr "<<MCnr<< " minY "<< minY << " vrais / MCnr "<<vrais / MCnr;
@@ -1019,13 +1005,17 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
       kkp += df[k]-1;
     }
   }
+  if(survival){
+    for(int j= 0; j < param_basehaz.size() ; j++ )
+    param_basehaz(j) = pow(param_basehaz(j),2);
+  }
 
   
   //Computering of log-likelihood as sum of individuals contributions
 
   for(int n= 0; n < N ; n++ ){ //nsubjects
     //if(n%200==0)
-      //cout << "N= "<< 1 ;
+    //cout << "N= "<< 1 <<endl;
     // printf("\n %d \n",(n+1));
     //Creation of matrix G_mat_prod_A_0_to_tau that contains all products  A(j) from t_i a Tmax: t_i \in 0, Tmax
       mat G_mat_prod_A_0_to_tau = GmatprodAstotau(nD, vec_alpha_ij, tau, 0, DeltaT, modA_mat(span(n*m,((n+1)*m-1)), span(0,(L-1))));

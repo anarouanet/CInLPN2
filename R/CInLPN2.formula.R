@@ -378,8 +378,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
     fixed.survival.models <- strsplit(gsub("[[:space:]]","",as.character(fixed.survival)),"~")[[2]]
     covsurv <- unique(as.vector(strsplit(fixed.survival.models,"[|*+]")[[1]]))
     fixed.survival.models <- as.vector(strsplit(fixed.survival.models,"[|]")[[1]]) 
-
-    if(!all(covsurv%in%colnames))stop("All covariates in fixed.survival should be in the dataset")
+    if(!all(covsurv[-which(covsurv=="1")]%in%colnames))stop("All covariates in fixed.survival should be in the dataset")
     
     if(!is.null(option$assocT)){
       if(!option$assocT%in%c("r.intercept", "r.slope", "r.intercept/slope", "c.value"))
@@ -487,7 +486,6 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
 
   Survdata <- NULL
   knots_surv <- NULL
-  
   ## If joint model -  Event and StatusEvent data
   if(survival){
 
@@ -508,7 +506,8 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
     if(!(Tentry %in%names(data))) data$Tentry <- 0
     Survdata <- data[first_line, c(Tentry, Event, StatusEvent)]
     names(Survdata) <- c("Tentry", "Event", "StatusEvent")
-    Survdata <- cbind(Survdata, data[first_line, covsurv])
+    if(length(which(covsurv!="1"))>0)
+      Survdata <- cbind(Survdata, data[first_line, covsurv])
   }
 
   #### call of CInLPN2.default function to compute estimation and predictions

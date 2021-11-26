@@ -206,7 +206,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   Ni<-unique(data[,subject])
   I <- length(Ni)# number of visit
   K <- length(outcomes)
-  
+
   # Pre-traitement of data : delete lignes with no observation
   d <- as.data.frame(data[,outcomes])
   R <- as.numeric(apply(X = d, MARGIN = 1, FUN = is_na_vec))
@@ -281,7 +281,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
     indY <- c(indY,rep(all.Y[k],nrow(dtemp)))
     data0 <- rbind(data0, dtemp[,c(setdiff(colnames(dtemp),outcomes[k]))])
   }
-  
+
   data0<-cbind(data0,Y,indY)
   data0<-data0[order(data0[,subject]),]
   data0<-na.omit(data0)
@@ -303,7 +303,6 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   data_xzMatA_cov <-data_xzMatA_cov[order(data_xzMatA_cov[,subject], data_xzMatA_cov[,Time]),]
   data_xzMatA_cov <- data_xzMatA_cov[!duplicated(data_xzMatA_cov),]
   x_cov<- NULL
-  
   for(n in 1:nD){
     indLP_x <- rep(n, dim(data_xzMatA_cov)[1])
     data_x_cov_i <- cbind(data_xzMatA_cov, indLP_x)

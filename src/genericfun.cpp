@@ -1035,7 +1035,7 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
 
   for( int i=0; i<nE; i++){
     for(int j=0; j<nA; j++){
-      alpha(i*nA+j)= param_surv(xti1.size() + i*(nA + xti2.size()) + j);
+      alpha(i*nA+j)= param_surv(xti1.size() + xti2.size() + i*nA+j);
     }
   }
 
@@ -1083,7 +1083,7 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
             alphaY(i, j) += alpha(j*(nD)+nd)*curlev(i*nD+nd);
           }
         }
-        
+
         for( int i=0; i<ptGK.size(); i++){// Instantaneous risk with regression parameters
           risq(i,j) = fct_risq_base(ptGK(i), j+1, param_basehaz, basehaz, knots_surv, nE, gamma_X, false, j);
           out(i) += risq(i,j)*exp(alphaY(i,j)); // curlev(i) = exp(alpha Yt)
@@ -1196,7 +1196,7 @@ double fct_surv_Konrod(double t_i, arma::colvec& xti1, arma::colvec& xti2, arma:
 
   cumrisk *= t_i/2;
   surv=exp(-cumrisk);
-  
+
   return(surv); 
 }
 
@@ -1238,27 +1238,29 @@ arma::vec f_survival_ui(arma::vec& ui_r, double t_0i, double t_i,int delta_i, ar
     nA ++;
   nA *= nD;
 
-  if(xti1.size()>1)
+  if(xti1.size()>0)
     gammaX(span(0,0), span(0,0)) = xti1.t()*param_surv(span(0, xti1.size()-1));
 
-  if(nE==2)
-    gammaX(span(1,1), span(0,0)) = xti2.t()*param_surv(span(xti1.size() + nA, xti1.size() + nA + xti2.size()-1));
+  if(nE==2 && xti2.size()>0 )
+    gammaX(span(1,1), span(0,0)) = xti2.t()*param_surv(span(xti1.size(), xti1.size()+ xti2.size()-1));
+    //gammaX(span(1,1), span(0,0)) = xti2.t()*param_surv(span(xti1.size() + nA, xti1.size() + nA + xti2.size()-1));
 
   if(assoc <= 2){// random intercept (0), random slope (1) or both (2)
-    int tp = xti1.size();
+    //int tp = xti1.size();
     for( int j=0; j<nE; j++){
-      
       if(assoc == 0){
-        gammaX(span(j,j), span(0,0)) += ui_r(0)*param_surv(tp);
+        //gammaX(span(j,j), span(0,0)) += ui_r(0)*param_surv(tp);
+        gammaX(span(j,j), span(0,0)) += ui_r(0)*param_surv(xti1.size()+ xti2.size()+j);
       }else if(assoc == 1){
-        gammaX(span(j,j), span(0,0)) += ui_r(1)*param_surv(tp);
+        //gammaX(span(j,j), span(0,0)) += ui_r(1)*param_surv(tp);
+        gammaX(span(j,j), span(0,0)) += ui_r(1)*param_surv(xti1.size()+ xti2.size()+j);
       }else if(assoc == 2){
-        gammaX(span(j,j), span(0,0)) += ui_r.t()*param_surv(span(tp, tp+nA));
+        //gammaX(span(j,j), span(0,0)) += ui_r.t()*param_surv(span(tp, tp+nA));
+        gammaX(span(j,j), span(0,0)) += ui_r.t()*param_surv(span(xti1.size()+ xti2.size()+j, xti1.size()+ xti2.size()+j+nA));
       }
-      tp += nA + xti2.size();
+      //tp += nA + xti2.size();
     }
-    
-    
+
     for( int j=0; j<nE; j++)
       gamma_X(j) = gammaX(j,0);
     surv(0,0) = fct_risq_base(t_i, 0, param_basehaz, basehaz, knots_surv, nE, gamma_X, true, -1);
@@ -1293,7 +1295,7 @@ arma::vec f_survival_ui(arma::vec& ui_r, double t_0i, double t_i,int delta_i, ar
                            nD, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, nE, gamma_X);
 
     fti(1) = surv0;
-    //fti /= surv0;
+
   }
  return(fti); 
 }

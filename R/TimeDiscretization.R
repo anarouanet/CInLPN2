@@ -78,7 +78,8 @@ f_TempsDiscr <- function(Time, Delta){
 #'
 #' @return a discretized  time vector
 #' 
-TimeDiscretization <-function(rdata, subject, outcomes, predictors = NULL, Time, Delta){
+TimeDiscretization <-function(rdata, subject, fixed_X0.models , randoms_X0.models , fixed_DeltaX.models, 
+                              randoms_DeltaX.models, mod_trans.model, outcomes, predictors = NULL, Time, Delta){
   
   cl <- match.call()
   colnames<-colnames(rdata)
@@ -106,6 +107,41 @@ TimeDiscretization <-function(rdata, subject, outcomes, predictors = NULL, Time,
   # }
   # if(min_Time_diff > Delta) stop("Discretization failed: Discretization value could not be greater than the delay between two visit time")
   # 
+
+  all.pred.fixed_X0 <- NULL
+  all.pred.fixed_DeltaX <- NULL
+  all.pred.randoms_X0 <- NULL
+  all.pred.randoms_DeltaX <- NULL
+  all.pred.mod_trans <- NULL
+
+  for( n in 1: length(fixed_X0.models)){
+    all.pred.fixed_X0 <- c(all.pred.fixed_X0,list(strsplit(fixed_X0.models[n],"[+]")[[1]]))
+    all.pred.fixed_DeltaX <- c(all.pred.fixed_DeltaX,list(strsplit(fixed_DeltaX.models[n],"[+]")[[1]]))
+    all.pred.randoms_X0 <- c(all.pred.randoms_X0,list(strsplit(randoms_X0.models[n],"[+]")[[1]]))
+    all.pred.randoms_DeltaX <- c(all.pred.randoms_DeltaX,list(strsplit(randoms_DeltaX.models[n],"[+]")[[1]]))
+  }
+  #
+  all.pred.fixed_X0<-sapply(all.pred.fixed_X0,FUN = function(x)gsub("[[:space:]]","",x),simplify = FALSE)
+  all.pred.fixed_X0<-sapply(all.pred.fixed_X0,FUN = function(x)gsub("[*]",":",x),simplify = FALSE)
+  #
+  all.pred.fixed_DeltaX<-sapply(all.pred.fixed_DeltaX,FUN = function(x)gsub("[[:space:]]","",x),simplify = FALSE)
+  all.pred.fixed_DeltaX<-sapply(all.pred.fixed_DeltaX,FUN = function(x)gsub("[*]",":",x),simplify = FALSE)
+  #
+  all.pred.randoms_X0<-sapply(all.pred.randoms_X0,FUN = function(x)gsub("[[:space:]]","",x),simplify = FALSE)
+  all.pred.randoms_X0<-sapply(all.pred.randoms_X0,FUN = function(x)gsub("[*]",":",x),simplify = FALSE)
+  #
+  all.pred.randoms_DeltaX<-sapply(all.pred.randoms_DeltaX,FUN = function(x)gsub("[[:space:]]","",x),simplify = FALSE)
+  all.pred.randoms_DeltaX<-sapply(all.pred.randoms_DeltaX,FUN = function(x)gsub("[*]",":",x),simplify = FALSE)
+  #
+  all.pred.mod_trans <- c(all.pred.mod_trans,list(strsplit(mod_trans.model,"[+]")[[1]]))
+  all.pred.mod_trans<-sapply(all.pred.mod_trans,FUN = function(x)gsub("[[:space:]]","",x),simplify = FALSE)
+  all.pred.mod_trans<-sapply(all.pred.mod_trans,FUN = function(x)gsub("[*]",":",x),simplify = FALSE)
+  #ajout
+  all.preds<-unlist(unique(c(unlist(all.pred.fixed_X0), unlist(all.pred.fixed_DeltaX), 
+                             unlist(all.pred.randoms_X0), unlist(all.pred.randoms_DeltaX),
+                             all.pred.mod_trans)))
+  predictors <- all.preds[-which(all.preds=="1")]
+
   Time = rep(unique(Time),length(outcomes))## replicate Time
   ##  pre-processing of data: retaining lines with at least one observed outcome value
   data <- OneOutcomeAtLeast(rdata, subject= subject, outcomes = outcomes)

@@ -49,21 +49,28 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
                             Tentry = NULL, Event = NULL, StatusEvent = NULL, ...)
 {
   cl <- match.call()
-  
+
   ################### discretization of the data with discretisation value given by the user ##########################
   #
-  if(TimeDiscretization){
-    data <- TimeDiscretization(rdata=data, subject = subject, outcomes = outcomes, predictors = NULL, 
+
+  if(TimeDiscretization){#PB with covariates !
+    data <- TimeDiscretization(rdata=data, subject = subject, 
+                               fixed_X0.models = fixed_X0.models,
+                               randoms_X0.models = randoms_X0.models, fixed_DeltaX.models = fixed_DeltaX.models, 
+                               randoms_DeltaX.models = randoms_DeltaX.models, mod_trans.model = mod_trans.model,
+                               outcomes = outcomes, #predictors = predictors, 
                                Time = Time, Delta = DeltaT)
   }
-  
   ################### created formated data ##########################
+  if(!isNamespaceLoaded("survival"))
+    stop("Need package survival to work, Please install it.")
+
   data_F <- DataFormat(data=data, subject = subject, fixed_X0.models = fixed_X0.models,
                        randoms_X0.models = randoms_X0.models, fixed_DeltaX.models = fixed_DeltaX.models, 
                        randoms_DeltaX.models = randoms_DeltaX.models, mod_trans.model = mod_trans.model, 
                        outcomes = outcomes, nD = nD, link=link, knots = knots, zitr= zitr, ide = ide, 
                        Time = Time, Survdata = Survdata, basehaz = basehaz, fixed.survival.models =fixed.survival.models, DeltaT=DeltaT, assoc = assoc, truncation = truncation)
-  
+
   K <- data_F$K #  number of markers
   vec_ncol_x0n <- data_F$vec_ncol_x0n # number of parameters on initial level of processes
   n_col_x <- ncol(data_F$x) # number of parameters on processes slope
@@ -157,12 +164,13 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
   }else{
     Survdata<-0
   }
-
+  
   # estimation
   est <- CInLPN2.estim(K = K, nD = nD, mapping.to.LP = mapping.to.LP, data = data_F, if_link = if_link, cholesky = cholesky,
                        DeltaT = DeltaT, MCnr = MCnr, nmes = nmes, data_surv = Survdata, 
                        paras = paras, maxiter = maxiter, nproc = nproc, epsa = epsa, epsb = epsb,
                        epsd = epsd, print.info = print.info)
+  
   
   res <- list(conv = est$istop, v = est$v, best = est$b, ca = est$ca, cb = est$cb, rdm = est$rdm, 
               #niter = est$iter, 

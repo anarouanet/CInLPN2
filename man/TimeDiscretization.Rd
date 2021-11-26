@@ -4,7 +4,19 @@
 \alias{TimeDiscretization}
 \title{function that discretized a vector of time with a given delta.}
 \usage{
-TimeDiscretization(rdata, subject, outcomes, predictors = NULL, Time, Delta)
+TimeDiscretization(
+  rdata,
+  subject,
+  fixed_X0.models,
+  randoms_X0.models,
+  fixed_DeltaX.models,
+  randoms_DeltaX.models,
+  mod_trans.model,
+  outcomes,
+  predictors = NULL,
+  Time,
+  Delta
+)
 }
 \arguments{
 \item{rdata}{input data which time point has to be discretized}

@@ -506,8 +506,10 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
     if(!(Tentry %in%names(data))) data$Tentry <- 0
     Survdata <- data[first_line, c(Tentry, Event, StatusEvent)]
     names(Survdata) <- c("Tentry", "Event", "StatusEvent")
-    if(length(which(covsurv!="1"))>0)
+    if(length(which(covsurv!="1"))>0){
       Survdata <- cbind(Survdata, data[first_line, covsurv])
+      names(Survdata)[(dim(Survdata)[2]-length(covsurv)+1):dim(Survdata)[2]]<-covsurv
+    }
   }
 
   #### call of CInLPN2.default function to compute estimation and predictions

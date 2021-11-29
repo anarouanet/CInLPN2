@@ -62,14 +62,17 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
                                Time = Time, Delta = DeltaT)
   }
   ################### created formated data ##########################
-  if(!isNamespaceLoaded("survival"))
+  
+  if(requireNamespace("survival", quietly = TRUE)){
+    data_F <- DataFormat(data=data, subject = subject, fixed_X0.models = fixed_X0.models,
+                         randoms_X0.models = randoms_X0.models, fixed_DeltaX.models = fixed_DeltaX.models, 
+                         randoms_DeltaX.models = randoms_DeltaX.models, mod_trans.model = mod_trans.model, 
+                         outcomes = outcomes, nD = nD, link=link, knots = knots, zitr= zitr, ide = ide, 
+                         Time = Time, Survdata = Survdata, basehaz = basehaz, fixed.survival.models =fixed.survival.models, DeltaT=DeltaT, assoc = assoc, truncation = truncation)
+    
+  }else{
     stop("Need package survival to work, Please install it.")
-
-  data_F <- DataFormat(data=data, subject = subject, fixed_X0.models = fixed_X0.models,
-                       randoms_X0.models = randoms_X0.models, fixed_DeltaX.models = fixed_DeltaX.models, 
-                       randoms_DeltaX.models = randoms_DeltaX.models, mod_trans.model = mod_trans.model, 
-                       outcomes = outcomes, nD = nD, link=link, knots = knots, zitr= zitr, ide = ide, 
-                       Time = Time, Survdata = Survdata, basehaz = basehaz, fixed.survival.models =fixed.survival.models, DeltaT=DeltaT, assoc = assoc, truncation = truncation)
+  }
 
   K <- data_F$K #  number of markers
   vec_ncol_x0n <- data_F$vec_ncol_x0n # number of parameters on initial level of processes

@@ -633,6 +633,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
         vrais_survtot += vraisr_surv(0);
         vraisY_tot += exp(lvraisr);
         //vrais += exp(lvraisr)*vraisr_surv;
+
         vrais += exp(lvraisr+log(vraisr_surv(0)));
         //cout << " vrais "<<vrais<< " lvrais "<<exp(lvraisr)<< " lvrais_surv0: "<<log(vraisr_surv(0))<<endl;
         //vrais += vraisr_surv(0);//CHANGER
@@ -669,7 +670,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
       }
       surv0 /= MCnr;
       vrais /= MCnr;
-      
+
       lvrais = log(vrais) + log_Jac_Phi - log(surv0); 
       if(printa==1 && check==1){
         cout << " diffY "<<loglik_i- lvrais<< " loglik_i "<< loglik_i << " lvrais "<<lvrais<< " log(surv0) "<<log(surv0) <<endl;
@@ -840,8 +841,11 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
     param_basehaz = zeros<vec>(nq_s*nE);
     for(int k=0; k<nE;k++){
       param_basehaz(span(k*nq_s, (nq_s-1)*(1-k) + (nq_s*nE-1)*k)) = paras(span(ipara,ipara + nq_s -1));
-      param_surv(span(k*np_surv(0), (np_surv(0)-1)*(1-k) + (sum(np_surv)-1)*k)) = paras(span(ipara + nq_s,ipara + nq_s + np_surv(k)-1));
-      ipara += (np_surv(k) + nq_s);
+      ipara += nq_s;
+    }
+    for(int k=0; k<nE;k++){
+      param_surv(span(k*np_surv(0), (np_surv(0)-1)*(1-k) + (sum(np_surv)-1)*k)) = paras(span(ipara,ipara + np_surv(k)-1));
+      ipara += np_surv(k);
     }
   }
 

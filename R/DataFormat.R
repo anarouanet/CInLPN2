@@ -488,7 +488,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
 
   if(!is.null(Survdata)){ # Interesting for development to multi-state and interval censoring...
     type=ifelse(length(unique(Survdata[,3]))>2, "mstate", "right")
-    surv_obj <- Surv(Survdata[,2], Survdata[,3], type=type)
+    surv_obj <- survival::Surv(Survdata[,2], Survdata[,3], type=type)
     Event <- surv_obj[,1]
     StatusEvent <- surv_obj[,2]
     message("check use of mstate here....")

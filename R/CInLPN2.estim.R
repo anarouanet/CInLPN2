@@ -72,10 +72,10 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
   #                        x0 = data$x0, z0 = data$z0, q0 = data$q0,tau = data$tau, tau_is=data$tau_is,
   #                        modA_mat = data$modA_mat)
   # 
-  #source("/Users/anais/Documents/2019 Postdoc Bordeaux/code/R/MLM/marqLevAlg_AR.R")
+  #source("/Users/anais/Documents/2019 Postdoc Bordeaux/code/CInLPN/simulations_CInLPN/Thresholds/simulations/marqLevAlg_AR.R")
   #source("/Users/anais/Documents/2019 Postdoc Bordeaux/code/R/MLM/deriva_AR.R")
   if(requireNamespace("marqLevAlg", quietly = TRUE)){#marqLevAlg::marqLevAlg
-    ptm<-proc.time()
+    ptm<-proc.time()#marqLevAlg::marqLevAlg
     temp <- try(marqLevAlg::marqLevAlg(b = paras$paraOpt, fn = Loglik, nproc = nproc, .packages = NULL, epsa=epsa, epsb=epsb, epsd=epsd,
                            maxiter=maxiter, print.info = print.info,  minimize = FALSE,
                            DeltaT=DeltaT, paraFixe = paras$paraFixe, posfix = paras$posfix,

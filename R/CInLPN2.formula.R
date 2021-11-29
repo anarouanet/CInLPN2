@@ -258,6 +258,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
   if(is.null(option$nproc)){
     option$nproc <- 1
   }
+
   if(is.null(option$print.info)){
     option$print.info <- FALSE
   }

@@ -230,10 +230,14 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
   paras <- c(alpha_mu0, alpha_mu, alpha_D, vec_alpha_ij,  paraB, paraSig, ParaTransformY)
   t1 <- 0
   t2 <- 0
+
   if(nE>0){
     for(jj in 1:nE){
-      paras <- c(paras, para_basehaz[(t1+1) : (t1 + np_baz)], para_surv[(t2 + 1) : (t2 + np_surv[jj])]) # change 0!!
+      paras <- c(paras, para_basehaz[(t1+1) : (t1 + np_baz)]) # change 0!!
       t1 <- t1 + np_baz
+    }
+    for(jj in 1:nE){
+      paras <- c(paras, para_surv[(t2 + 1) : (t2 + np_surv[jj])]) # change 0!!
       t2 <- t2 + np_surv[jj]
     }
   }

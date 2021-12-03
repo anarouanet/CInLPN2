@@ -62,7 +62,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
                                Time = Time, Delta = DeltaT)
   }
   ################### created formated data ##########################
-  
+
   if(requireNamespace("survival", quietly = TRUE)){
     data_F <- DataFormat(data=data, subject = subject, fixed_X0.models = fixed_X0.models,
                          randoms_X0.models = randoms_X0.models, fixed_DeltaX.models = fixed_DeltaX.models, 

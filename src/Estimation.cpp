@@ -164,6 +164,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
   //cout << " max(if_link) "<<max(if_link)<< " survival "<< survival << " check "<< check <<endl;
   
   if((max(if_link) < 2 && !survival)&& check <3 || check==1){//|| check==1){
+
     // ###### compute  Yi - E(Yi) ##### deleting missing values #####
     Ytildi_nu_i = YiNui(nD, matrixP, tau, tau_i, DeltaT, Ytildi, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i);
     
@@ -315,6 +316,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
   double log_Jac_Phi = sum(log(YiwoNA(vectorise(YtildPrimi))));
   
   if((max(if_link) < 2 && !survival)&& check <3 || check==1){
+
     // To check the linear closed form of likelihood
     double abs_det_matVY_i = abs(det(matVY_i));
     
@@ -353,7 +355,9 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     lvrais = loglik_i;
     
   }
+  
   if(max(if_link) == 2 || survival || check==1 || check==3){ //if(check==1 || max(if_link)>1 || survival || check ==3){
+
     vec K2_lambda = zeros<vec>(K); // which latent process linked to the K markers
     
     for(int j =0 ; j < K; j++){
@@ -778,7 +782,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
               int nE, arma::mat& Xsurv1, arma::mat& Xsurv2,
               arma::vec& if_link, arma::vec& zitr, arma::vec& ide, 
               arma::vec& tau, arma::vec& tau_is, arma::mat& modA_mat, double DeltaT){
-  
+
   double loglik = 0.e0;
   arma::mat matrixP = zeros(K,nD);
   for(int k = 0; k<K; k++){

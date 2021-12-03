@@ -27,7 +27,7 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
   debug=0
   if(debug==1){
     browser()
-
+    ptm<-proc.time()
     Loglik(K = K, nD = nD, mapping =  mapping.to.LP, paraOpt = paras$paraOpt,  paraFixe = paras$paraFixe, posfix = paras$posfix, paras_k = paras$npara_k,
            sequence = paras$sequence, type_int = paras$type_int, ind_seq_i = paras$ind_seq_i, MCnr = MCnr, nmes = nmes,
            m_is = data$m_i, Mod_MatrixY = data$Mod.MatrixY, Mod_MatrixYprim = data$Mod.MatrixYprim, df=data$df,
@@ -39,9 +39,12 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
            if_link = if_link, zitr = data$zitr, ide = data$ide,
            tau = data$tau, tau_is=data$tau_is, 
            modA_mat = data$modA_mat, DeltaT)
-    #-214.3027
-    #paras$paraOpt[2]=1
-    
+    time=proc.time()-ptm
+    h=floor(time[3]/3600)
+    m=floor((time[3]-h*3600)/60)
+    s=floor(time[3]-h*3600-m*60)
+    cat(h,"heures ",m, "minutes ", s, "seconds")
+
     Mod.MatrixYprimCInLPN:::Loglik(K = K, nD = nD, mapping =  mapping.to.LP, paras$paraOpt,  paraFixe = paras$paraFixe, posfix = paras$posfix, 
                     m_is = data$m_i, Mod_MatrixY = data$Mod.MatrixY, Mod_MatrixYprim = data$Mod.MatrixYprim, df=data$df,
                     x = data$x, z = data$z, q = data$q,nb_paraD = data$nb_paraD,

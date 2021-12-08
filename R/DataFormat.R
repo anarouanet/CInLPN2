@@ -264,7 +264,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   Tmax <- max(tau_is,na.rm = TRUE)
 
   if(!is.null(Survdata) && assoc %in%c(3,5))
-    Tmax <- max(Tmax, floor(max(Survdata$Event,na.rm = TRUE)/DeltaT))#If
+    Tmax <- max(Tmax, round(max(Survdata$Event,na.rm = TRUE)/DeltaT))#If
   
   tau <- 0:Tmax  
   Y <- NULL

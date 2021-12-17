@@ -302,6 +302,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
         covsurv <- unique(as.vector(strsplit(fixed.survival.models,"[|*+]")[[1]]))
         if(length(which(covsurv!="1"))>0){
           Xsurv <- as.data.frame(model.matrix(as.formula(paste("",fixed.survival.models[ij], sep="~")),data=Survdata)[,-1])
+          names(Xsurv) <- fixed.survival.models[ij] # verify with more covariates ?
           for(ip in 1:length(names(Xsurv))){
             param_survie <- c(param_survie, paste(names(Xsurv)[ip],ij,sep="."))
           }   
@@ -338,9 +339,9 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
     
   }else{
     prmea <- matrix(0, nb_RE*nD, nb_RE*nD)
-    prmea[upper.tri(prmea,diag=TRUE)] <- res$coefficients[grep("Rho", res$colnames)]
+    prmea[lower.tri(prmea,diag=TRUE)] <- res$coefficients[grep("Rho", res$colnames)]
     prmea <- t(prmea)
-    prmea[upper.tri(prmea,diag=TRUE)] <- res$coefficients[grep("Rho", res$colnames)]
+    prmea[lower.tri(prmea,diag=TRUE)] <- res$coefficients[grep("Rho", res$colnames)]
     
     sea <- abs(diag(prmea))
     

@@ -774,10 +774,12 @@ arma::vec matNui_ui(int nD, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arm
   int T = max(tau_i)+1;
   mat matNu_i = zeros(mi,nD);
   mat Mu_t = zeros(nD,1);
-  
+
+
   colvec ui=randomeffects.subvec( 0, nD-1 );//randomeffects(linspace(0, nD-1, nD));
   colvec vi=randomeffects.subvec( nD, randomeffects.size()-1 );
 
+  
   //Verify Xi, Zi with randomeffects.size()>1
   int i = 0;
   for(int t=0; t< T; t++){
@@ -788,7 +790,6 @@ arma::vec matNui_ui(int nD, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arm
       zi(span(t*nD,(t+1)*nD-1), span(0,n_cols_zi-1))*vi) +
       G_mat_A_0_to_tau_i(span(0,nD-1),span(nD*(t-1),nD*(t-1)+nD-1))*Mu_t;
     }
-
     if(ordered){
       if(t ==(int)tau_i(i)){
         matNu_i(span(i,i), span(0,nD-1)) = Mu_t.t();
@@ -802,7 +803,6 @@ arma::vec matNui_ui(int nD, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arm
       }
     }
   }
-
   return (YiwoNA(vectorise(matNu_i)));
 }
 
@@ -1044,7 +1044,6 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
     curlev = matNui_ui(nD, ptGK_delta, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi, false);
   }
 
-  
   if(assoc == 4 || assoc == 5){
     cout << " to develop !"<<endl;
   }
@@ -1099,7 +1098,7 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
           alphaY(i) += alpha(trans*nD+nd)*curlev(i*nD+nd);// trans=0 or 1
         }
       }
-      
+
       vec risq = zeros(ptGK_delta.size());
       for( int i=0; i<ptGK.size(); i++) // Instantaneous risk with regression parameters for transition trans
         risq(i) = fct_risq_base(ptGK(i), delta_i, param_basehaz, basehaz, knots_surv, nE, gamma_X, false, trans); //trans = delta_i-1
@@ -1244,7 +1243,7 @@ arma::vec f_survival_ui(arma::vec& ui_r, double t_0i, double t_i,int delta_i, ar
   if(nE==2 && xti2.size()>0 )
     gammaX(span(1,1), span(0,0)) = xti2.t()*param_surv(span(xti1.size(), xti1.size()+ xti2.size()-1));
     //gammaX(span(1,1), span(0,0)) = xti2.t()*param_surv(span(xti1.size() + nA, xti1.size() + nA + xti2.size()-1));
-
+ 
   if(assoc <= 2){// random intercept (0), random slope (1) or both (2)
     //int tp = xti1.size();
     for( int j=0; j<nE; j++){
@@ -1280,12 +1279,14 @@ arma::vec f_survival_ui(arma::vec& ui_r, double t_0i, double t_i,int delta_i, ar
     deltaT_ptGK_ti (0) = round(t_i/ (double) DeltaT);
     vec hazard(1);
     hazard.fill(1);
+
     if(delta_i!=0)
       hazard = fct_pred_curlev_slope(deltaT_ptGK_ti, event, xti1, xti2, ui_r, delta_i, param_surv, assoc, 
                                     nD, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, param_basehaz, basehaz, knots_surv, 
                                     gamma_X, nE, false, delta_i-1); // trans = delta_i-1
     //double test = fct_risq_base(t_i, 0, param_basehaz, basehaz, knots_surv, nE, gamma_X, true, -1);
     double surv = 1;
+    
     surv = fct_surv_Konrod(t_i, xti1, xti2, ui_r, delta_i, param_basehaz, basehaz, param_surv, knots_surv, assoc, truncation,
                            nD, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, nE, gamma_X);
     fti(0) = surv*hazard(0,0);
@@ -1295,7 +1296,7 @@ arma::vec f_survival_ui(arma::vec& ui_r, double t_0i, double t_i,int delta_i, ar
                            nD, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, nE, gamma_X);
 
     fti(1) = surv0;
-
+    
   }
  return(fti); 
 }

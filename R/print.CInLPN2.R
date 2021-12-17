@@ -38,6 +38,7 @@ print.CInLPN2 <- function(x, ...){
   cat(paste("     Number of parameters:", length(x$best))," \n")
   #if(length(posfix)) cat(paste("     Number of estimated parameters:", length(x$best)-length(posfix))," \n")
   cat("     Link function(s): ")
+
   for (yk in 1:x$K)
   {
     if (is.null(x$linkstype[yk]) || (gsub("[[:space:]]","",x$linkstype[yk])=="linear")) {
@@ -46,7 +47,11 @@ print.CInLPN2 <- function(x, ...){
     }
     else{
       if (yk>1) cat("                       ")
-      cat(gsub("[[:space:]]","",x$linkstype[yk]),  " at knodes:", round(x$linknodes[[yk]],3)," for ",x$outcomes[yk], "\n")
+      if (is.null(x$linkstype[yk]) || (gsub("[[:space:]]","",x$linkstype[yk])=="thresholds")){
+        cat(gsub("[[:space:]]","",x$linkstype[yk]),  " for ",x$outcomes[yk], "\n")
+      }else{
+        cat(gsub("[[:space:]]","",x$linkstype[yk]),  " at knodes:", round(x$linknodes[[yk]],3)," for ",x$outcomes[yk], "\n")
+      }
     }
   }
   

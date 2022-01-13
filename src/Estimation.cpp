@@ -158,8 +158,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
   vec k_i = zeros<vec>(m_i);// vector of number of observed marker at each observation time
   vec PNu_cp_i;
   mat sigMSM;
-  int check=3; // 1 both, 2 close likelihood only if linear/splines, QMC if thresholds, 3 MC integration
-  
+  int check=2; // 1 both, 2 close likelihood only if linear/splines, QMC if thresholds, 3 MC integration
   int printa=0;
   //cout << " max(if_link) "<<max(if_link)<< " survival "<< survival << " check "<< check <<endl;
   
@@ -404,6 +403,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
       cout << " to develop !"<<endl;
     }else {//QMC
       ui = seq_i * chol_var_RE.t();
+      //ui = chol_var_RE * seq_i.t() ;
       //mat uii = chol_var_RE * randn< Mat<double> >(chol_var_RE.n_rows, MCnr);
       //ui = uii.t();
     }              
@@ -493,7 +493,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
               //vec Ytildi_nu_i_ui = vectorise(Ytildi)-Lambda_nr;
               vec Ytildi_nu_i_uik = Ytildik-Lambda_nrk;
               out2 = -0.5*(nik*log(2*M_PI) + log(det(Sig_k)) + as_scalar(Ytildi_nu_i_uik.t()*inv_sympd(Sig_k)*Ytildi_nu_i_uik));
-              
+
               if(printa==1&& nr<0){
                 cout <<" k :"<<k<< endl<<endl<<" out2 "<<out2<< " nik "<<nik <<  " log(det(Sig_k)) "<<log(det(Sig_k))<< " scalar "<< as_scalar(Ytildi_nu_i_uik.t()*inv_sympd(Sig_k)*Ytildi_nu_i_uik) << " log_Jac_Phi "<<log_Jac_Phi<<endl;
                 cout <<  " ui_r " <<ui_r.t();
@@ -664,6 +664,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
       vrais_no_surv /= MCnr;
       
       lvrais = log(vrais) + log_Jac_Phi - log(surv0); 
+      
       if(printa==1 && check==1){
         cout << " diffY "<<loglik_i- lvrais<< " loglik_i "<< loglik_i << " lvrais "<<lvrais<< " log(surv0) "<<log(surv0) <<endl;
         //<< " MCnr "<<MCnr<< " minY "<< minY << " vrais / MCnr "<<vrais / MCnr;

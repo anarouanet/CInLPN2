@@ -51,8 +51,6 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
   cl <- match.call()
 
   ################### discretization of the data with discretisation value given by the user ##########################
-  #
-
   if(TimeDiscretization){#PB with covariates !
     data <- TimeDiscretization(rdata=data, subject = subject, 
                                fixed_X0.models = fixed_X0.models,
@@ -155,7 +153,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
     paras$type_int <- ifelse(type_int=="halton",1,ifelse(type_int=="sobol",2,ifelse(type_int=="torus",3,ifelse(type_int=="MC",-1,0))))
     paras$ind_seq_i <- ind_seq_i
   }else{
-    paras$type_int <- -1
+    paras$type_int <- 1
     paras$sequence <- matrix(0,nD,1)
     paras$ind_seq_i <- 0
   }

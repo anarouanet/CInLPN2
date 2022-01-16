@@ -254,7 +254,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   all.preds<-all.preds[-which(all.preds %in% c("(Intercept)"))]
   all.preds <- c(all.preds,Time)
   all.preds <- unique(all.preds[which(all.preds %in% colnames)])  
-  
+
   #Case of  unobserved components  at time t
   m_i <-as.data.frame(table(as.factor(data[,subject])))$Freq # matrice of frequencies m_i
   tau_is <- data[,Time]/DeltaT # vector of individuals visits vectors
@@ -417,9 +417,8 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
     col_n <-c(col_n,list(colnames))
     z0<-cbind(z0,z0n)
     q0 <- c(q0,ncol(z0n))
-    
-    
   }
+
   z0 <-cbind(indY_z0,z0)
   ### filling with zeros
   tous_col_z0 <-unlist(col_n)
@@ -438,6 +437,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   col_n<-list()
   q <- NULL
   nb_paraDu <- 0
+
   for(n in 1:nD){
     r<-as.formula(paste(subject,randoms_DeltaX.models[n], sep="~-1+"))
     zn<-model.matrix(r,data=z_cov)
@@ -451,8 +451,13 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
     col_n <-c(col_n,list(colnames))
     z<-cbind(z,zn)
     q <- c(q,ncol(zn))
-    
   }
+
+  if(all(randoms_DeltaX.models=="-1"))
+    q <- rep(0,nD)
+  if(length(which(randoms_DeltaX.models=="-1"))<length(randoms_DeltaX.models))
+    stop('If one dimension does not have a random slope, the other dimensions should not either.')
+  
   z <-cbind(indY_z,z)
   ### filling with zeros
   tous_col_z <-unlist(col_n)
@@ -481,6 +486,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   df <- tr_Y$df
   minY <- tr_Y$minY
   maxY <- tr_Y$maxY
+
   nb_RE <- sum(q0,q)
   nb_paraD <- nb_RE*(nb_RE+1)/2
   

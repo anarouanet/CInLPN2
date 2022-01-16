@@ -51,7 +51,7 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
     alpha_mu <-rep(.3,n_col_x)
     p <- p+n_col_x
     cpt1 <- cpt1 + n_col_x
-    
+
     alpha_D <-rep(.1,nb_paraD)
     to_nrow <- nb_RE
     i_alpha_D <- 0
@@ -131,7 +131,7 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
       np_baz <- length(para_basehaz)/nE
     }
   }
-  
+
   # if user specified initial parameters
   if(!is.null(paras.ini)){
     p <- 0 # position in the initialize parameters
@@ -186,6 +186,7 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
     ### para of link function
     ParaTransformY <- paras.ini[(p+1):(p + ncolMod.MatrixY)]
     i_para <- 0
+
      for(k in 1:K){
        if(link[k]=="linear" & ParaTransformY[i_para+2]==0){
          stop('Second parameter for linear link function cannot be set at 0 (variance)')

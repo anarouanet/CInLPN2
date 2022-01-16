@@ -140,7 +140,7 @@ TimeDiscretization <-function(rdata, subject, fixed_X0.models , randoms_X0.model
   all.preds<-unlist(unique(c(unlist(all.pred.fixed_X0), unlist(all.pred.fixed_DeltaX), 
                              unlist(all.pred.randoms_X0), unlist(all.pred.randoms_DeltaX),
                              all.pred.mod_trans)))
-  predictors <- all.preds[-which(all.preds=="1")]
+  predictors <- all.preds[-c(which(all.preds=="1"), which(all.preds=="-1" ))]
 
   Time = rep(unique(Time),length(outcomes))## replicate Time
   ##  pre-processing of data: retaining lines with at least one observed outcome value

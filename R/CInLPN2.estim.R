@@ -29,7 +29,7 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
     browser()
     ptm<-proc.time()
     Loglik(K = K, nD = nD, mapping =  mapping.to.LP, paraOpt = paras$paraOpt,  paraFixe = paras$paraFixe, posfix = paras$posfix, paras_k = paras$npara_k,
-           sequence = paras$sequence, type_int = paras$type_int, ind_seq_i = paras$ind_seq_i, MCnr = MCnr, nmes = nmes,
+           sequence = as.matrix(paras$sequence), type_int = paras$type_int, ind_seq_i = paras$ind_seq_i, MCnr = MCnr, nmes = nmes,
            m_is = data$m_i, Mod_MatrixY = data$Mod.MatrixY, Mod_MatrixYprim = data$Mod.MatrixYprim, df=data$df,
            x = data$x, z = data$z, q = data$q, nb_paraD = data$nb_paraD,
            x0 = data$x0, z0 = data$z0, q0 = data$q0, cholesky = cholesky,
@@ -83,7 +83,7 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
                            maxiter=maxiter, print.info = print.info,  minimize = FALSE,
                            DeltaT=DeltaT, paraFixe = paras$paraFixe, posfix = paras$posfix,
                            paras_k = paras$npara_k, 
-                           sequence = paras$sequence, type_int = paras$type_int, ind_seq_i = paras$ind_seq_i,  MCnr = MCnr, nmes = nmes,
+                           sequence = as.matrix(paras$sequence), type_int = paras$type_int, ind_seq_i = paras$ind_seq_i,  MCnr = MCnr, nmes = nmes,
                            K = K, nD = nD, mapping =  mapping.to.LP, m_is = data$m_i, if_link = if_link, zitr = data$zitr, ide = data$ide, 
                            Mod_MatrixY = data$Mod.MatrixY, Mod_MatrixYprim = data$Mod.MatrixYprim, df=data$df,
                            x = data$x, z = data$z, q = data$q, nb_paraD = data$nb_paraD,

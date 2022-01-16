@@ -777,8 +777,12 @@ arma::vec matNui_ui(int nD, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arm
 
 
   colvec ui=randomeffects.subvec( 0, nD-1 );//randomeffects(linspace(0, nD-1, nD));
-  colvec vi=randomeffects.subvec( nD, randomeffects.size()-1 );
-
+  colvec vi;
+  if(randomeffects.size()>nD){
+    vi=randomeffects.subvec( nD, randomeffects.size()-1 );
+  }else{
+    vi = zeros(1);
+  }
   
   //Verify Xi, Zi with randomeffects.size()>1
   int i = 0;
@@ -786,9 +790,15 @@ arma::vec matNui_ui(int nD, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arm
     if(t==0){
       Mu_t = x0i*alpha_mu0+ ui;
     }else{
-      Mu_t = DeltaT*(xi(span(t*nD,(t+1)*nD-1), span(0,n_cols_xi-1))*alpha_mu +
-      zi(span(t*nD,(t+1)*nD-1), span(0,n_cols_zi-1))*vi) +
-      G_mat_A_0_to_tau_i(span(0,nD-1),span(nD*(t-1),nD*(t-1)+nD-1))*Mu_t;
+      if(randomeffects.size()>nD){
+        Mu_t = DeltaT*(xi(span(t*nD,(t+1)*nD-1), span(0,n_cols_xi-1))*alpha_mu +
+          zi(span(t*nD,(t+1)*nD-1), span(0,n_cols_zi-1))*vi) +
+          G_mat_A_0_to_tau_i(span(0,nD-1),span(nD*(t-1),nD*(t-1)+nD-1))*Mu_t;
+      }else{
+        Mu_t = DeltaT*(xi(span(t*nD,(t+1)*nD-1), span(0,n_cols_xi-1))*alpha_mu) +
+          G_mat_A_0_to_tau_i(span(0,nD-1),span(nD*(t-1),nD*(t-1)+nD-1))*Mu_t;
+      }
+
     }
     if(ordered){
       if(t ==(int)tau_i(i)){

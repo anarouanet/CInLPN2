@@ -144,25 +144,27 @@ double normalCDF(double value)
  Covariance covariance matrix of the vector Lambda_i(t_01, t_02, t11, t12) with t_{occasion,process}
  */
 
-double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, arma::vec tau_i, arma::mat Ytildi, arma::mat YtildPrimi,
+double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m_i, arma::vec& tau, arma::vec tau_i, arma::mat Ytildi, arma::mat YtildPrimi,
                     arma::mat x0i, arma::mat z0i, arma::mat xi, arma::mat zi, arma::colvec& alpha_mu0,
                     arma::colvec& alpha_mu, arma::mat& matDw,  arma::mat& matDw_u, arma::mat& matDu,
                     arma::mat& matB, arma::mat& Sig, arma::mat& G_mat_A_0_to_tau_i,
                     arma::mat& G_mat_prod_A_0_to_tau,  double DeltaT, arma::vec& ParamTransformY, arma::vec& df, arma::vec& if_link,  
                     arma::vec& zitr,  arma::mat& ide, arma::vec& paras_k,
                     double t_0i, double t_i, int delta_i, arma::vec& xti1, arma::vec& xti2, int basehaz, arma::vec& knots_surv, bool survival, arma::vec& param_surv, arma::vec& param_basehaz, int assoc, bool truncation, 
-                    arma::mat& seq_i,  int type_int, arma::vec& ind_seq_i, int MCnr, int sub, int nE, int add_diag_varcov){
+                    arma::mat& seq_i,  int type_int, arma::vec& ind_seq_i, int MCnr, int sub, int nE, int add_diag_varcov, arma::vec& q_nD){
   
   vec Ytildi_nu_i;
   mat matVY_i;
   vec k_i = zeros<vec>(m_i);// vector of number of observed marker at each observation time
   vec PNu_cp_i;
   mat sigMSM;
-  int check=2; // 1 both, 2 close likelihood only if linear/splines, QMC if thresholds, 3 MC integration
-  int printa=0;
-  //cout << " max(if_link) "<<max(if_link)<< " survival "<< survival << " check "<< check <<endl;
+  int check=2; // 1 both QMC and closed likelihood for comparison of individual likelihood, 
+               // 2 close likelihood if links = linear/splines (except if MCnr>0), QMC if links = thresholds or if survival = T
+               // 3 MC integration (even if links = linear/splines and survival = F)
+  int printa=0; //1 to print some intermediate values
+  int q = sum(q_nD);
   
-  if((max(if_link) < 2 && !survival)&& check <3 || check==1){//|| check==1){
+  if((max(if_link) < 2 && !survival)&& check <3 || check==1){
 
     // ###### compute  Yi - E(Yi) ##### deleting missing values #####
     Ytildi_nu_i = YiNui(nD, matrixP, tau, tau_i, DeltaT, Ytildi, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i);
@@ -180,7 +182,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     int sizeYi = Ytildi_nu_i.size();
     matVY_i = zeros(sizeYi,sizeYi); // initialization of the  matVY_i to zero
     //mat matVY_icheck = zeros(sizeYi,sizeYi); // initialization of the  matVY_i to zero
-    int q = zi.n_cols; // number of random effets on the slope
+    //int q = zi.n_cols; // number of random effets on the slope
     
     // found the max of the vector tau_i
     double maxTau_i = 0.0;
@@ -197,13 +199,16 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     
     // ##### computering of GrdZi ####################################
     //  GrdZi : this matrix contains all model.matrix at each time of tau_i
-    for(int t = 0; t<= maxTau_i; t++){
-      if(t==0){
-        GrdZi(span(t*nD,(t+1)*nD-1), span(0,q-1)) = 0.e0*zi(span(t*nD,(t+1)*nD-1), span(0,q-1));
-      }
-      else{
-        GrdZi(span(t*nD,(t+1)*nD-1), span(0,q-1)) = (DeltaT*zi(span(t*nD,(t+1)*nD-1), span(0,q-1)) +
-          G_mat_A_0_to_tau_i(span(0,nD-1),span(nD*(t-1),t*nD-1))*GrdZi(span((t-1)*nD,t*nD-1), span(0,q-1)));
+    if(q>0){
+      for(int t = 0; t<= maxTau_i; t++){
+        
+        if(t==0){
+          GrdZi(span(t*nD,(t+1)*nD-1), span(0,q-1)) = 0.e0*zi(span(t*nD,(t+1)*nD-1), span(0,q-1));
+        }
+        else{
+          GrdZi(span(t*nD,(t+1)*nD-1), span(0,q-1)) = (DeltaT*zi(span(t*nD,(t+1)*nD-1), span(0,q-1)) +
+            G_mat_A_0_to_tau_i(span(0,nD-1),span(nD*(t-1),t*nD-1))*GrdZi(span((t-1)*nD,t*nD-1), span(0,q-1)));
+        }
       }
     }
     
@@ -213,7 +218,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
       p_k = p_j;
       // ###### computing of the matrix H_i_t_j  ##############
       mat matH_i_t_j = matHit(Ytildi.row(j).t()); // Yi.row(j) = vector of observations at time j;
-      
+
       for( int k =j ; k < m_i; k++){
         
         // ###### computering of the matrix H_i_t_k ##############
@@ -242,12 +247,24 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
           if(tau_i(k)>0){
             phi_0_k_0 = G_mat_prod_A_0_to_tau(span(0,nD-1),span(nD*(tau_i(k)-1),nD*(tau_i(k)-1)+nD-1));
           }
+          // matVY_i(span(p_j,(p_j+k_i(j)-1)), span((p_k), (p_k+k_i(k)-1))) += matH_i_t_j*( matrixP*
+          //   ((phi_0_j_0*z0i)*matDw* (z0i*phi_0_k_0).t() +
+          //   (phi_0_j_0*z0i)*matDw_u*(GrdZi(span(tau_i(k)*nD,(tau_i(k)+1)*nD-1), span(0,q-1))).t() +
+          //   (GrdZi(span(tau_i(j)*nD,(tau_i(j)+1)*nD-1), span(0,q-1)))*matDw_u.t()*(z0i*phi_0_k_0).t() +
+          //   (GrdZi(span(tau_i(j)*nD,(tau_i(j)+1)*nD-1), span(0,q-1)))*matDu*(GrdZi(span(tau_i(k)*nD,(tau_i(k)+1)*nD-1), span(0,q-1))).t()
+          //   )*matrixP.t())*matH_i_t_k.t();
+          
           matVY_i(span(p_j,(p_j+k_i(j)-1)), span((p_k), (p_k+k_i(k)-1))) += matH_i_t_j*( matrixP*
-            ((phi_0_j_0*z0i)*matDw* (z0i*phi_0_k_0).t() +
-            (phi_0_j_0*z0i)*matDw_u*(GrdZi(span(tau_i(k)*nD,(tau_i(k)+1)*nD-1), span(0,q-1))).t() +
-            (GrdZi(span(tau_i(j)*nD,(tau_i(j)+1)*nD-1), span(0,q-1)))*matDw_u.t()*(z0i*phi_0_k_0).t() +
-            (GrdZi(span(tau_i(j)*nD,(tau_i(j)+1)*nD-1), span(0,q-1)))*matDu*(GrdZi(span(tau_i(k)*nD,(tau_i(k)+1)*nD-1), span(0,q-1))).t()
-            )*matrixP.t())*matH_i_t_k.t();
+            ((phi_0_j_0*z0i)*matDw* (z0i*phi_0_k_0).t())*matrixP.t())*matH_i_t_k.t();
+          
+          
+          if(q>0){
+            matVY_i(span(p_j,(p_j+k_i(j)-1)), span((p_k), (p_k+k_i(k)-1))) += matH_i_t_j*( matrixP*
+              ((phi_0_j_0*z0i)*matDw_u*(GrdZi(span(tau_i(k)*nD,(tau_i(k)+1)*nD-1), span(0,q-1))).t() +
+              (GrdZi(span(tau_i(j)*nD,(tau_i(j)+1)*nD-1), span(0,q-1)))*matDw_u.t()*(z0i*phi_0_k_0).t() +
+              (GrdZi(span(tau_i(j)*nD,(tau_i(j)+1)*nD-1), span(0,q-1)))*matDu*(GrdZi(span(tau_i(k)*nD,(tau_i(k)+1)*nD-1), span(0,q-1))).t()
+              )*matrixP.t())*matH_i_t_k.t();
+          }
           //  matDw       matDw_u
           //  matDw_u.t() matDu
           
@@ -281,7 +298,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     
   }
 
-  if(max(if_link) == 2 || survival || check ==3){ //if check==1, already done
+  if(max(if_link) == 2 || survival || MCnr>0){ //if check==1, already done
     int p_j=0; // loop variable
     int p_k =0; // loop variable
     
@@ -326,30 +343,22 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
 
     //loglik_i2 = -0.5*(sum(k_i)*log(2*M_PI) + log(det(sigMSM)) + as_scalar(Ytildi_nu_i.t()*inv_sympd(sigMSM)*Ytildi_nu_i)) + log_Jac_Phi;
 
-    if(printa==1){
-      cout << " Ytildi "<< Ytildi.t();
-      cout <<  " Ytildi_nu_i "<<Ytildi_nu_i.t();
-      cout << " loglik_i "<<loglik_i<< " sum(k_i) "<<sum(k_i) <<  " log(abs_det_matVY_i) "<<log(abs_det_matVY_i)<< " scalar "<< as_scalar(Ytildi_nu_i.t()*inv_sympd(matVY_i)*Ytildi_nu_i) << " log_Jac_Phi "<<log_Jac_Phi<<endl;
-      
-      //cout << " loglik_i2 "<<loglik_i2<< " sum(k_i) "<<sum(k_i) <<  " log(det(sigMSM)) "<<log(det(sigMSM))<< " scalar "<< as_scalar(Ytildi_nu_i.t()*inv_sympd(sigMSM)*Ytildi_nu_i) <<endl;
-    }
-    
     lvrais = loglik_i;
     
   }
   
-  if(max(if_link) == 2 || survival || check==1 || check==3){ //if(check==1 || max(if_link)>1 || survival || check ==3){
+  if(max(if_link) == 2 || survival || check==1 || MCnr>0){
     
     vec K2_lambda = zeros<vec>(K); // which latent process linked to the K markers
-    
-    for(int j =0 ; j < K; j++){
-      int jjj=0;  
-      while(matrixP(j,jjj)== 0){
-        jjj ++;
-      }
-      K2_lambda[j]=jjj;
-    }
-    
+    K2_lambda = mapping-1;
+    // for(int j =0 ; j < K; j++){
+    //   int jjj=0;  
+    //   while(matrixP(j,jjj)== 0){
+    //     jjj ++;
+    //   }
+    //   K2_lambda[j]=jjj;
+    // }
+
     int sizeLambda=0;
     vec K2_lambda_t = zeros<vec>(sum(k_i)); // which latent process linked to the observation in lambda
     int ind=0;
@@ -366,9 +375,10 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, int m_i, arma::vec& tau, 
     }
 
     lvrais = 0;
-    int nq = matDw_u.n_cols + matDw.n_cols ;
+    int nq = matDw.n_cols + q ;
     mat var_RE = zeros<mat>(nq, nq);
     mat ui;
+
     //  matDw       matDw_u
     //  matDw_u.t() matDu
     for(int j =0 ; j < nq; j++){
@@ -910,8 +920,17 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
   
   int n_cols_matD = matD.n_cols;
   Mat<double> matDw = matD(span(0,nD-1),span(0,nD-1));
-  Mat<double> matDw_u = matD(span(0,nD-1),span(nD,n_cols_matD-1));
-  Mat<double> matDu = (matD(span(nD,n_cols_matD-1),span(nD,n_cols_matD-1)));
+  Mat<double> matDw_u;
+  Mat<double> matDu;
+  
+  if(n_cols_matD>nD){
+    matDw_u = matD(span(0,nD-1),span(nD,n_cols_matD-1));
+    matDu = (matD(span(nD,n_cols_matD-1),span(nD,n_cols_matD-1)));
+  }else{
+    matDw_u = zeros(1,1);
+    matDu = zeros(1,1);
+  }
+
   Mat<double> matB = KmatDiag(paraB); // structured variance-covariance matrice
 
   int add_diag_varcov = 0; // something to add on the diagonal of var_RE  to make it positive definite for cholesky computation in MC
@@ -1062,14 +1081,14 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
     //  std::cout << "All the elements are equal to 2.\n";
     
     double out1 =0;
-    
-    out1= Loglikei_GLM(K, nD, matrixP, m_is(n), tau, tau_is(span(p,(p+m_is(n)-1))), Ytild(span(p,(p+m_is(n)-1)), span(0,(K-1))),
+
+    out1= Loglikei_GLM(K, nD, matrixP, mapping, m_is(n), tau, tau_is(span(p,(p+m_is(n)-1))), Ytild(span(p,(p+m_is(n)-1)), span(0,(K-1))),
                        YtildPrim(span(p,(p+m_is(n)-1)), span(0,(K-1))), x0(span(n*nD,(n+1)*nD-1), span(0,(ncol_x0-1))),
                        z0(span(n*nD,(n+1)*nD-1), span(0,(ncol_z0-1))), x(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_x-1))),
                        z(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_z-1))),alpha_mu0, alpha_mu, matDw, matDw_u, matDu,
                        matB, Sig, G_mat_A_0_to_tau_i, G_mat_prod_A_0_to_tau,  DeltaT, ParamTransformY, df, if_link, zitr, ide, paras_k,
                        t_0i, t_i, delta_i, xti1, xti2, basehaz, knots_surv, survival, param_surv, param_basehaz, assoc, truncation,
-                       sequence, type_int, ind_seq_i, MCnr, n, nE, add_diag_varcov);      
+                       sequence, type_int, ind_seq_i, MCnr, n, nE, add_diag_varcov, q);      
     
 
     

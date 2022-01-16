@@ -199,6 +199,7 @@
 CInLPN2 <- function(structural.model, measurement.model, parameters, 
                    option, Time, Tentry ="Tentry", Event = "Event", StatusEvent = "StatusEvent", basehaz = NULL, subject, data, seed=NULL, 
                    TimeDiscretization = TRUE, cholesky=FALSE,...){
+
   cl <- match.call()
   ptm <- proc.time()  
   cat("Be patient, CInLPN2 is running ... \n")
@@ -215,7 +216,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
   if(missing(data))stop("The argument data must be specified")
   
   if(is.null(structural.model$fixed.DeltaLP))stop("The argument structural.model$fixed.DeltaLP must be specified")
-  if(is.null(structural.model$random.DeltaLP))stop("The argument structural.model$random.DeltaLP must be specified")
+  #if(is.null(structural.model$random.DeltaLP))stop("The argument structural.model$random.DeltaLP must be specified")
   if(is.null(structural.model$trans.matrix))stop("The argument structural.model$trans.matrix must be specified")
   if(is.null(structural.model$delta.time)){
     structural.model$delta.time <- 1
@@ -240,7 +241,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
     option$makepred <- TRUE
   }
   if(is.null(option$MCnr)){
-    option$MCnr <- 30
+    option$MCnr <- 0
   }
   #if(is.null(option$type_int)){
   #  option$type_int <- "montecarlo"
@@ -398,7 +399,8 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
   #### randoms effet on DeltaLP 
   randoms_X0.models <- rep("1",nD)
   #### randoms effet on DeltaX
-  if(missing(randoms_DeltaX)){
+
+  if(missing(randoms_DeltaX) || is.null(randoms_DeltaX)){
     randoms_DeltaX<- ~1
     randoms_DeltaX.models <- rep("1",nD)
   }

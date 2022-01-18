@@ -455,7 +455,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
 
   if(all(randoms_DeltaX.models=="-1"))
     q <- rep(0,nD)
-  if(length(which(randoms_DeltaX.models=="-1"))<length(randoms_DeltaX.models))
+  if(length(which(randoms_DeltaX.models=="-1"))>0 & length(which(randoms_DeltaX.models=="-1"))<length(randoms_DeltaX.models))
     stop('If one dimension does not have a random slope, the other dimensions should not either.')
   
   z <-cbind(indY_z,z)

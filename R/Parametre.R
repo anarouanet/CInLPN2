@@ -242,7 +242,6 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
     }
   }
 
-
   if(!is.null(paras.ini)){
     if(length(paras) != p || length(paras.ini) != p ){
       message("The length of paras.ini is not correct.")

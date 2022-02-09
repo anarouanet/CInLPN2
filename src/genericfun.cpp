@@ -1300,6 +1300,7 @@ arma::vec f_survival_ui(arma::vec& ui_r, double t_0i, double t_i,int delta_i, ar
     surv = fct_surv_Konrod(t_i, xti1, xti2, ui_r, delta_i, param_basehaz, basehaz, param_surv, knots_surv, assoc, truncation,
                            nD, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, nE, gamma_X);
     fti(0) = surv*hazard(0,0);
+
     double surv0 = 1;
     if(truncation)
       surv0 = fct_surv_Konrod(t_0i, xti1, xti2, ui_r, delta_i, param_basehaz, basehaz, param_surv, knots_surv, assoc, truncation,

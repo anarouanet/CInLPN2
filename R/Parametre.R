@@ -212,8 +212,8 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
       for (jj in 1:nE){
         para_basehaz <- c(para_basehaz, paras.ini[(p+1) : (p + np_baz)])  
         p <- p + np_baz  # change here?
-      }
-      for (jj in 1:nE){
+      #}
+      #for (jj in 1:nE){
         para_surv <- c(para_surv, paras.ini[(p + 1 ) : (p + np_surv[jj])]) 
         p <- p + np_surv[jj] # change here?
       }
@@ -230,17 +230,27 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
   t1 <- 0
   t2 <- 0
 
+  
   if(nE>0){
     for(jj in 1:nE){
       paras <- c(paras, para_basehaz[(t1+1) : (t1 + np_baz)]) # change 0!!
       t1 <- t1 + np_baz
-    }
-
-    for(jj in 1:nE){
       paras <- c(paras, para_surv[(t2 + 1) : (t2 + np_surv[jj])]) # change 0!!
       t2 <- t2 + np_surv[jj]
     }
   }
+
+  # if(nE>0){
+  #   for(jj in 1:nE){
+  #     paras <- c(paras, para_basehaz[(t1+1) : (t1 + np_baz)]) # change 0!!
+  #     t1 <- t1 + np_baz
+  #   }
+  # 
+  #   for(jj in 1:nE){
+  #     paras <- c(paras, para_surv[(t2 + 1) : (t2 + np_surv[jj])]) # change 0!!
+  #     t2 <- t2 + np_surv[jj]
+  #   }
+  # }
 
   if(!is.null(paras.ini)){
     if(length(paras) != p || length(paras.ini) != p ){
@@ -276,7 +286,7 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
     paraOpt <- paras
   }else{
     paraFixe <- paraFixe[!is.na(paraFixe)]
-    posfix[indexFixe] <- 1 # fixiation des paras d'indexes dans indexparaFixe
+    posfix[indexFixe] <- 1 # fixation des paras d'indexes dans indexparaFixe
     paras[indexFixe] <- paraFixe
     paraOpt <- paras[-indexFixe]
   }

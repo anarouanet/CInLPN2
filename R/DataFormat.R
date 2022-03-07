@@ -200,7 +200,8 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
 
 DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixed_DeltaX.models, 
                        randoms_DeltaX.models, mod_trans.model, link = NULL, knots = NULL, zitr = NULL, ide = NULL, 
-                       outcomes, nD, Time, Survdata = NULL, basehaz = NULL, fixed.survival.models = NULL, DeltaT, assoc, truncation){
+                       outcomes, nD, Time, Survdata = NULL, basehaz = NULL, fixed.survival.models = NULL, 
+                       interactionY.survival.models = NULL, DeltaT, assoc, truncation){
   
   cl <- match.call()
   colnames<-colnames(data)
@@ -518,16 +519,31 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
         Xsurv2 <- Xsurv
       np_surv <- c(np_surv, dim(Xsurv)[2] + ifelse(assoc%in%c(0, 1, 3, 4),1,2)*nD)
     }   
+    nYS <- rep(0,2) #to have a vector in cpp program
+    intYsurv <- NULL
+    
+    if(!is.null(interactionY.survival.models)){
+      
+      tmp_intYS <- as.vector(strsplit(interactionY.survival.models,"[|]")[[1]])
+      for(j in 1:nEvent){
+        intYsurv<- cbind(intYsurv, as.matrix(model.matrix(as.formula(paste("",interactionY.survival.models[j], sep="~")),data=Survdata)[,-1]))
+        
+        tmp_intYS_j<- as.vector(strsplit(tmp_intYS[j],"[+]")[[1]])
+        nYS[j]<-length(tmp_intYS_j)
+      }
+      np_surv <- np_surv + nYS*ifelse(assoc%in%c(0, 1, 3, 4),1,2)*nD
+    }else{
+      intYsurv <- 0
+    }
   }else{
     np_surv <-0
   }
-
 
   return(list(nb_subject=I, nb_obs = length(na.omit(as.vector(Y))), K=K, nD = nD, all.preds = all.preds, id_and_Time=id_and_Time,Tmax = Tmax, m_i = m_i, Y = Y, Mod.MatrixY=Mod.MatrixY,  
               Mod.MatrixYprim=Mod.MatrixYprim, minY = minY, maxY = maxY, knots = knots, zitr = zitr, ide = ide, df = df, degree = degree, x = x, x0 = x0, 
               vec_ncol_x0n = nb_x0_n, z = z, z0=z0, q = q, q0 = q0, nb_paraD = nb_paraD, nb_RE=nb_RE, modA_mat = modA_mat,
               tau = tau, tau_is = tau_is, Event = Event, StatusEvent = StatusEvent, basehaz = basehaz, nE = nE, Xsurv1 = Xsurv1, Xsurv2 = Xsurv2,
-              np_surv = np_surv))
+              np_surv = np_surv, intYsurv = intYsurv, nYsurv = nYS))
 }
 
 

@@ -18,7 +18,7 @@
 Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, indexparaFixeUser =NULL,
                       paraFixeUser=NULL, L = 1, paras.ini, ncolMod.MatrixY, link, npara_k, 
                       Survdata = NULL, basehaz = NULL, knots_surv = NULL, assoc = NULL, truncation = F,
-                      data, outcomes, df, nE = 0, np_surv = 0, fixed.survival.models =NULL){
+                      data, outcomes, df, nE = 0, np_surv = 0, fixed.survival.models = NULL, interactionY.survival.models = NULL, nYsurv = 0){
   cl <- match.call()
   #   require(MASS)
   #initialisation des parametres
@@ -130,6 +130,10 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
       p <- p + length(para_basehaz) + length(para_surv)
       np_baz <- length(para_basehaz)/nE
     }
+
+    if(!is.null(interactionY.survival.models)){
+      browser()
+    }
   }
 
   # if user specified initial parameters
@@ -219,6 +223,7 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
       }
       if(basehaz=="Splines") cat('add number of parameters for splines in p and para_surv')
       if(basehaz=="Splines") cat('Define knots_surv para_basehaz')
+      
     }
     
     #if(length(paras.ini) != (p + sum(df)))

@@ -25,7 +25,7 @@ CInLPN2(
 \arguments{
 \item{structural.model}{a list of 5 arguments used to specify the structural model: 
 
-\code{structural.model$fixed.LP0}{ allows to specify the fixed effects in the submodel for the baseline level of processes.
+\code{structural.model$fixed.LP0}{ a one-sided linear formula object for specifying the fixed effects in the submodel for the baseline level of processes.
 Note that there is no need to specify a random effect model for the baseline level of processes as we
 systematically set a process-specific random intercept (with variance fixed to 1 for identifiability purpose). 
 For identifiability purposes, the mean intercepts are fixed to 0 (not estimated).}
@@ -34,10 +34,14 @@ For identifiability purposes, the mean intercepts are fixed to 0 (not estimated)
 and the covariates with fixed-effects (on the right part of ~ symbol) 
 in the submodel for change over time of latent processes.}
 
-\code{structural.model$random.DeltaLP}{ allow to specify the random effects in the submodel for change over time of latent processes.}
+\code{structural.model$random.DeltaLP}{ a one-sided linear formula object for specifying the random effects in the submodel for change over time of latent processes.}
 
-\code{structural.model$trans.matrix}{ allow to specify a model for elements of the transition matrix, which captures 
+\code{structural.model$trans.matrix}{ a one-sided linear formula object for specifying a model for elements of the transition matrix, which captures 
 the temporal influences between latent processes.}
+
+\code{structural.model$fixed.survival}{ a one-sided linear formula object for specifying the covariates in the survival sub-model. In competing risks model, the specification for the two events should be separated by the "|" symbol.}
+
+\code{structural.model$interactionY.survival}{ a one-sided linear formula object for specifying the covariates in interaction with the dynamics of the latent processes, in the survival sub-model. In competing risks model, the specification for the two events should be separated by the "|" symbol. Only additional terms should be included (No "*" symbol). Covariates in interactionY.survival should also be included in fixed.survival.}
 
 \code{structural.model$delta.time}{ indicates the discretisation step to be used for latent processes}}
 
@@ -51,15 +55,50 @@ where the nodes are placed, and "d" indicates the degree of the I-splines.}
 \code{measurement.model$knots}{ argument indicates if necessary the place of knots (when placed manually with "manual"), 
 default value is NULL}}
 
-\item{parameters}{a list of 3 arguments about parameters of the models (e.g., initial paremeters, parameters one would like to fix, etc.)
-
+\item{parameters}{a list of 3 arguments about parameters of the models 
+(e.g., initial parameters, parameters one would like to fix, etc.): 
 \code{parameters$paras.ini}{ indicates initial values for parameters, default values is NULL.}
-
 \code{parameters$Fixed.para.indix}{ indicates the positions of parameters to be constrained.}
 
 \code{parameters$Fixed.para.values}{ indicates the values associated to the index of parameters to be constrained. }}
 
+\item{option}{a list of 4 arguments for the optimization procedure:
+
+\code{option$epsa}{ threshold for the convergence criterion on the parameters}
+
+\code{option$epsb}{ threshold for the convergence criterion on the likelihood}
+
+\code{option$epsc}{ threshold for the convergence criterion on the derivatives}
+
+\code{option$MCnr}{ number of replicates  to compute the predictions in the real scales of the outcomes (backward transformation because of the link functions)}
+
+\code{option$type_int}{ type of Monte Carlo integration method to
+  use. Options are \describe{
+
+  \item{\code{type_int='montecarlo'}}{Vanilla Monte Carlo sampling.}
+
+  \item{\code{type_int='antithetic'}}{Variance reduction method using antithetic
+  simulation. This is the default option.}
+
+  \item{\code{type_int='sobol'}}{Quasi-Monte Carlo with a low
+  deterministic Sobol sequence with Owen-type scrambling.}
+
+  \item{\code{type_int='halton'}}{Quasi-Monte Carlo with a low deterministic
+  Halton sequence. See "randtoolbox" R package for more details about the last two sequences.}
+  }
+  }
+  
+  \code{option$assocT}{ Specifies the type of association between the time-to-event(s) and the latent process(es). V
+  alues include "r.intercept" for random intercept, "r.slope" for random slope, 
+  "r.intercept/slope" for both random intercept and slope, "c.value" for current value. }}
+
 \item{Time}{indicates the name of the covariate representing the time}
+
+\item{Tentry}{name of the variable of entry time}
+
+\item{Event}{name of the variable of event time}
+
+\item{StatusEvent}{name of the variable of event status}
 
 \item{subject}{indicates the name of the covariate representing the grouping structure}
 
@@ -86,6 +125,9 @@ The link function can be linear for Gaussian marker or non linear (using a basis
 non Gaussian markers.
 All parameters are estimated simultaneously in a maximum likelihood framework 
 See the methodological paper available at :http://arxiv.org/abs/1806.03659
+}
+\details{
+paras.ini includes:
 }
 \examples{
         

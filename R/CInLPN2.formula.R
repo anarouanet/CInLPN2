@@ -16,7 +16,7 @@
 #' 
 #' @param structural.model a list of 5 arguments used to specify the structural model: 
 #' 
-#' \code{structural.model$fixed.LP0}{ allows to specify the fixed effects in the submodel for the baseline level of processes.
+#' \code{structural.model$fixed.LP0}{ a one-sided linear formula object for specifying the fixed effects in the submodel for the baseline level of processes.
 #' Note that there is no need to specify a random effect model for the baseline level of processes as we
 #' systematically set a process-specific random intercept (with variance fixed to 1 for identifiability purpose). 
 #' For identifiability purposes, the mean intercepts are fixed to 0 (not estimated).}
@@ -25,10 +25,14 @@
 #' and the covariates with fixed-effects (on the right part of ~ symbol) 
 #' in the submodel for change over time of latent processes.}
 #' 
-#' \code{structural.model$random.DeltaLP}{ allow to specify the random effects in the submodel for change over time of latent processes.}
+#' \code{structural.model$random.DeltaLP}{ a one-sided linear formula object for specifying the random effects in the submodel for change over time of latent processes.}
 #' 
-#' \code{structural.model$trans.matrix}{ allow to specify a model for elements of the transition matrix, which captures 
+#' \code{structural.model$trans.matrix}{ a one-sided linear formula object for specifying a model for elements of the transition matrix, which captures 
 #' the temporal influences between latent processes.}
+#' 
+#'\code{structural.model$fixed.survival}{ a one-sided linear formula object for specifying the covariates in the survival sub-model. In competing risks model, the specification for the two events should be separated by the "|" symbol.}
+#' 
+#' \code{structural.model$interactionY.survival}{ a one-sided linear formula object for specifying the covariates in interaction with the dynamics of the latent processes, in the survival sub-model. In competing risks model, the specification for the two events should be separated by the "|" symbol. Only additional terms should be included (No "*" symbol). Covariates in interactionY.survival should also be included in fixed.survival.}
 #' 
 #' \code{structural.model$delta.time}{ indicates the discretisation step to be used for latent processes}
 #' 
@@ -42,10 +46,9 @@
 #' \code{measurement.model$knots}{ argument indicates if necessary the place of knots (when placed manually with "manual"), 
 #' default value is NULL}
 #' 
-#' @param parameters a list of 3 arguments about parameters of the models (e.g., initial paremeters, parameters one would like to fix, etc.)
-#' 
+#' @param parameters a list of 3 arguments about parameters of the models 
+#' (e.g., initial parameters, parameters one would like to fix, etc.): 
 #' \code{parameters$paras.ini}{ indicates initial values for parameters, default values is NULL.}
-#' 
 #' \code{parameters$Fixed.para.indix}{ indicates the positions of parameters to be constrained.}
 #' 
 #' \code{parameters$Fixed.para.values}{ indicates the values associated to the index of parameters to be constrained. }
@@ -73,12 +76,22 @@
 #'
 #'   \item{\code{type_int='halton'}}{Quasi-Monte Carlo with a low deterministic
 #'   Halton sequence. See "randtoolbox" R package for more details about the last two sequences.}
+#'   }
+#'   }
 #'   
+#'   \code{option$assocT}{ Specifies the type of association between the time-to-event(s) and the latent process(es). V
+#'   alues include "r.intercept" for random intercept, "r.slope" for random slope, 
+#'   "r.intercept/slope" for both random intercept and slope, "c.value" for current value. }
+#' 
 #' @param Time indicates the name of the covariate representing the time 
 #' @param subject indicates the name of the covariate representing the grouping structure
 #' @param data indicates the data frame containing all the variables for estimating the model.
 #' @param cholesky logical indicating if the variance covariance matrix is parameterized using the cholesky (TRUE) or the correlation (FALSE, by default)
+#' @param Tentry name of the variable of entry time
+#' @param Event name of the variable of event time
+#' @param StatusEvent name of the variable of event status
 #' @param  \dots other optional arguments
+#' @details paras.ini includes: 
 #' @return ---
 #' @export
 #'
@@ -286,6 +299,11 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
     fixed.survival <- structural.model$fixed.survival
   }
   
+  interactionY.survival <- NULL
+  if(!is.null(structural.model$interactionY.survival)){
+    interactionY.survival <- structural.model$interactionY.survival
+  }
+  
   # components of measurement model
   link <- measurement.model$link.functions$links
   knots <- measurement.model$link.functions$knots
@@ -394,6 +412,22 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
       truncation <- option$truncation
     }
   }
+  
+  ### pre-traitement of interactions with Y on survival 
+
+  interactionY.survival.models <- NULL
+  if(survival){
+    
+    if(!is.null(interactionY.survival)){
+      if(class(interactionY.survival)!="formula") stop("The argument interactionY.survival must be a formula") 
+      interactionY.survival.models <- strsplit(gsub("[[:space:]]","",as.character(interactionY.survival)),"~")[[2]]
+      intYsurv <- (as.vector(strsplit(interactionY.survival.models,"[|*+]")[[1]]))
+      interactionY.survival.models <- as.vector(strsplit(interactionY.survival.models,"[|]")[[1]]) 
+      if(!all(intYsurv%in%colnames))stop("All covariates in interactionY.survival should be in the dataset")
+      if(any(grepl( "*", interactionY.survival, fixed = TRUE)))stop("Only + terms should be included in interactionY.survival, no *.")
+    }
+  }
+  
   
   ### pre-traitement of random effect on processes  intercept and slope
   #### randoms effet on DeltaLP 
@@ -519,7 +553,8 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
   est <- CInLPN2.default(fixed_X0.models = fixed_X0.models, fixed_DeltaX.models = fixed_DeltaX.models, randoms_X0.models = randoms_X0.models, 
                         randoms_DeltaX.models = randoms_DeltaX.models, mod_trans.model = mod_trans.model, DeltaT = DeltaT , outcomes = outcomes,
                         nD = nD, mapping.to.LP = mapping.to.LP, link = link, knots = knots, subject = subject, data = data, Time = Time, 
-                        Survdata = Survdata, basehaz = basehaz, knots_surv = knots_surv, assoc = assoc, truncation = truncation, fixed.survival.models = fixed.survival.models,
+                        Survdata = Survdata, basehaz = basehaz, knots_surv = knots_surv, assoc = assoc, truncation = truncation, 
+                        fixed.survival.models = fixed.survival.models, interactionY.survival.models = interactionY.survival.models,
                         makepred = option$makepred, MCnr = option$MCnr, type_int = option$type_int, sequence = sequence, ind_seq_i = ind_seq_i, nmes = nmes, cholesky = cholesky,
                         paras.ini= paras.ini, paraFixeUser = paraFixeUser, indexparaFixeUser = indexparaFixeUser,  
                         maxiter = maxiter, zitr = zitr, ide = ide0, univarmaxiter = univarmaxiter, nproc = nproc, epsa = epsa, epsb = epsb, epsd = epsd, 

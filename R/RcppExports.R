@@ -28,6 +28,8 @@
 #' @param modA_mat model.matrix for elements of the transistion matrix
 #' @param DeltaT double that indicates the discretization step  
 #' @param data_surv matrix of Tentry, Event, StatusEvent and covariates for survival models
+#' @param data_surv_intY matrix of covariates in interaction with Y in survival models
+#' @param nYsurv number of covariates in interaction with Y in survival models for all nEvents
 #' @param basehaz baseline hasard function type
 #' @param knots_surv knots for splines modelling the baseline hazard function
 #' @param np_surv number of parameters in the survival sub-models !! change if nE>1 !!
@@ -46,8 +48,8 @@
 #' @return double 
 #' @export
 #' 
-Loglik <- function(K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, cholesky, data_surv, basehaz, knots_surv, np_surv, survival, assoc, truncation, nE, Xsurv1, Xsurv2, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT) {
-    .Call(`_CInLPN2_Loglik`, K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, cholesky, data_surv, basehaz, knots_surv, np_surv, survival, assoc, truncation, nE, Xsurv1, Xsurv2, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT)
+Loglik <- function(K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, cholesky, data_surv, data_surv_intY, nYsurv, basehaz, knots_surv, np_surv, survival, assoc, truncation, nE, Xsurv1, Xsurv2, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT) {
+    .Call(`_CInLPN2_Loglik`, K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, cholesky, data_surv, data_surv_intY, nYsurv, basehaz, knots_surv, np_surv, survival, assoc, truncation, nE, Xsurv1, Xsurv2, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT)
 }
 
 #' Function that computes the predictions (marginal and subject-specific) for individuals
@@ -86,32 +88,32 @@ pred <- function(K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, cholesky
     .Call(`_CInLPN2_pred`, K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, cholesky, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred)
 }
 
-#' @param gammaX: vector of linear predictors for 1 and 2 transitions (including association on random effects if assoc <=2)
-#' @param surv: Computation of survival funtion (1) or risk function (0)
-#' @param trans: index for computation of survival function on all transitions (-1), on first transition(0), or second transition (1) for nE=2
+#' @param gammaX vector of linear predictors for 1 and 2 transitions (including association on random effects if assoc <=2)
+#' @param surv Computation of survival funtion (1) or risk function (0)
+#' @param trans index for computation of survival function on all transitions (-1), on first transition(0), or second transition (1) for nE=2
 #' when 
 NULL
 
-#' @param ptGK_delta: vector of projections of GK nodes onto grid of delta
-#' @param ptGK: vector of individual GK nodes
-#' @param alpha: vector of association parameters
-#' @param delta_i: event status 
-#' @param survfunc: indicator if output is survival function or hazard risk
-#' @param trans: index for computation of survival/risk function on all transitions (-1), on first transition(0), or second transition (1)
+#' @param ptGK_delta vector of projections of GK nodes onto grid of delta
+#' @param ptGK vector of individual GK nodes
+#' @param alpha vector of association parameters
+#' @param delta_i event status 
+#' @param survfunc indicator if output is survival function or hazard risk
+#' @param trans index for computation of survival/risk function on all transitions (-1), on first transition(0), or second transition (1)
 NULL
 
-#' @param ui_r: vector of individual random effects
-#' @param t_i: individual time-to-event
-#' @param delta_i: individual status of event
-#' @param xti1: vector of individual covariates for first event
-#' @param xti2: vector of individual covariates for competing event
-#' @param param_surv: regression parameters
-#' @param param_basehaz: parameters for baseline hazard function
-#' @param basehaz: type of baseline hazard function
-#' @param knots_surv: vector of knots if basehaz == Splines
-#' @param assoc: function of the random effects that captures association 
+#' @param ui_r vector of individual random effects
+#' @param t_i individual time-to-event
+#' @param delta_i individual status of event
+#' @param xti1 vector of individual covariates for first event
+#' @param xti2 vector of individual covariates for competing event
+#' @param param_surv regression parameters
+#' @param param_basehaz parameters for baseline hazard function
+#' @param basehaz type of baseline hazard function
+#' @param knots_surv vector of knots if basehaz == Splines
+#' @param assoc function of the random effects that captures association 
 #' //'    (0: random intercept, 1: random slope, 2: random intercept and slope, 3: current value, 4: current slope, 5: current value and slope)
-#' @param truncation: boolean, indicating if left truncation or not
+#' @param truncation boolean, indicating if left truncation or not
 #' 
 NULL
 

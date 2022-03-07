@@ -24,6 +24,7 @@
 #' @param assoc association type between outcomes and times-to-events
 #' @param truncation boolean indicating if left truncation or not
 #' @param fixed.survival.models fixed effects in the submodel for the event hazards
+#' @param interactionY.survival.models interactions with Y in the survival models
 #' @param makepred indicates if predictions in the real scales of outcomes have to be done
 #' @param MCnr number of replicates  to compute the predictions in the real scales of the outcomes
 #' @param type_int type of Monte Carlo integration method to use
@@ -43,6 +44,7 @@
 CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.models, randoms_DeltaX.models, mod_trans.model, 
                             DeltaT, outcomes, nD, mapping.to.LP, link, knots=NULL, subject, data, Time, 
                             Survdata = NULL, basehaz = NULL, knots_surv=NULL, assoc = 0, truncation = FALSE, fixed.survival.models = NULL, 
+                            interactionY.survival.models = NULL,
                             makepred, MCnr, type_int = NULL, sequence = NULL, ind_seq_i = NULL, nmes = NULL, cholesky= FALSE,
                             paras.ini= NULL, indexparaFixeUser, paraFixeUser, maxiter, zitr, ide, univarmaxiter, nproc = 1, 
                             epsa =0.0001, epsb = 0.0001, epsd= 0.001, print.info = FALSE, TimeDiscretization = TRUE, 
@@ -66,7 +68,8 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
                          randoms_X0.models = randoms_X0.models, fixed_DeltaX.models = fixed_DeltaX.models, 
                          randoms_DeltaX.models = randoms_DeltaX.models, mod_trans.model = mod_trans.model, 
                          outcomes = outcomes, nD = nD, link=link, knots = knots, zitr= zitr, ide = ide, 
-                         Time = Time, Survdata = Survdata, basehaz = basehaz, fixed.survival.models =fixed.survival.models, DeltaT=DeltaT, assoc = assoc, truncation = truncation)
+                         Time = Time, Survdata = Survdata, basehaz = basehaz, fixed.survival.models =fixed.survival.models, 
+                         interactionY.survival.models = interactionY.survival.models, DeltaT=DeltaT, assoc = assoc, truncation = truncation)
     
   }else{
     stop("Need package survival to work, Please install it.")
@@ -110,12 +113,13 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
                              Tentry = Tentry, Event = Event, StatusEvent = StatusEvent, assocT = assocT, truncation = truncation)
   }
   npara_k <- sapply(outcomes, function(x) length(grep(x, names(data.frame(data_F$Mod.MatrixY)))))
-  
+
   paras <- Parametre(K=K, nD = nD, vec_ncol_x0n, n_col_x, nb_RE, indexparaFixeUser = indexparaFixeUser, 
                      paraFixeUser = paraFixeUser, L = L, ncolMod.MatrixY = ncolMod.MatrixY, paras.ini=paras.ini, 
                      link = link, npara_k = npara_k, 
                      Survdata = Survdata, basehaz = basehaz, knots_surv = knots_surv, assoc = assoc, truncation = truncation,
-                     data = data, outcomes = outcomes, df= data_F$df, nE = data_F$nE, np_surv = data_F$np_surv, fixed.survival.models =fixed.survival.models,)
+                     data = data, outcomes = outcomes, df= data_F$df, nE = data_F$nE, np_surv = data_F$np_surv, 
+                     fixed.survival.models =fixed.survival.models, interactionY.survival.models = interactionY.survival.models, nYsurv = data_F$nYsurv)
   if_link <- rep(0,K)
   for(k in 1:K){
     if(!link[k] %in%c("linear","thresholds")){

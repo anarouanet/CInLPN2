@@ -30,6 +30,8 @@ Loglik(
   q0,
   cholesky,
   data_surv,
+  data_surv_intY,
+  nYsurv,
   basehaz,
   knots_surv,
   np_surv,
@@ -87,6 +89,10 @@ outcomes and latents processes}
 \item{cholesky}{logical indicating if the variance covariance matrix is parameterized using the cholesky (TRUE, by default) or the correlation (FALSE)}
 
 \item{data_surv}{matrix of Tentry, Event, StatusEvent and covariates for survival models}
+
+\item{data_surv_intY}{matrix of covariates in interaction with Y in survival models}
+
+\item{nYsurv}{number of covariates in interaction with Y in survival models for all nEvents}
 
 \item{basehaz}{baseline hasard function type}
 

@@ -22,6 +22,7 @@ DataFormat(
   Survdata = NULL,
   basehaz = NULL,
   fixed.survival.models = NULL,
+  interactionY.survival.models = NULL,
   DeltaT,
   assoc,
   truncation

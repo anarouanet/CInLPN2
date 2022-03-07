@@ -25,6 +25,7 @@ CInLPN2.default(
   assoc = 0,
   truncation = FALSE,
   fixed.survival.models = NULL,
+  interactionY.survival.models = NULL,
   makepred,
   MCnr,
   type_int = NULL,
@@ -95,6 +96,8 @@ outcomes and latents processes}
 \item{truncation}{boolean indicating if left truncation or not}
 
 \item{fixed.survival.models}{fixed effects in the submodel for the event hazards}
+
+\item{interactionY.survival.models}{interactions with Y in the survival models}
 
 \item{makepred}{indicates if predictions in the real scales of outcomes have to be done}
 

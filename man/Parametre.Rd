@@ -28,7 +28,9 @@ Parametre(
   df,
   nE = 0,
   np_surv = 0,
-  fixed.survival.models = NULL
+  fixed.survival.models = NULL,
+  interactionY.survival.models = NULL,
+  nYsurv = 0
 )
 }
 \arguments{

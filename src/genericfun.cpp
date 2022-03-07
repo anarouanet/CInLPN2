@@ -1076,6 +1076,7 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
         double temp = alpha(j)*curlev(i);
 
         if(param_surv_intY.size()>0){
+          cout << " ajout interactions  ";
           if(j==0){
             for(int jj=0; jj<xti1_intY.size(); jj++){
               //temp += param_surv_intY(jj)*curlev(i)*xti1_intY(jj);
@@ -1143,8 +1144,27 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
       for( int i=0; i<ptGK.size(); i++) // Instantaneous risk with regression parameters for transition trans
         risq(i) = fct_risq_base(ptGK(i), delta_i, param_basehaz, basehaz, knots_surv, nE, gamma_X, xti1_intY, xti2_intY, false, trans); //trans = delta_i-1
 
-      for( int i=0; i<ptGK.size(); i++) 
-          out(i) += risq(i)*exp(alphaY(i));
+      for( int i=0; i<ptGK.size(); i++) {
+        double temp=alphaY(i);
+        if(param_surv_intY.size()>0){
+          if(trans==0){
+            for(int jj=0; jj<xti1_intY.size(); jj++){
+              for( int nd=0; nd<nD; nd++){
+                temp += param_surv_intY(jj*nD+nd)*curlev(i*nD+nd)*xti1_intY(0,jj);
+              }
+            }
+          }
+          if(trans==1){
+            for(int jj=0; jj<xti2_intY.size(); jj++){
+              for( int nd=0; nd<nD; nd++){
+                temp += param_surv_intY(xti1_intY.n_cols*nD+jj*nD+nd)*curlev(i*nD+nd)*xti2_intY(0,jj);
+              }
+            }
+          }
+        }
+        
+        out(i) += risq(i)*exp(temp);
+      }
     }
   }
   

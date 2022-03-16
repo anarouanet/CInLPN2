@@ -1057,7 +1057,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
   
   
   //Computering of log-likelihood as sum of individuals contributions
-  for(int n= 0; n < 1 ; n++){ //nsubjects
+  for(int n= 0; n < N ; n++){ //nsubjects
     //if(n%200==0)
     //cout << "N= "<< 1 <<endl;
     // printf("\n %d \n",(n+1));

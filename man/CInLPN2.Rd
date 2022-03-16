@@ -138,9 +138,9 @@ the regression parameters in the survival model, not in interaction with dynamic
 the association parameters in the survival model, between the time-to-event(s) and the dynamics of the latent process(es), for transition 1;
 the interaction parameters in the survival model between covariates and the dynamics of the latent process(es), for transition 1;
 the parameters for the baseline hazard function for transition 2;
-the regression parameters in the survival model, not in interactions <ith the dynamics of the latent process(es), for transition 2;
+the regression parameters in the survival model, not in interactions with the dynamics of the latent process(es), for transition 2;
 the association parameters in the survival model, between the time-to-event(s) and the dynamics of the latent process(es), for transition 2;
-the interaction parameters in the survival model between covariates and the dynamics of the latent process(es), or transition 2
+the interaction parameters in the survival model between covariates and the dynamics of the latent process(es), or transition 2.
 }
 \examples{
         

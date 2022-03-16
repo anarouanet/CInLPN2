@@ -88,32 +88,32 @@ pred <- function(K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, cholesky
     .Call(`_CInLPN2_pred`, K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, cholesky, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred)
 }
 
-#' @param gammaX vector of linear predictors for 1 and 2 transitions (including association on random effects if assoc <=2)
-#' @param surv Computation of survival funtion (1) or risk function (0)
-#' @param trans index for computation of survival function on all transitions (-1), on first transition(0), or second transition (1) for nE=2
+#' gammaX vector of linear predictors for 1 and 2 transitions (including association on random effects if assoc <=2)
+#' surv Computation of survival funtion (1) or risk function (0)
+#' trans index for computation of survival function on all transitions (-1), on first transition(0), or second transition (1) for nE=2
 #' when 
 NULL
 
-#' @param ptGK_delta vector of projections of GK nodes onto grid of delta
-#' @param ptGK vector of individual GK nodes
-#' @param alpha vector of association parameters
-#' @param delta_i event status 
-#' @param survfunc indicator if output is survival function or hazard risk
-#' @param trans index for computation of survival/risk function on all transitions (-1), on first transition(0), or second transition (1)
+#' ptGK_delta vector of projections of GK nodes onto grid of delta
+#' ptGK vector of individual GK nodes
+#' alpha vector of association parameters
+#' delta_i event status 
+#' survfunc indicator if output is survival function or hazard risk
+#' trans index for computation of survival/risk function on all transitions (-1), on first transition(0), or second transition (1)
 NULL
 
-#' @param ui_r vector of individual random effects
-#' @param t_i individual time-to-event
-#' @param delta_i individual status of event
-#' @param xti1 vector of individual covariates for first event
-#' @param xti2 vector of individual covariates for competing event
-#' @param param_surv regression parameters
-#' @param param_basehaz parameters for baseline hazard function
-#' @param basehaz type of baseline hazard function
-#' @param knots_surv vector of knots if basehaz == Splines
-#' @param assoc function of the random effects that captures association 
+#' ui_r vector of individual random effects
+#' t_i individual time-to-event
+#' delta_i individual status of event
+#' xti1 vector of individual covariates for first event
+#' xti2 vector of individual covariates for competing event
+#' param_surv regression parameters
+#' param_basehaz parameters for baseline hazard function
+#' basehaz type of baseline hazard function
+#' knots_surv vector of knots if basehaz == Splines
+#' assoc function of the random effects that captures association 
 #' //'    (0: random intercept, 1: random slope, 2: random intercept and slope, 3: current value, 4: current slope, 5: current value and slope)
-#' @param truncation boolean, indicating if left truncation or not
+#' truncation boolean, indicating if left truncation or not
 #' 
 NULL
 

@@ -527,7 +527,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
     if(!is.null(interactionY.survival.models)){
       
       tmp_intYS <- as.vector(strsplit(interactionY.survival.models,"[|]")[[1]])
-      for(j in 1:nEvent){
+      for(j in 1:nE){
         intYsurv<- cbind(intYsurv, as.matrix(model.matrix(as.formula(paste("",interactionY.survival.models[j], sep="~")),data=Survdata)[,-1]))
         
         tmp_intYS_j<- as.vector(strsplit(tmp_intYS[j],"[+]")[[1]])

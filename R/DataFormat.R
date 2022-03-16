@@ -540,6 +540,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   }else{
     np_surv <-0
   }
+browser()
 
   return(list(nb_subject=I, nb_obs = length(na.omit(as.vector(Y))), K=K, nD = nD, all.preds = all.preds, id_and_Time=id_and_Time,Tmax = Tmax, m_i = m_i, Y = Y, Mod.MatrixY=Mod.MatrixY,  
               Mod.MatrixYprim=Mod.MatrixYprim, minY = minY, maxY = maxY, knots = knots, zitr = zitr, ide = ide, df = df, degree = degree, x = x, x0 = x0, 

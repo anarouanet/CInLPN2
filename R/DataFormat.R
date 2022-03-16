@@ -545,7 +545,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
               Mod.MatrixYprim=Mod.MatrixYprim, minY = minY, maxY = maxY, knots = knots, zitr = zitr, ide = ide, df = df, degree = degree, x = x, x0 = x0, 
               vec_ncol_x0n = nb_x0_n, z = z, z0=z0, q = q, q0 = q0, nb_paraD = nb_paraD, nb_RE=nb_RE, modA_mat = modA_mat,
               tau = tau, tau_is = tau_is, Event = Event, StatusEvent = StatusEvent, basehaz = basehaz, nE = nE, Xsurv1 = Xsurv1, Xsurv2 = Xsurv2,
-              np_surv = np_surv, intYsurv = intYsurv, nYsurv = nYS))
+              np_surv = np_surv, data_surv_intY = intYsurv, nYsurv = nYS))
 }
 
 

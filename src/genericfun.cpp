@@ -1302,9 +1302,9 @@ arma::vec f_survival_ui(arma::vec& ui_r, double t_0i, double t_i,int delta_i, ar
     gammaX(span(0,0), span(0,0)) = xti1.t()*param_surv(span(0, xti1.size()-1));
 
   if(nE==2 && xti2.size()>0 )
-    gammaX(span(1,1), span(0,0)) = xti2.t()*param_surv(span(xti1.size(), xti1.size()+ xti2.size()-1));
+    gammaX(span(1,1), span(0,0)) = xti2.t()*param_surv(span(xti1.size()+ nA, xti1.size()+ nA+ xti2.size()-1));
     //gammaX(span(1,1), span(0,0)) = xti2.t()*param_surv(span(xti1.size() + nA, xti1.size() + nA + xti2.size()-1));
- 
+
   if(assoc <= 2){// random intercept (0), random slope (1) or both (2)
     cout << " add interactions ui * X i nsurvival model"<<endl;
     

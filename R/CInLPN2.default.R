@@ -176,7 +176,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
                        paras = paras, maxiter = maxiter, nproc = nproc, epsa = epsa, epsb = epsb,
                        epsd = epsd, print.info = print.info)
   
-  
+
   res <- list(conv = est$istop, v = est$v, best = est$b, ca = est$ca, cb = est$cb, rdm = est$rdm, 
               #niter = est$iter, 
               niter = est$ni, coefficients = est$coefficients, posfix = est$posfix)
@@ -304,7 +304,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
         covsurv <- unique(as.vector(strsplit(fixed.survival.models,"[|*+]")[[1]]))
         if(length(which(covsurv!="1"))>0){
           Xsurv <- as.data.frame(model.matrix(as.formula(paste("",fixed.survival.models[ij], sep="~")),data=Survdata)[,-1])
-          names(Xsurv) <- fixed.survival.models[ij] # verify with more covariates ?
+          names(Xsurv) <- strsplit(fixed.survival.models[ij],"[|*+]")[[1]]
           for(ip in 1:length(names(Xsurv))){
             param_survie <- c(param_survie, paste(names(Xsurv)[ip],ij,sep="."))
           }   
@@ -327,6 +327,17 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
         if(nD>1)
           name_assoc <- paste(name_assoc, 1:nD,sep=".")
         param_survie <- c(param_survie, name_assoc)
+        
+        if(!is.null(interactionY.survival.models)){
+          name_XintY <- strsplit(interactionY.survival.models[ij],"[|*+]")[[1]]
+          name_lat<-paste0(".dim",1:nD,".trans",ij)
+          
+          name_int<-NULL
+          for(jj in 1:length(name_XintY)){
+            name_int<-c(name_int, paste0(name_XintY[jj],name_lat))
+          }
+          param_survie<-c(param_survie,name_int)
+        }
       }
     }
     res$colnames <- c(res$colnames, param_survie)

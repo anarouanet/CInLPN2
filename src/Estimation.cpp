@@ -479,7 +479,9 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
           vec ParaTransformYk = ParamTransformY(span(kk, (kk+df[k]-1)));
           vec tau_ik = matTik(Ytildi.col(k), tau_i);
           vec Ytildik = YiwoNA(vectorise(Ytildi.col(k)));
+          
           int nik = YiwoNA(Ytildik).size();
+          nik = Ytildik.size();
           vec Lambda_nrk(nik);
           mat Sig_k = eye(nik,nik)*Sig(k,k);
           
@@ -491,7 +493,9 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
             if(tau_i(jj)==tau_ik(j)){
               Lambda_nrk(j)=Lambda_nr(jj*nD + K2_lambda[k]);
             }else{
-              cout << " problem definition tau_ik"<<endl;
+              cout  << " problem definition tau_ik"<<endl;
+              cout << " k "<<k<<" j "<<j<< " tau_i "<<tau_i.t()
+                   <<" jj "<<jj<< " tau_ik "<<tau_ik.t()<<endl;
             }
           }
           
@@ -546,7 +550,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
                   // double bsup = ParaTransformYk(0);
                   // 
                   // for (int m = 0 ; m < (zitr(2*k_t+1)-zitr(2*k_t)+1); m++){
-                  //   if(Ytildi(j, k)<(zitr(2*k_t) + m)){
+                  //   if(Ytildik(j)<(zitr(2*k_t) + m)){
                   //      binf = binf +  pow(ParaTransformYk_b(m), 2);
                   //   }
                   // }
@@ -555,7 +559,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
                   double inf=-10;
                   double sup=-10;
                   
-                  if(Ytildi(j, k)==(zitr(2*k_t))){
+                  if(Ytildik(j)==(zitr(2*k_t))){
                     double value = (ParaTransformYk(0)-Lambda_nrk(j))/abs(pow(Sig(k,k),0.5));//(ParaTransformYk(mm)-Lambda_nrk(j))/abs(Sig(k,k));
                     phi1 = normalCDF(value);
                     phi2 = 0;
@@ -569,7 +573,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
                     sup=ParaTransformYk(0);
                     for (int m = 0 ; m < (df[k]-1); m++){
                       sup += pow(ParaTransformYk(m+1),2);
-                      if(Ytildi(j, k)==(zitr(2*k_t) + m+1)){
+                      if(Ytildik(j)==(zitr(2*k_t) + m+1)){
                         double value = (sup-Lambda_nrk(j))/abs(pow(Sig(k,k),0.5));//(ParaTransformYk(mm)-Lambda_nrk(j))/abs(Sig(k,k));
                         phi1 = normalCDF(value);
                         value = (inf-Lambda_nrk(j))/abs(pow(Sig(k,k),0.5));//(ParaTransformYk(mm-1)-Lambda_nrk(j))/abs(Sig(k,k));
@@ -582,7 +586,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
                       }
                       inf = sup;
                     }
-                    if(Ytildi(j, k)==(zitr(2*k_t+1))){
+                    if(Ytildik(j)==(zitr(2*k_t+1))){
                       phi1 = 1;
                       double value = (inf-Lambda_nrk(j))/abs(pow(Sig(k,k),0.5));//(ParaTransformYk(mm-1)-Lambda_nrk(j))/abs(Sig(k,k));
                       phi2 = normalCDF(value);
@@ -598,15 +602,19 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
                     cout << " phi1< phi2: j "<< j //<< " PT "<< ParaTransformYk.t()<<endl
                          << " exp " <<(exp(phi1) - exp(phi2))
                          << " phi1 "<< phi1
-                         << " phi2 "<< phi2 <<endl; 
+                         << " phi2 "<< phi2 
+                         << " j "<< j << " k "<< k
+                        << " Ytildi "<<Ytildik(j)<< " zitr "<<zitr.t(); 
+                    cout << " Ytildi "<<Ytildi.t();
                   }
                   
                   vraisk *= (phi1-phi2);
+
                   if(phi1==phi2 && printa==1)
-                    cout << nr << " j "<<j<<" Ytildi(j, k) "<<Ytildi(j, k)<< " phi "<<(phi1-phi2)<< " vraisk " <<vraisk<<endl;
+                    cout << nr << " j "<<j<<" Ytildik(j) "<<Ytildik(j)<< " phi "<<(phi1-phi2)<< " vraisk " <<vraisk<<endl;
                   
                   // if(phi1==phi2 || isinf(lvraisk) )
-                  //   cout << " nr "<< nr <<" k " << k <<"j"<<j<<" Ytildi(j, k) "<<Ytildi(j, k)<< " k_i "<<k_i.t()
+                  //   cout << " nr "<< nr <<" k " << k <<"j"<<j<<" Ytildik(j) "<<Ytildik(j)<< " k_i "<<k_i.t()
                   //        << " zitr(2*k_t) "<< zitr(2*k_t) << " zitr(2*k_t+1) "<< zitr(2*k_t+1) <<" inf "<<inf << " sup "<<sup
                   //        << " Lambda_nrk(j) "<< Lambda_nrk(j)<< " phi1 "<<phi1 << " phi2 "<<phi2<< " log(phi1-phi2) "<< log(phi1-phi2) <<" lvraisk "<<lvraisk << " lvraisr " << lvraisr<< " lvrais " << lvrais<< " vrais " << vrais<<endl;
                   
@@ -1059,7 +1067,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
   //Computering of log-likelihood as sum of individuals contributions
   for(int n= 0; n < N ; n++){ //nsubjects
     //if(n%200==0)
-    //cout << "N= "<< 1 <<endl;
+    
     // printf("\n %d \n",(n+1));
     //Creation of matrix G_mat_prod_A_0_to_tau that contains all products  A(j) from t_i a Tmax: t_i \in 0, Tmax
     mat G_mat_prod_A_0_to_tau = GmatprodAstotau(nD, vec_alpha_ij, tau, 0, DeltaT, modA_mat(span(n*m,((n+1)*m-1)), span(0,(L-1))));
@@ -1112,6 +1120,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
     // }else if( std::all_of(if_link.begin(), if_link.end(), compFun1) ){
     //  std::cout << "All the elements are equal to 2.\n";
 
+    
     double out1 =0;
     out1= Loglikei_GLM(K, nD, matrixP, mapping, m_is(n), tau, tau_is(span(p,(p+m_is(n)-1))), Ytild(span(p,(p+m_is(n)-1)), span(0,(K-1))),
                        YtildPrim(span(p,(p+m_is(n)-1)), span(0,(K-1))), x0(span(n*nD,(n+1)*nD-1), span(0,(ncol_x0-1))),
@@ -1120,9 +1129,9 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
                        matB, Sig, G_mat_A_0_to_tau_i, G_mat_prod_A_0_to_tau,  DeltaT, ParamTransformY, df, if_link, zitr, ide, paras_k,
                        t_0i, t_i, delta_i, xti1, xti2, xti1_intY, xti2_intY, basehaz, knots_surv, survival, param_surv, param_surv_intY, param_basehaz, assoc, truncation,
                        sequence, type_int, ind_seq_i, MCnr, n, nE, add_diag_varcov, q);      
-    
+  
     loglik += out1;
-
+    
     // double out2 =  Loglikei(K, nD, matrixP, m_is(n), tau, tau_is(span(p,(p+m_is(n)-1))), Ytild(span(p,(p+m_is(n)-1)), span(0,(K-1))),
     //                     YtildPrim(span(p,(p+m_is(n)-1)), span(0,(K-1))), x0(span(n*nD,(n+1)*nD-1), span(0,(ncol_x0-1))),
     //                     z0(span(n*nD,(n+1)*nD-1), span(0,(ncol_z0-1))), x(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_x-1))),

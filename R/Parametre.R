@@ -190,7 +190,6 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
     ### para of link function
     ParaTransformY <- paras.ini[(p+1):(p + ncolMod.MatrixY)]
     i_para <- 0
-    browser()
      for(k in 1:K){
        if(link[k]=="linear" & ParaTransformY[i_para+2]==0){
          stop('Second parameter for linear link function cannot be set at 0 (variance)')

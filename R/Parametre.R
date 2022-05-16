@@ -294,7 +294,7 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
     paras[indexFixe] <- paraFixe
     paraOpt <- paras[-indexFixe]
   }
-
+  
   return(list(para = paras, paraOpt = paraOpt, paraFixe = paraFixe, posfix = posfix, L = L, basehaz = basehaz, knots_surv = knots_surv, np_surv = np_surv, assoc = assoc, truncation = truncation ))
 }
 

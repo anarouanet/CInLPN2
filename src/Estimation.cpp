@@ -167,7 +167,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
                // 3 MC integration (even if links = linear/splines and survival = F)
   int printa=0; //1 to print some intermediate values
   int q = sum(q_nD);
-  
+
   if((max(if_link) < 2 && !survival)&& check <3 || check==1){
 
     // ###### compute  Yi - E(Yi) ##### deleting missing values #####
@@ -302,7 +302,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
     
   }
 
-  if(max(if_link) == 2 || survival || MCnr>0){ //if check==1, already done
+  if(max(if_link) == 2 || survival){ //if check==1, already done
     int p_j=0; // loop variable
     int p_k =0; // loop variable
     
@@ -328,7 +328,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
       p_j += k_i(j);// incrementation of p_j
     }
   }
-  
+
   double lvrais = 0;
   double loglik_i=0;
   double loglik_i2=0;
@@ -349,8 +349,8 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
     lvrais = loglik_i;
     
   }
-  
-  if(max(if_link) == 2 || survival || check==1 || MCnr>0){
+
+  if(max(if_link) == 2 || survival || check==1 ){
     
     vec K2_lambda = zeros<vec>(K); // which latent process linked to the K markers
     K2_lambda = mapping-1;
@@ -1063,11 +1063,9 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
       param_basehaz(j) = pow(param_basehaz(j),2);
   }
   
-  
   //Computering of log-likelihood as sum of individuals contributions
   for(int n= 0; n < N ; n++){ //nsubjects
     //if(n%200==0)
-    
     // printf("\n %d \n",(n+1));
     //Creation of matrix G_mat_prod_A_0_to_tau that contains all products  A(j) from t_i a Tmax: t_i \in 0, Tmax
     mat G_mat_prod_A_0_to_tau = GmatprodAstotau(nD, vec_alpha_ij, tau, 0, DeltaT, modA_mat(span(n*m,((n+1)*m-1)), span(0,(L-1))));
@@ -1083,7 +1081,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
     vec xti2 = zeros<vec>(Xsurv2.n_cols); 
     mat xti1_intY(1, nYsurv(0)); 
     mat xti2_intY(1, nYsurv(1)); 
-
+    
     if(survival){
       t_0i = data_surv(n,0);
       t_i = data_surv(n,1);
@@ -1109,7 +1107,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
         }
       }
     }
-    
+
     //  double out0 = Loglikei(K, nD, matrixP, m_is(n), tau, tau_is(span(p,(p+m_is(n)-1))), Ytild(span(p,(p+m_is(n)-1)), span(0,(K-1))),
     //                      YtildPrim(span(p,(p+m_is(n)-1)), span(0,(K-1))), x0(span(n*nD,(n+1)*nD-1), span(0,(ncol_x0-1))),
     //                      z0(span(n*nD,(n+1)*nD-1), span(0,(ncol_z0-1))), x(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_x-1))),

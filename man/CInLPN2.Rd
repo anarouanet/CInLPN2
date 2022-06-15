@@ -127,20 +127,35 @@ All parameters are estimated simultaneously in a maximum likelihood framework
 See the methodological paper available at :http://arxiv.org/abs/1806.03659
 }
 \details{
-The vector of initial values paras.ini includes: the regression parameters on the initial level;
-the regression parameters on the slope; 
-the lower triangular matrix of the cholesky or the correlation specification;
-the parameters of the transition matrix;
-the variances of the marker-specific measurement errors;
-the parameters of the transformation function;
-the parameters for the baseline hazard function for transition 1;
-the regression parameters in the survival model, not in interaction with dynamics of the latent process(es), for transition 1;
-the association parameters in the survival model, between the time-to-event(s) and the dynamics of the latent process(es), for transition 1;
-the interaction parameters in the survival model between covariates and the dynamics of the latent process(es), for transition 1;
-the parameters for the baseline hazard function for transition 2;
-the regression parameters in the survival model, not in interactions with the dynamics of the latent process(es), for transition 2;
-the association parameters in the survival model, between the time-to-event(s) and the dynamics of the latent process(es), for transition 2;
-the interaction parameters in the survival model between covariates and the dynamics of the latent process(es), or transition 2.
+The vector of initial values paras.ini includes: 
+
+a) the regression parameters on the initial level;
+
+b) the regression parameters on the slope; 
+
+c) the lower triangular matrix of the cholesky or the correlation specification;
+
+d) the parameters of the transition matrix;
+
+e) the variances of the marker-specific measurement errors;
+
+f) the parameters of the transformation functions for markers 1,..., K;
+
+g) the parameters for the baseline hazard function for transition 1;
+
+h) the regression parameters in the survival model, not in interaction with dynamics of the latent process(es), for transition 1;
+
+i) the association parameters in the survival model, between the time-to-event(s) and the dynamics of the latent process(es), for transition 1;
+
+j) the interaction parameters in the survival model between covariates and the dynamics of the latent process(es), for transition 1;
+
+k) the parameters for the baseline hazard function for transition 2;
+
+l) the regression parameters in the survival model, not in interactions with the dynamics of the latent process(es), for transition 2;
+
+m) the association parameters in the survival model, between the time-to-event(s) and the dynamics of the latent process(es), for transition 2;
+
+n) the interaction parameters in the survival model between covariates and the dynamics of the latent process(es), or transition 2.
 }
 \examples{
         

@@ -538,7 +538,6 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
   knots_surv <- NULL
   ## If joint model -  Event and StatusEvent data
   if(survival){
-
     if(!(Event%in%colnames)) stop("Event should be in the dataset")
     if(!(StatusEvent%in%colnames)) stop("StatusEvent should be in the dataset")
 

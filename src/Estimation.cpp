@@ -427,13 +427,15 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
     bool aMC=true;
     
 
+    bool chrono = false;
     std::chrono::duration<double> elapsed_L = steady_clock::duration::zero();
     std::chrono::duration<double> elapsed_S = steady_clock::duration::zero();
     std::chrono::duration<double> elapsed_Krech = steady_clock::duration::zero();
     std::chrono::duration<double> elapsed_Ktot1 = steady_clock::duration::zero();
     std::chrono::duration<double> elapsed_Ktot2 = steady_clock::duration::zero();
     std::chrono::duration<double> elapsed_Ktot3 = steady_clock::duration::zero();
-    std::cout << "init: " << elapsed_L.count() << "s"  << std::endl;
+    if(chrono)
+      std::cout << "init: " << elapsed_L.count() << "s"  << std::endl;
     
     if(aMC){
       double out2;
@@ -487,7 +489,8 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
         
         vec Lambda_nr = matNui_ui(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi, true);
         auto endL1 = std::chrono::system_clock::now();
-        elapsed_L += endL1 - endL0; 
+        if(chrono)
+          elapsed_L += endL1 - endL0; 
         
         int kk = 0;
         for (int k = 0 ; k < K; k++){
@@ -516,7 +519,8 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
             }
           }
           auto endk1 = std::chrono::system_clock::now();
-          elapsed_Krech += endk1-endk0;
+          if(chrono)
+            elapsed_Krech += endk1-endk0;
           
           if(type_int == -1){ //-1 MC 0 AMC 
             cout << " develop likelihood computation with integral ui for MC or AMC "<<endl;
@@ -642,12 +646,14 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
               lvraisr += log(vraisk);
             }// if threshold
             auto endk2 = std::chrono::system_clock::now();
-            if(k==0)
-              elapsed_Ktot1 += endk2-endk0; 
-            if(k==1)
-              elapsed_Ktot2 += endk2-endk0; 
-            if(k==2)
-              elapsed_Ktot3 += endk2-endk0; 
+            if(chrono){
+              if(k==0)
+                elapsed_Ktot1 += endk2-endk0; 
+              if(k==1)
+                elapsed_Ktot2 += endk2-endk0; 
+              if(k==2)
+                elapsed_Ktot3 += endk2-endk0;  
+            }
           } // if QMC
           //if(nr < 10){
           //  cout << " out2 "<< out2 <<endl;

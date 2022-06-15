@@ -1103,7 +1103,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
   }
 
     //Computering of log-likelihood as sum of individuals contributions
-  for(int n= 0; n < 1 ; n++){ //nsubjects
+  for(int n= 0; n < N ; n++){ //nsubjects
     //if(n%200==0)
     // printf("\n %d \n",(n+1));
     //Creation of matrix G_mat_prod_A_0_to_tau that contains all products  A(j) from t_i a Tmax: t_i \in 0, Tmax

@@ -533,8 +533,8 @@ arma::vec YiNui(int nD, arma::mat matrixP, arma::vec& tau, arma::vec& tau_i, dou
                 arma::mat& xi, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i){
   // Yi : matrice of observation of subject i
   mat Nu_cp = matNui(nD, tau, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i);
-
   mat Nu_cp_i = zeros(Yi.n_rows,nD);
+  
   for(int i=0; i<(int)tau_i.size(); i++){
     Nu_cp_i.row(i) = Nu_cp.row(tau_i(i));
   }

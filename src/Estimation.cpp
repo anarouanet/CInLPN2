@@ -724,6 +724,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
             << " param_basehaz "<<param_basehaz.t() ;
       }
       surv0 /= MCnr;
+
       //vrais /= MCnr;
       vrais_no_surv /= MCnr;
       lvrais = -log(MCnr) + expotrick + log(vrais) + log_Jac_Phi - log(surv0); 
@@ -733,17 +734,19 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
         //<< " MCnr "<<MCnr<< " minY "<< minY << " vrais / MCnr "<<vrais / MCnr;
         //cout << " loglik_i "<< loglik_i-log_Jac_Phi<< " loglik_i2 "<<loglik_i2<<" log(vraisY_tot/MCnr) "<< log(vraisY_tot/MCnr)<< " log_Jac_Phi "<<log_Jac_Phi << " vrais "<<vrais<<endl<<endl<<endl;
       }
-       auto END = std::chrono::system_clock::now();
-       std::chrono::duration<double> elapsed_seconds = END-start;
-
-       std::cout << "elapsed time Lambda: " << elapsed_L.count() << "s"  << std::endl;
-       std::cout << "elapsed time marker rech: " << elapsed_Krech.count() << "s"  << std::endl;
-       std::cout << "elapsed time marker 1: " << elapsed_Ktot1.count() << "s"  << std::endl;
-       std::cout << "elapsed time marker 2: " << elapsed_Ktot2.count() << "s"  << std::endl;
-       std::cout << "elapsed time marker 3: " << elapsed_Ktot3.count() << "s"  << std::endl;
-       std::cout << "elapsed time Survival: " << elapsed_S.count() << "s"  << std::endl;
-       std::cout << "elapsed time total: " << elapsed_seconds.count() << "s"  << std::endl;
-
+       
+       if(chrono){
+         auto END = std::chrono::system_clock::now();
+         std::chrono::duration<double> elapsed_seconds = END-start;
+         
+         std::cout << "elapsed time Lambda: " << elapsed_L.count() << "s"  << std::endl;
+         std::cout << "elapsed time marker rech: " << elapsed_Krech.count() << "s"  << std::endl;
+         std::cout << "elapsed time marker 1: " << elapsed_Ktot1.count() << "s"  << std::endl;
+         std::cout << "elapsed time marker 2: " << elapsed_Ktot2.count() << "s"  << std::endl;
+         std::cout << "elapsed time marker 3: " << elapsed_Ktot3.count() << "s"  << std::endl;
+         std::cout << "elapsed time Survival: " << elapsed_S.count() << "s"  << std::endl;
+         std::cout << "elapsed time total: " << elapsed_seconds.count() << "s"  << std::endl;
+       }
     }
   }
   return(lvrais);
@@ -1109,7 +1112,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
   }
 
     //Computering of log-likelihood as sum of individuals contributions
-  for(int n= 0; n < N ; n++){ //nsubjects
+  for(int n= 0; n < N ; n++){ //N
     //if(n%200==0)
     // printf("\n %d \n",(n+1));
     //Creation of matrix G_mat_prod_A_0_to_tau that contains all products  A(j) from t_i a Tmax: t_i \in 0, Tmax
@@ -1172,8 +1175,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
                        matB, Sig, G_mat_A_0_to_tau_i, G_mat_prod_A_0_to_tau,  DeltaT, ParamTransformY, df, if_link, zitr, ide, paras_k,
                        t_0i, t_i, delta_i, xti1, xti2, xti1_intY, xti2_intY, basehaz, knots_surv, survival, param_surv, param_surv_intY, param_basehaz, assoc, truncation,
                        sequence, type_int, ind_seq_i, MCnr, n, nE, add_diag_varcov, q);      
-  
-    loglik += out1;
+     loglik += out1;
     
     // double out2 =  Loglikei(K, nD, matrixP, m_is(n), tau, tau_is(span(p,(p+m_is(n)-1))), Ytild(span(p,(p+m_is(n)-1)), span(0,(K-1))),
     //                     YtildPrim(span(p,(p+m_is(n)-1)), span(0,(K-1))), x0(span(n*nD,(n+1)*nD-1), span(0,(ncol_x0-1))),

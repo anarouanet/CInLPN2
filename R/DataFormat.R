@@ -509,7 +509,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   np_surv <- NULL
   intYsurv <- 0
   nYS <- rep(0,2)
-  
+
   if(nE>0){
     for(n in 1: nE){
       all.pred.fixed.survival.models <- list(strsplit(fixed.survival.models[n],"[+*]")[[1]])
@@ -521,7 +521,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
         Xsurv2 <- Xsurv
       np_surv <- c(np_surv, dim(Xsurv)[2] + ifelse(assoc%in%c(0, 1, 3, 4),1,2)*nD)
     }   
-    nYS <- rep(0,2) #to have a vector in cpp program
+    nYS <- rep(0,nE) #to have a vector in cpp program
     intYsurv <- NULL
     
     if(!is.null(interactionY.survival.models)){

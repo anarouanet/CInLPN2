@@ -14,7 +14,7 @@ using namespace std;
 //================================================================================
 arma::mat autocorri(int K, arma::vec tau, arma::mat z0i, arma::mat zi, arma::mat matDw, 
 arma::mat matDw_u, arma::mat matDu, arma::mat matB, arma::mat G_mat_A_0_to_tau_i,
-arma::mat G_mat_prod_A_0_to_tau, double DeltaT){
+arma::mat G_mat_prod_A_0_to_tau,  double DeltaT){
   int m = tau.size();
   // found the max of the vector tau_i
   double maxTau = 0.0;

@@ -146,7 +146,7 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
     p <- p+ sum(vec_ncol_x0n)
     index_paraFixe_mu0_constraint <-NULL
     for(n in 1:nD){
-      alpha_mu0[(cpt2+1)] <- 0
+      #alpha_mu0[(cpt2+1)] <- 0
       cpt2 <- cpt2 + vec_ncol_x0n[n]
       cpt1 <- cpt1 + vec_ncol_x0n[n]
     }
@@ -163,7 +163,7 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
 
     for(n in 1:nD){
       #if(link[n] != "thresholds")
-      alpha_D[i_alpha_D+1] <- 1
+      #alpha_D[i_alpha_D+1] <- 1
       i_alpha_D <- i_alpha_D + to_nrow
       cpt1 <- cpt1 + to_nrow
       to_nrow <- to_nrow -1

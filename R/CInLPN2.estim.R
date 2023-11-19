@@ -45,14 +45,6 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
     m=floor((time[3]-h*3600)/60)
     s=floor(time[3]-h*3600-m*60)
     cat(h,"heures ",m, "minutes ", s, "seconds")
-
-    Mod.MatrixYprimCInLPN:::Loglik(K = K, nD = nD, mapping =  mapping.to.LP, paras$paraOpt,  paraFixe = paras$paraFixe, posfix = paras$posfix, 
-                    m_is = data$m_i, Mod_MatrixY = data$Mod.MatrixY, Mod_MatrixYprim = data$Mod.MatrixYprim, df=data$df,
-                    x = data$x, z = data$z, q = data$q,nb_paraD = data$nb_paraD,
-                    x0 = data$x0, z0 = data$z0, q0 = data$q0,
-                    if_link = if_link,# zitr = data$zitr, ide = data$ide,
-                    tau = data$tau, tau_is=data$tau_is,
-                    modA_mat = data$modA_mat, DeltaT)
   }
 
   

@@ -11,7 +11,7 @@ using namespace arma;
 using namespace std;
 //===========================================================================================================
 //function print matrix
-int f_mat_print( arma::mat& B)
+int f_mat_print(arma::mat& B)
 {
   int J = B.n_cols;
   int I = B.n_rows;
@@ -1056,6 +1056,13 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
     curlev = matNui_ui(nD, ptGK_delta, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi, false);
   }
 
+  
+  // std::cout << " ptGK_delta "<< ptGK_delta.t()
+  //           << " alpha "<<alpha.t()
+  //           << " curlev "<<curlev.t()
+  //           << " ui_r "<<ui_r.t()
+  //           << " DeltaT "<<DeltaT<<endl;
+  
   if(assoc == 4 || assoc == 5){
     cout << " to develop !"<<endl;
   }
@@ -1155,8 +1162,9 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
             }
           }
           if(trans==1){
-            for(int jj=0; jj<xti2_intY.size(); jj++){
-              for( int nd=0; nd<nD; nd++){
+            for( int nd=0; nd<nD; nd++){
+              for(int jj=0; jj<xti2_intY.size(); jj++){
+                         // << "param corr "<< param_surv_intY(xti1_intY.n_cols*nd+jj)<<endl;//xti1_intY.n_cols*nD+jj*nD+nd
                 temp += param_surv_intY(xti1_intY.n_cols*nD+jj*nD+nd)*curlev(i*nD+nd)*xti2_intY(0,jj);
               }
             }
@@ -1167,7 +1175,6 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
       }
     }
   }
-  
   return(out);
 }
 
@@ -1180,7 +1187,7 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
 // ==============================================================*/
 // combines a 7-point Gauss rule with a 15-point Kronrod rule (Kahaner, Moler & Nash 1989, §5.5).
 // Gauss points are incorporated into the Kronrod points
-double fct_surv_Konrod(double t_i, arma::colvec& xti1, arma::colvec& xti2, arma::mat& xti1_intY, arma::mat& xti2_intY, arma::vec& ui_r, int delta_i, arma::vec& param_basehaz, int basehaz, arma::colvec& param_surv, arma::colvec& param_surv_intY, arma::vec& knots_surv, int assoc, bool truncation,
+double fct_surv_Konrod(double t_i, arma::colvec& xti1, arma::colvec& xti2, arma::mat& xti1_intY, arma::mat& xti2_intY, arma::vec& ui_r, arma::vec& param_basehaz, int basehaz, arma::colvec& param_surv, arma::colvec& param_surv_intY, arma::vec& knots_surv, int assoc,
                        int nD, double DeltaT, arma::mat& x0i, arma::colvec& alpha_mu0, arma::mat& xi, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::mat& zi,
                        int nE, arma::vec& gamma_X){
 
@@ -1247,7 +1254,7 @@ double fct_surv_Konrod(double t_i, arma::colvec& xti1, arma::colvec& xti2, arma:
 
   risq_GK_event= fct_pred_curlev_slope(deltaT_ptGK_ti, ptGK_ti, xti1, xti2, xti1_intY, xti2_intY, ui_r, 1, param_surv, param_surv_intY, assoc, 
                                        nD, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, param_basehaz, basehaz, knots_surv, 
-                                       gamma_X, nE, false,-1);
+                                       gamma_X, nE, false,-1); //trans=-1
   double cumrisk=0;
   for( int i=0; i<15; i++){
     cumrisk += wgk_15(i)*risq_GK_event(i);
@@ -1339,7 +1346,7 @@ arma::vec f_survival_ui(arma::vec& ui_r, double t_0i, double t_i,int delta_i, ar
     vec event(1);
     event(0)=t_i;
     vec deltaT_ptGK_ti(1);
-    deltaT_ptGK_ti (0) = round(t_i/ (double) DeltaT);
+    deltaT_ptGK_ti(0) = round(t_i/ (double) DeltaT);
     vec hazard(1);
     hazard.fill(1);
     
@@ -1350,17 +1357,32 @@ arma::vec f_survival_ui(arma::vec& ui_r, double t_0i, double t_i,int delta_i, ar
     //double test = fct_risq_base(t_i, 0, param_basehaz, basehaz, knots_surv, nE, gamma_X, true, -1);
     double surv = 1;
     
-    surv = fct_surv_Konrod(t_i, xti1, xti2, xti1_intY, xti2_intY, ui_r, delta_i, param_basehaz, basehaz, param_surv, param_surv_intY, knots_surv, assoc, truncation,
+    surv = fct_surv_Konrod(t_i, xti1, xti2, xti1_intY, xti2_intY, ui_r, param_basehaz, basehaz, param_surv, param_surv_intY, knots_surv, assoc,
                            nD, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, nE, gamma_X);
     fti(0) = surv*hazard(0,0);
 
     double surv0 = 1;
     if(truncation)
-      surv0 = fct_surv_Konrod(t_0i, xti1, xti2, xti1_intY, xti2_intY, ui_r, delta_i, param_basehaz, basehaz, param_surv, param_surv_intY, knots_surv, assoc, truncation,
+      surv0 = fct_surv_Konrod(t_0i, xti1, xti2, xti1_intY, xti2_intY, ui_r, param_basehaz, basehaz, param_surv, param_surv_intY, knots_surv, assoc,
                            nD, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, nE, gamma_X);
     fti(1) = surv0;
+    std::cout <<  " ui_r "<<ui_r.t()
+              << " fti "<<fti(0) << " "<< fti(1)
+              << " delta_i "<<delta_i
+              <<" surv0 "<<surv0 << " t_0i "<<t_0i << " truncation "<<truncation<<endl;
+    
+    // std::cout << " gamma_X "<<gamma_X<<endl
+    //           << " event(0) "<<event(0)<<endl
+    //           << " deltaT_ptGK_ti(0) "<<deltaT_ptGK_ti(0)<<endl
+    //           << " delta_i "<<delta_i<<endl
+    //           << " hazard "<< hazard<<endl
+    //           << " surv "<<surv<<endl
+    //           << " surv0 "<<surv0<<endl;
     
   }
+  
+  
+  
  return(fti); 
 }
 

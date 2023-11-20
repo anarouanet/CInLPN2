@@ -694,8 +694,6 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
         if(survival){
           vraisr_surv = f_survival_ui(ui_r, t_0i, t_i, delta_i, xti1, xti2, xti1_intY, xti2_intY, param_surv, param_surv_intY, param_basehaz, basehaz, knots_surv, assoc, truncation,
                                       nD, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, nE);
-        std::cout          << " vraisr_surv "<<vraisr_surv.t();
-        
         }
         if(chrono){
           endkS1 = std::chrono::system_clock::now();
@@ -1187,8 +1185,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
           xti2(k) = Xsurv2(n, k);
         }
       }
-      cout<< " la "<<endl;
-      
+
       //modA_mat_predGK_ti = modA_mat_predGK_t(span(n*15, (n+1)*15-1), span(0, modA_mat_predGK_t.n_cols-1));//zeros(15, modA_mat_predGK_t.n_cols);
       //modA_mat_predGK_t0i = modA_mat_predGK_t0(span(n*15, (n+1)*15-1), span(0, modA_mat_predGK_t0.n_cols-1));//zeros(15, modA_mat_predGK_t0.n_cols);
       

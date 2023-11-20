@@ -1366,11 +1366,7 @@ arma::vec f_survival_ui(arma::vec& ui_r, double t_0i, double t_i,int delta_i, ar
       surv0 = fct_surv_Konrod(t_0i, xti1, xti2, xti1_intY, xti2_intY, ui_r, param_basehaz, basehaz, param_surv, param_surv_intY, knots_surv, assoc,
                            nD, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, nE, gamma_X);
     fti(1) = surv0;
-    std::cout <<  " ui_r "<<ui_r.t()
-              << " fti "<<fti(0) << " "<< fti(1)
-              << " delta_i "<<delta_i
-              <<" surv0 "<<surv0 << " t_0i "<<t_0i << " truncation "<<truncation<<endl;
-    
+
     // std::cout << " gamma_X "<<gamma_X<<endl
     //           << " event(0) "<<event(0)<<endl
     //           << " deltaT_ptGK_ti(0) "<<deltaT_ptGK_ti(0)<<endl

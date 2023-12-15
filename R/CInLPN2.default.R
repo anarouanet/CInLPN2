@@ -129,7 +129,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
     } 
   }
   paras$npara_k <- npara_k
-  
+
   #add zitr, ide  dans estim(). What about knots? What in dataF
   if(any(link=="thresholds")|| !is.null(Survdata) || !is.null(type_int)){
     #  nmes <- c()

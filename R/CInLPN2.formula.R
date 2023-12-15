@@ -232,7 +232,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
 
   if(!missing(seed))
     set.seed(seed)
-  
+
   ### check if all component of the model specification are well filled ####
   if(missing(structural.model))stop("The argument structural.model must be specified")
   if(missing(measurement.model))stop("The argument measurement.model must be specified")
@@ -266,8 +266,13 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
   if(is.null(option$makepred)){
     option$makepred <- TRUE
   }
+
   if(is.null(option$MCnr)){
-    option$MCnr <- 0
+    if(any(measurement.model$link.functions$links == "thresholds") || survival){
+      option$MCnr <- 500
+    }else{
+      option$MCnr <- 0
+    }
   }
   #if(is.null(option$type_int)){
   #  option$type_int <- "montecarlo"
@@ -327,8 +332,13 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
   ## component of option
   makepred <- option$makepred
   MCnr <- option$MCnr
-  type_int <- option$type_int
 
+  type_int <- option$type_int
+  if((any(link == "thresholds") || survival ) & is.null(type_int))
+    option$type_int<- "sobol"
+  
+  type_int <- option$type_int
+  
   #parallel <- option$parallel
   maxiter <- option$maxiter  
   univarmaxiter <- option$univarmaxiter

@@ -49,7 +49,7 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
     df <- NULL
     colnamesY <- NULL
     colnamesYPrim <- NULL
-    
+
     for(k in 1:K){
       minY[k] <- min(Y[,col[k]], na.rm = T)
       maxY[k] <- max(Y[,col[k]], na.rm = T)
@@ -301,6 +301,10 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   Times <- as.data.frame(DeltaT*rep(tau, I))
   colnames(Times) <- Time
   
+  if(dim(qsz)[1] != dim(Times)[1]){
+    stop("Covariates (other than time) should be time-independant.")
+  }
+
   data_c0 <- cbind(qsz,Times)
   data_xzMatA_cov <-data_c0  
   data_xzMatA_cov <-data_xzMatA_cov[order(data_xzMatA_cov[,subject], data_xzMatA_cov[,Time]),]

@@ -630,7 +630,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
                     }
                     if(Ytildik(j)==(zitr(2*k_t+1))){
                       phi1 = 1;
-                      double value = (inf-Lambda_nrk(j))/abs(pow(Sig(k,k),0.5));//(ParaTransformYk(mm-1)-Lambda_nrk(j))/abs(Sig(k,k));
+                      double value = (sup-Lambda_nrk(j))/abs(pow(Sig(k,k),0.5));//(ParaTransformYk(mm-1)-Lambda_nrk(j))/abs(Sig(k,k));
                       phi2 = normalCDF(value);
                     
                       if(printa)

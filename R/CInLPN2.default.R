@@ -89,13 +89,12 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
     if(type_int == "sobol"){
       sequence  <- randtoolbox::sobol(n = MCnr, dim = nb_RE, scrambling = 1, normal = TRUE, init=T)
     }else if(type_int == "halton"){
-      sequence  <- randtoolbox::halton(n = MCnr, dim = i, normal = TRUE, init=T) 
+      sequence  <- randtoolbox::halton(n = MCnr, dim = nb_RE, normal = TRUE, init=T) 
     }else if(type_int == "torus"){
-      sequence  <- randtoolbox::torus(n = MCnr, dim = i,normal = TRUE, init=T) 
+      sequence  <- randtoolbox::torus(n = MCnr, dim = nb_RE, normal = TRUE, init=T) 
     }
   }
-  
-  
+
   assocT <- NULL
   if(!is.null(assoc)){
     assocT <- ifelse(assoc==0, "r.intercept",ifelse(assoc==1, "r.slope",ifelse(assoc==2, "r.intercept/slope",ifelse(

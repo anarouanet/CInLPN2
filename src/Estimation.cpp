@@ -169,13 +169,20 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
   if(nD==1)
     expotrick=0;
   
-  int check=2; // 1 both QMC and closed likelihood for comparison of individual likelihood (type_int, MCnr must be defined!) 
-               // 2 close likelihood if links = linear/splines (except if MCnr>0), QMC if links = thresholds or if survival = T
-               // 3 MC integration (even if links = linear/splines and survival = F)
+  int check=2;
+  if(max(if_link) < 2 & MCnr>0)
+    check=3;
+      // check = 1 both QMC and closed likelihood for comparison of individual likelihood (type_int, MCnr must be defined!) 
+      // check =  2 close likelihood if links = linear/splines, QMC if links = thresholds or if survival = T
+      // check =  3 MC integration (even if links = linear/splines and survival = F)
+               
+
+ 
+  
   int printa=0; //1 to print some intermediate values
   int q = sum(q_nD);
 
-  if((max(if_link) < 2 && !survival)&& check <3 || check==1){
+  if(((max(if_link) < 2 && !survival)&& check <3) || check==1){
 
     // ###### compute  Yi - E(Yi) ##### deleting missing values #####
     Ytildi_nu_i = YiNui(nD, matrixP, tau, tau_i, DeltaT, Ytildi, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i);
@@ -309,7 +316,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
     
   }
 
-  if(max(if_link) == 2 || survival){ //if check==1, already done
+  if(max(if_link) == 2 || survival || check ==3){ //if check==1, already done
     int p_j=0; // loop variable
     int p_k =0; // loop variable
     
@@ -354,10 +361,10 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
 
     //loglik_i2 = -0.5*(sum(k_i)*log(2*M_PI) + log(det(sigMSM)) + as_scalar(Ytildi_nu_i.t()*inv_sympd(sigMSM)*Ytildi_nu_i)) + log_Jac_Phi;
     lvrais = loglik_i;
-    
+
   }
 
-  if(max(if_link) == 2 || survival || check==1 ){
+  if(max(if_link) == 2 || survival || check!= 2){
     
     vec K2_lambda = zeros<vec>(K); // which latent process linked to the K markers
     K2_lambda = mapping-1;
@@ -441,7 +448,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
     std::chrono::duration<double> elapsed_Ktot3 = steady_clock::duration::zero();
     if(chrono)
       std::cout << "init: " << elapsed_L.count() << "s"  << std::endl;
-    
+
     if(aMC){
       double out2;
       double vrais =0;
@@ -729,7 +736,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
       }//nr
 
       
-      if(vrais<0){ //Correction with log-exponential trick
+      if(1>2 & vrais<0){ //Correction with log-exponential trick
         double vrais_expo = 0;
         expotrick = max_nr;
         for(int nr=0; nr < MCnr; nr++){
@@ -770,8 +777,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
       vrais_no_surv /= MCnr;
 
       lvrais = -log(MCnr) + expotrick + log(vrais) + log_Jac_Phi - log(surv0); 
-    
-    
+
        if(printa==1 && check==1){
         cout << " diffY "<<loglik_i- lvrais<< " loglik_i "<< loglik_i << " lvrais "<<lvrais<< " log(surv0) "<<log(surv0) <<endl;
         //<< " MCnr "<<MCnr<< " minY "<< minY << " vrais / MCnr "<<vrais / MCnr;

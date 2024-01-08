@@ -18,7 +18,8 @@
 Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, indexparaFixeUser =NULL,
                       paraFixeUser=NULL, L = 1, paras.ini, ncolMod.MatrixY, link, npara_k, 
                       Survdata = NULL, basehaz = NULL, knots_surv = NULL, assoc = NULL, truncation = F,
-                      data, outcomes, df, nE = 0, np_surv = 0, fixed.survival.models = NULL, interactionY.survival.models = NULL, nYsurv = 0){
+                      data, outcomes, df, nE = 0, np_surv = 0, fixed.survival.models = NULL, 
+                      interactionY.survival.models = NULL, nYsurv = 0){
   cl <- match.call()
 
   #   require(MASS)

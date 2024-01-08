@@ -83,7 +83,9 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
   ncolMod.MatrixY <- ncol(data_F$Mod.MatrixY)
   
   #definition quasi-random sequence
-  if(!is.null(type_int)){
+  if(!is.null(MCnr)){
+    if(is.null(type_int))
+      type_int <- "sobol"
     if(type_int == "sobol"){
       sequence  <- randtoolbox::sobol(n = MCnr, dim = nb_RE, scrambling = 1, normal = TRUE, init=T)
     }else if(type_int == "halton"){
@@ -131,7 +133,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
   paras$npara_k <- npara_k
 
   #add zitr, ide  dans estim(). What about knots? What in dataF
-  if(any(link=="thresholds")|| !is.null(Survdata) || !is.null(type_int)){
+  if(any(link=="thresholds")|| !is.null(Survdata) || !is.null(type_int) || !is.null(MCnr)){
     #  nmes <- c()
     #  for (i in 1:length(unique(data$id))){
     #    for(k in 1:K){

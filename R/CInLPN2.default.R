@@ -180,7 +180,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
 
   res <- list(conv = est$istop, v = est$v, best = est$b, ca = est$ca, cb = est$cb, rdm = est$rdm, 
               #niter = est$iter, 
-              niter = est$ni, coefficients = est$coefficients, posfix = est$posfix)
+              niter = est$ni, coefficients = est$coefficients, posfix = est$posfix, LouisV = est$LouisV)
   
   #   # fitted value and correlation matrix
   #   m <- length(data$tau)

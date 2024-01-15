@@ -207,7 +207,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   colnames<-colnames(data)
   id_and_Time <- data[,c(subject,Time)]
   Ni<-unique(data[,subject])
-  I <- length(Ni)# number of visit
+  I <- length(Ni) # number of visit
   K <- length(outcomes)
 
   # Pre-traitement of data : delete lignes with no observation

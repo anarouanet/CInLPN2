@@ -62,7 +62,7 @@ default value is NULL}}
 
 \code{parameters$Fixed.para.values}{ indicates the values associated to the index of parameters to be constrained. }}
 
-\item{option}{a list of 4 arguments for the optimization procedure:
+\item{option}{a list of 6 arguments for the optimization procedure:
 
 \code{option$epsa}{ threshold for the convergence criterion on the parameters}
 
@@ -70,7 +70,7 @@ default value is NULL}}
 
 \code{option$epsc}{ threshold for the convergence criterion on the derivatives}
 
-\code{option$MCnr}{ number of replicates  to compute the predictions in the real scales of the outcomes (backward transformation because of the link functions)}
+\code{option$MCnr}{ number of replicates to compute the predictions in the real scales of the outcomes (backward transformation because of the link functions)}
 
 \code{option$type_int}{ type of Monte Carlo integration method to
   use. Options are \describe{
@@ -86,11 +86,10 @@ default value is NULL}}
   \item{\code{type_int='halton'}}{Quasi-Monte Carlo with a low deterministic
   Halton sequence. See "randtoolbox" R package for more details about the last two sequences.}
   }
-  }
+}
   
-  \code{option$assocT}{ Specifies the type of association between the time-to-event(s) and the latent process(es). V
-  alues include "r.intercept" for random intercept, "r.slope" for random slope, 
-  "r.intercept/slope" for both random intercept and slope, "c.value" for current value. }}
+\code{option$assocT}{ Specifies the type of association between the time-to-event(s) and the latent process(es). Values include "r.intercept" for random intercept, "r.slope" for random slope, "r.intercept/slope" for both random intercept and slope, "c.value" for current value. }
+}
 
 \item{Time}{indicates the name of the covariate representing the time}
 

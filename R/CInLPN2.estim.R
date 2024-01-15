@@ -39,7 +39,7 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
            nE = data$nE, Xsurv1 = as.matrix(data$Xsurv1), Xsurv2 = as.matrix(data$Xsurv2),
            if_link = if_link, zitr = data$zitr, ide = data$ide,
            tau = data$tau, tau_is=data$tau_is, 
-           modA_mat = data$modA_mat, DeltaT)
+           modA_mat = data$modA_mat, DeltaT, ii=length(data$m_i)+10)
     time=proc.time()-ptm
     h=floor(time[3]/3600)
     m=floor((time[3]-h*3600)/60)
@@ -72,6 +72,7 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
   #source("/Users/anais/Documents/2019 Postdoc Bordeaux/code/R/MLM/deriva_AR.R")
 
   if(requireNamespace("marqLevAlg", quietly = TRUE)){#marqLevAlg::marqLevAlg
+
     ptm<-proc.time()#marqLevAlg::marqLevAlg
     temp <- try(marqLevAlg::marqLevAlg(b = paras$paraOpt, fn = Loglik, nproc = nproc, .packages = NULL, epsa=epsa, epsb=epsb, epsd=epsd,
                            maxiter=maxiter, print.info = print.info,  minimize = FALSE,
@@ -84,7 +85,8 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
                            x0 = data$x0, z0 = data$z0, q0 = data$q0, cholesky = cholesky, tau = data$tau, tau_is=data$tau_is,
                            modA_mat = data$modA_mat, data_surv = as.matrix(data_surv), data_surv_intY = as.matrix(data$intYsurv), nYsurv = data$nYsurv, basehaz = ifelse(paras$basehaz=="Weibull", 0, 1), knots_surv = paras$knots_surv, 
                            np_surv = paras$np_surv, survival = (data$nE>0), assoc =  paras$assoc, truncation = paras$truncation, 
-                           nE = data$nE, Xsurv1 = as.matrix(data$Xsurv1), Xsurv2 = as.matrix(data$Xsurv2), clustertype="FORK")
+                           nE = data$nE, Xsurv1 = as.matrix(data$Xsurv1), Xsurv2 = as.matrix(data$Xsurv2),
+                           clustertype="FORK", ii=length(data$m_i)+10)
     ,silent = FALSE)
 
     time=proc.time()-ptm
@@ -102,6 +104,72 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
     stop("Package marqLevAlg required for the optimization process")
     
   }
+
+  N <- length(data$m_i)
+
+  #library(foreach)
+  #library(doSNOW)
+  #library(parallel)
+  
+  # Si <- foreach(ii=1:2,
+  #               .combine=cbind) %dopar%
+  #   {
+  #     test <- marqLevAlg::deriva(b = paras$paraOpt, funcpa = Loglik, nproc = 1, .packages = NULL, #epsa=epsa, epsb=epsb, epsd=epsd,
+  #                                #maxiter=maxiter, print.info = print.info,  minimize = FALSE,
+  #                                DeltaT=DeltaT, paraFixe = paras$paraFixe, posfix = paras$posfix,
+  #                                paras_k = paras$npara_k, 
+  #                                sequence = as.matrix(paras$sequence), type_int = paras$type_int, ind_seq_i = paras$ind_seq_i,  MCnr = MCnr, nmes = nmes,
+  #                                K = K, nD = nD, mapping =  mapping.to.LP, m_is = data$m_i, if_link = if_link, zitr = data$zitr, ide = data$ide, 
+  #                                Mod_MatrixY = data$Mod.MatrixY, Mod_MatrixYprim = data$Mod.MatrixYprim, df=data$df,
+  #                                x = data$x, z = data$z, q = data$q, nb_paraD = data$nb_paraD,
+  #                                x0 = data$x0, z0 = data$z0, q0 = data$q0, cholesky = cholesky, tau = data$tau, tau_is=data$tau_is,
+  #                                modA_mat = data$modA_mat, data_surv = as.matrix(data_surv), data_surv_intY = as.matrix(data$intYsurv), nYsurv = data$nYsurv, basehaz = ifelse(paras$basehaz=="Weibull", 0, 1), knots_surv = paras$knots_surv, 
+  #                                np_surv = paras$np_surv, survival = (data$nE>0), assoc =  paras$assoc, truncation = paras$truncation, 
+  #                                nE = data$nE, Xsurv1 = as.matrix(data$Xsurv1), Xsurv2 = as.matrix(data$Xsurv2), 
+  #                                #clustertype="FORK", 
+  #                                ii=ii)
+  #     v <- test$v[((length(paras$paraOpt)*(length(paras$paraOpt)+1))/2+1):length(test$v)]
+  #     c(v)
+  #   }
+
+  I1 <- matrix(0,length(paras$paraOpt),length(paras$paraOpt))
+  I2 <- rep(0,length(paras$paraOpt))
+  for(ii in 1:N){
+    # temp_ii <- marqLevAlg::marqLevAlg(b = paras$paraOpt, fn = Loglik, nproc = nproc, .packages = NULL, epsa=epsa, epsb=epsb, epsd=epsd,
+    #                                   maxiter=maxiter, print.info = print.info,  minimize = FALSE,
+    #                                   DeltaT=DeltaT, paraFixe = paras$paraFixe, posfix = paras$posfix,
+    #                                   paras_k = paras$npara_k, 
+    #                                   sequence = as.matrix(paras$sequence), type_int = paras$type_int, ind_seq_i = paras$ind_seq_i,  MCnr = MCnr, nmes = nmes,
+    #                                   K = K, nD = nD, mapping =  mapping.to.LP, m_is = data$m_i, if_link = if_link, zitr = data$zitr, ide = data$ide, 
+    #                                   Mod_MatrixY = data$Mod.MatrixY, Mod_MatrixYprim = data$Mod.MatrixYprim, df=data$df,
+    #                                   x = data$x, z = data$z, q = data$q, nb_paraD = data$nb_paraD,
+    #                                   x0 = data$x0, z0 = data$z0, q0 = data$q0, cholesky = cholesky, tau = data$tau, tau_is=data$tau_is,
+    #                                   modA_mat = data$modA_mat, data_surv = as.matrix(data_surv), data_surv_intY = as.matrix(data$intYsurv), nYsurv = data$nYsurv, basehaz = ifelse(paras$basehaz=="Weibull", 0, 1), knots_surv = paras$knots_surv, 
+    #                                   np_surv = paras$np_surv, survival = (data$nE>0), assoc =  paras$assoc, truncation = paras$truncation, 
+    #                                   nE = data$nE, Xsurv1 = as.matrix(data$Xsurv1), Xsurv2 = as.matrix(data$Xsurv2), 
+    #                                   clustertype="FORK", ii=ii)
+    #marqLevAlg::deriva
+    test <- deriva(b = paras$paraOpt, funcpa = Loglik, nproc = 1, .packages = NULL, #epsa=epsa, epsb=epsb, epsd=epsd,
+                       #maxiter=maxiter, print.info = print.info,  minimize = FALSE,
+                       DeltaT=DeltaT, paraFixe = paras$paraFixe, posfix = paras$posfix,
+                       paras_k = paras$npara_k, 
+                       sequence = as.matrix(paras$sequence), type_int = paras$type_int, ind_seq_i = paras$ind_seq_i,  MCnr = MCnr, nmes = nmes,
+                       K = K, nD = nD, mapping =  mapping.to.LP, m_is = data$m_i, if_link = if_link, zitr = data$zitr, ide = data$ide, 
+                       Mod_MatrixY = data$Mod.MatrixY, Mod_MatrixYprim = data$Mod.MatrixYprim, df=data$df,
+                       x = data$x, z = data$z, q = data$q, nb_paraD = data$nb_paraD,
+                       x0 = data$x0, z0 = data$z0, q0 = data$q0, cholesky = cholesky, tau = data$tau, tau_is=data$tau_is,
+                       modA_mat = data$modA_mat, data_surv = as.matrix(data_surv), data_surv_intY = as.matrix(data$intYsurv), nYsurv = data$nYsurv, basehaz = ifelse(paras$basehaz=="Weibull", 0, 1), knots_surv = paras$knots_surv, 
+                       np_surv = paras$np_surv, survival = (data$nE>0), assoc =  paras$assoc, truncation = paras$truncation, 
+                       nE = data$nE, Xsurv1 = as.matrix(data$Xsurv1), Xsurv2 = as.matrix(data$Xsurv2), 
+                       #clustertype="FORK", 
+                       ii=ii)
+    v <- test$v#[((length(paras$paraOpt)*(length(paras$paraOpt)+1))/2+1):length(test$v)]
+    I1 <- I1 + v%*%t(v)
+    I2 <- I2 + v
+  }
+  V <- I1 - 1/N*I2%*%t(I2)
+  #det(-V)
+  V_louis <- solve(-V)
 
   # (res <- Loglik(paraOpt = paras$paraOpt, DeltaT=DeltaT, paraFixe = paras$paraFixe, posfix = paras$posfix,
   #                K = K, nD = nD, mapping = mapping.to.LP, m_is = data$m_i, if_link = if_link,
@@ -122,5 +190,6 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
   para[which(paras$posfix==0)] <- est$b
   est$coefficients <- para
   est$posfix <- paras$posfix
+  est$LouisV <- V_louis[upper.tri(V_louis)]
   est
 }

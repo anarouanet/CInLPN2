@@ -12,8 +12,8 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // Loglik
-double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& paraFixe, arma::vec& posfix, arma::vec& paras_k, arma::mat& sequence, int type_int, arma::vec& ind_seq_i, int MCnr, arma::vec& nmes, arma::vec& m_is, arma::mat& Mod_MatrixY, arma::mat& Mod_MatrixYprim, arma::vec& df, arma::mat& x, arma::mat& z, arma::vec& q, int nb_paraD, arma::mat& x0, arma::mat& z0, arma::vec& q0, bool cholesky, arma::mat& data_surv, arma::mat& data_surv_intY, arma::vec& nYsurv, int basehaz, arma::vec& knots_surv, arma::vec& np_surv, bool survival, int assoc, bool truncation, int nE, arma::mat& Xsurv1, arma::mat& Xsurv2, arma::vec& if_link, arma::vec& zitr, arma::vec& ide, arma::vec& tau, arma::vec& tau_is, arma::mat& modA_mat, double DeltaT);
-RcppExport SEXP _CInLPN2_Loglik(SEXP KSEXP, SEXP nDSEXP, SEXP mappingSEXP, SEXP paraOptSEXP, SEXP paraFixeSEXP, SEXP posfixSEXP, SEXP paras_kSEXP, SEXP sequenceSEXP, SEXP type_intSEXP, SEXP ind_seq_iSEXP, SEXP MCnrSEXP, SEXP nmesSEXP, SEXP m_isSEXP, SEXP Mod_MatrixYSEXP, SEXP Mod_MatrixYprimSEXP, SEXP dfSEXP, SEXP xSEXP, SEXP zSEXP, SEXP qSEXP, SEXP nb_paraDSEXP, SEXP x0SEXP, SEXP z0SEXP, SEXP q0SEXP, SEXP choleskySEXP, SEXP data_survSEXP, SEXP data_surv_intYSEXP, SEXP nYsurvSEXP, SEXP basehazSEXP, SEXP knots_survSEXP, SEXP np_survSEXP, SEXP survivalSEXP, SEXP assocSEXP, SEXP truncationSEXP, SEXP nESEXP, SEXP Xsurv1SEXP, SEXP Xsurv2SEXP, SEXP if_linkSEXP, SEXP zitrSEXP, SEXP ideSEXP, SEXP tauSEXP, SEXP tau_isSEXP, SEXP modA_matSEXP, SEXP DeltaTSEXP) {
+double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& paraFixe, arma::vec& posfix, arma::vec& paras_k, arma::mat& sequence, int type_int, arma::vec& ind_seq_i, int MCnr, arma::vec& nmes, arma::vec& m_is, arma::mat& Mod_MatrixY, arma::mat& Mod_MatrixYprim, arma::vec& df, arma::mat& x, arma::mat& z, arma::vec& q, int nb_paraD, arma::mat& x0, arma::mat& z0, arma::vec& q0, bool cholesky, arma::mat& data_surv, arma::mat& data_surv_intY, arma::vec& nYsurv, int basehaz, arma::vec& knots_surv, arma::vec& np_surv, bool survival, int assoc, bool truncation, int nE, arma::mat& Xsurv1, arma::mat& Xsurv2, arma::vec& if_link, arma::vec& zitr, arma::vec& ide, arma::vec& tau, arma::vec& tau_is, arma::mat& modA_mat, double DeltaT, int ii);
+RcppExport SEXP _CInLPN2_Loglik(SEXP KSEXP, SEXP nDSEXP, SEXP mappingSEXP, SEXP paraOptSEXP, SEXP paraFixeSEXP, SEXP posfixSEXP, SEXP paras_kSEXP, SEXP sequenceSEXP, SEXP type_intSEXP, SEXP ind_seq_iSEXP, SEXP MCnrSEXP, SEXP nmesSEXP, SEXP m_isSEXP, SEXP Mod_MatrixYSEXP, SEXP Mod_MatrixYprimSEXP, SEXP dfSEXP, SEXP xSEXP, SEXP zSEXP, SEXP qSEXP, SEXP nb_paraDSEXP, SEXP x0SEXP, SEXP z0SEXP, SEXP q0SEXP, SEXP choleskySEXP, SEXP data_survSEXP, SEXP data_surv_intYSEXP, SEXP nYsurvSEXP, SEXP basehazSEXP, SEXP knots_survSEXP, SEXP np_survSEXP, SEXP survivalSEXP, SEXP assocSEXP, SEXP truncationSEXP, SEXP nESEXP, SEXP Xsurv1SEXP, SEXP Xsurv2SEXP, SEXP if_linkSEXP, SEXP zitrSEXP, SEXP ideSEXP, SEXP tauSEXP, SEXP tau_isSEXP, SEXP modA_matSEXP, SEXP DeltaTSEXP, SEXP iiSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -60,7 +60,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::vec& >::type tau_is(tau_isSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type modA_mat(modA_matSEXP);
     Rcpp::traits::input_parameter< double >::type DeltaT(DeltaTSEXP);
-    rcpp_result_gen = Rcpp::wrap(Loglik(K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, cholesky, data_surv, data_surv_intY, nYsurv, basehaz, knots_surv, np_surv, survival, assoc, truncation, nE, Xsurv1, Xsurv2, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT));
+    Rcpp::traits::input_parameter< int >::type ii(iiSEXP);
+    rcpp_result_gen = Rcpp::wrap(Loglik(K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, cholesky, data_surv, data_surv_intY, nYsurv, basehaz, knots_surv, np_surv, survival, assoc, truncation, nE, Xsurv1, Xsurv2, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT, ii));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -364,7 +365,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_CInLPN2_Loglik", (DL_FUNC) &_CInLPN2_Loglik, 43},
+    {"_CInLPN2_Loglik", (DL_FUNC) &_CInLPN2_Loglik, 44},
     {"_CInLPN2_pred", (DL_FUNC) &_CInLPN2_pred, 26},
     {"_CInLPN2_vectorise", (DL_FUNC) &_CInLPN2_vectorise, 1},
     {"_CInLPN2_KmatDiag", (DL_FUNC) &_CInLPN2_KmatDiag, 1},

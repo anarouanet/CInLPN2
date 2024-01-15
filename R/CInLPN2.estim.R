@@ -149,11 +149,21 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
     #                                   nE = data$nE, Xsurv1 = as.matrix(data$Xsurv1), Xsurv2 = as.matrix(data$Xsurv2), 
     #                                   clustertype="FORK", ii=ii)
     #marqLevAlg::deriva
+
+    MCnr2=20000
+    if(paras$type_int == 1){
+      sequence  <- randtoolbox::sobol(n = MCnr2, dim = sum(data$q)+nD, scrambling = 1, normal = TRUE, init=T)
+    }else if(paras$type_int == 2){
+      sequence  <- randtoolbox::halton(n = MCnr2, dim = sum(data$q)+nD, normal = TRUE, init=T) 
+    }else if(paras$type_int == 3){
+      sequence  <- randtoolbox::torus(n = MCnr2, dim = sum(data$q)+nD, normal = TRUE, init=T) 
+    }
+    
     test <- deriva(b = paras$paraOpt, funcpa = Loglik, nproc = 1, .packages = NULL, #epsa=epsa, epsb=epsb, epsd=epsd,
                        #maxiter=maxiter, print.info = print.info,  minimize = FALSE,
                        DeltaT=DeltaT, paraFixe = paras$paraFixe, posfix = paras$posfix,
                        paras_k = paras$npara_k, 
-                       sequence = as.matrix(paras$sequence), type_int = paras$type_int, ind_seq_i = paras$ind_seq_i,  MCnr = MCnr, nmes = nmes,
+                       sequence = as.matrix(sequence), type_int = paras$type_int, ind_seq_i = paras$ind_seq_i,  MCnr = MCnr2, nmes = nmes,
                        K = K, nD = nD, mapping =  mapping.to.LP, m_is = data$m_i, if_link = if_link, zitr = data$zitr, ide = data$ide, 
                        Mod_MatrixY = data$Mod.MatrixY, Mod_MatrixYprim = data$Mod.MatrixYprim, df=data$df,
                        x = data$x, z = data$z, q = data$q, nb_paraD = data$nb_paraD,

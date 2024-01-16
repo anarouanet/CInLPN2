@@ -150,7 +150,7 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
     #                                   clustertype="FORK", ii=ii)
     #marqLevAlg::deriva
 
-    MCnr2=20000
+    MCnr2=100000
     if(paras$type_int == 1){
       sequence  <- randtoolbox::sobol(n = MCnr2, dim = sum(data$q)+nD, scrambling = 1, normal = TRUE, init=T)
     }else if(paras$type_int == 2){

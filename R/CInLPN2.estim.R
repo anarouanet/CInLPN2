@@ -200,6 +200,6 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
   para[which(paras$posfix==0)] <- est$b
   est$coefficients <- para
   est$posfix <- paras$posfix
-  est$LouisV <- V_louis[upper.tri(V_louis)]
+  est$LouisV <- V_louis[upper.tri(V_louis, diag=T)]
   est
 }

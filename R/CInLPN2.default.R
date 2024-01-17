@@ -45,7 +45,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
                             DeltaT, outcomes, nD, mapping.to.LP, link, knots=NULL, subject, data, Time, 
                             Survdata = NULL, basehaz = NULL, knots_surv=NULL, assoc = 0, truncation = FALSE, fixed.survival.models = NULL, 
                             interactionY.survival.models = NULL,
-                            makepred, MCnr, type_int = NULL, sequence = NULL, ind_seq_i = NULL, nmes = NULL, cholesky= FALSE,
+                            makepred, MCnr, MCnr2, type_int = NULL, sequence = NULL, ind_seq_i = NULL, nmes = NULL, cholesky= FALSE,
                             paras.ini= NULL, indexparaFixeUser, paraFixeUser, maxiter, zitr, ide, univarmaxiter, nproc = 1, 
                             epsa =0.0001, epsb = 0.0001, epsd= 0.001, print.info = FALSE, TimeDiscretization = TRUE, 
                             Tentry = NULL, Event = NULL, StatusEvent = NULL, ...)
@@ -173,7 +173,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
   
   # estimation
   est <- CInLPN2.estim(K = K, nD = nD, mapping.to.LP = mapping.to.LP, data = data_F, if_link = if_link, cholesky = cholesky,
-                       DeltaT = DeltaT, MCnr = MCnr, nmes = nmes, data_surv = Survdata,
+                       DeltaT = DeltaT, MCnr = MCnr, MCnr2 = MCnr2, nmes = nmes, data_surv = Survdata,
                        paras = paras, maxiter = maxiter, nproc = nproc, epsa = epsa, epsb = epsb,
                        epsd = epsd, print.info = print.info)
   

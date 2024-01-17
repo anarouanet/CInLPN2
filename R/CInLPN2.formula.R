@@ -61,7 +61,9 @@
 #' 
 #' \code{option$epsc}{ threshold for the convergence criterion on the derivatives}
 #' 
-#' \code{option$MCnr}{ number of replicates  to compute the predictions in the real scales of the outcomes (backward transformation because of the link functions)}
+#' \code{option$MCnr}{ number Quasi-Monte Carlo replicates for the integration over random effects}
+#' 
+#' \code{option$MCnr2}{ number Quasi-Monte Carlo replicates for the integration over random effects when computing the variances at the optimum, using Louis' principle (1982)}
 #' 
 #' \code{option$type_int}{ type of Monte Carlo integration method to
 #'   use. Options are \describe{
@@ -272,6 +274,14 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
       option$MCnr <- 500
     }else{
       option$MCnr <- 0
+    }
+  }
+  
+  if(is.null(option$MCnr2)){
+    if(any(measurement.model$link.functions$links == "thresholds") || survival){
+      option$MCnr2 <- 5000
+    }else{
+      option$MCnr2 <- 0
     }
   }
   #if(is.null(option$type_int)){
@@ -578,7 +588,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
                         nD = nD, mapping.to.LP = mapping.to.LP, link = link, knots = knots, subject = subject, data = data, Time = Time, 
                         Survdata = Survdata, basehaz = basehaz, knots_surv = knots_surv, assoc = assoc, truncation = truncation, 
                         fixed.survival.models = fixed.survival.models, interactionY.survival.models = interactionY.survival.models,
-                        makepred = option$makepred, MCnr = option$MCnr, type_int = option$type_int, sequence = sequence, ind_seq_i = ind_seq_i, nmes = nmes, cholesky = cholesky,
+                        makepred = option$makepred, MCnr = option$MCnr, MCnr2 = option$MCnr2, type_int = option$type_int, sequence = sequence, ind_seq_i = ind_seq_i, nmes = nmes, cholesky = cholesky,
                         paras.ini= paras.ini, paraFixeUser = paraFixeUser, indexparaFixeUser = indexparaFixeUser,  
                         maxiter = maxiter, zitr = zitr, ide = ide0, univarmaxiter = univarmaxiter, nproc = nproc, epsa = epsa, epsb = epsb, epsd = epsd, 
                         print.info = print.info, TimeDiscretization = TimeDiscretization, Tentry = Tentry, Event = Event, StatusEvent = StatusEvent)

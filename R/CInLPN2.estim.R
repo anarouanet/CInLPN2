@@ -18,7 +18,7 @@
 #'
 #' @return CInLPN2 object
 
-CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesky = FALSE, DeltaT=1.0, MCnr = NULL, nmes = NULL, data_surv = NULL, paras, 
+CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesky = FALSE, DeltaT=1.0, MCnr = NULL, MCnr2=NULL, nmes = NULL, data_surv = NULL, paras, 
                          maxiter = 500, nproc = 1, epsa =0.0001, epsb = 0.0001,epsd= 0.001, print.info = FALSE){
   cl <- match.call()
   #  non parall Optimisation 
@@ -150,10 +150,9 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
     #                                   clustertype="FORK", ii=ii)
     #marqLevAlg::deriva
 
-    MCnr2=100000
-    if(paras$type_int == 1){
+    if(paras$type_int == 2){
       sequence  <- randtoolbox::sobol(n = MCnr2, dim = sum(data$q)+nD, scrambling = 1, normal = TRUE, init=T)
-    }else if(paras$type_int == 2){
+    }else if(paras$type_int == 1){
       sequence  <- randtoolbox::halton(n = MCnr2, dim = sum(data$q)+nD, normal = TRUE, init=T) 
     }else if(paras$type_int == 3){
       sequence  <- randtoolbox::torus(n = MCnr2, dim = sum(data$q)+nD, normal = TRUE, init=T) 

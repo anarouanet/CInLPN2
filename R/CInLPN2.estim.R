@@ -134,6 +134,17 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
 
   I1 <- matrix(0,length(paras$paraOpt),length(paras$paraOpt))
   I2 <- rep(0,length(paras$paraOpt))
+  
+  
+  if(paras$type_int == 2){
+    sequence  <- randtoolbox::sobol(n = MCnr2, dim = sum(data$q)+nD, scrambling = 1, normal = TRUE, init=T)
+  }else if(paras$type_int == 1){
+    sequence  <- randtoolbox::halton(n = MCnr2, dim = sum(data$q)+nD, normal = TRUE, init=T) 
+  }else if(paras$type_int == 3){
+    sequence  <- randtoolbox::torus(n = MCnr2, dim = sum(data$q)+nD, normal = TRUE, init=T) 
+  }
+  
+
   for(ii in 1:N){
     # temp_ii <- marqLevAlg::marqLevAlg(b = paras$paraOpt, fn = Loglik, nproc = nproc, .packages = NULL, epsa=epsa, epsb=epsb, epsd=epsd,
     #                                   maxiter=maxiter, print.info = print.info,  minimize = FALSE,
@@ -150,13 +161,7 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
     #                                   clustertype="FORK", ii=ii)
     #marqLevAlg::deriva
 
-    if(paras$type_int == 2){
-      sequence  <- randtoolbox::sobol(n = MCnr2, dim = sum(data$q)+nD, scrambling = 1, normal = TRUE, init=T)
-    }else if(paras$type_int == 1){
-      sequence  <- randtoolbox::halton(n = MCnr2, dim = sum(data$q)+nD, normal = TRUE, init=T) 
-    }else if(paras$type_int == 3){
-      sequence  <- randtoolbox::torus(n = MCnr2, dim = sum(data$q)+nD, normal = TRUE, init=T) 
-    }
+    
     
     test <- deriva(b = paras$paraOpt, funcpa = Loglik, nproc = 1, .packages = NULL, #epsa=epsa, epsb=epsb, epsd=epsd,
                        #maxiter=maxiter, print.info = print.info,  minimize = FALSE,

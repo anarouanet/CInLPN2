@@ -70,7 +70,7 @@ default value is NULL}}
 
 \code{option$epsc}{ threshold for the convergence criterion on the derivatives}
 
-\code{option$MCnr}{ number of replicates to compute the predictions in the real scales of the outcomes (backward transformation because of the link functions)}
+\code{option$MCnr}{ number of replicates (500 by default) to compute the predictions in the real scales of the outcomes (backward transformation because of the link functions)}
 
 \code{option$type_int}{ type of Monte Carlo integration method to
   use. Options are \describe{

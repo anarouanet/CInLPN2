@@ -513,7 +513,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   np_surv <- NULL
   intYsurv <- 0
   nYS <- rep(0,2)
-
+  
   if(nE>0){
     for(n in 1: nE){
       all.pred.fixed.survival.models <- list(strsplit(fixed.survival.models[n],"[+*]")[[1]])

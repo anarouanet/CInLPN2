@@ -269,7 +269,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
     option$makepred <- TRUE
   }
 
-  if(is.null(option$MCnr)){
+  if(is.null(option$MCnr)|| option$MCnr == 0){
     if(any(measurement.model$link.functions$links == "thresholds") || survival){
       option$MCnr <- 500
     }else{

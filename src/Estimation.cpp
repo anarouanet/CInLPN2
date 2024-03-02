@@ -171,7 +171,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
   
   int check=2;
   if(max(if_link) < 2 & MCnr>0)
-    check=3;
+    check=1;
       // check = 1 both QMC and closed likelihood for comparison of individual likelihood (type_int, MCnr must be defined!) 
       // check =  2 close likelihood if links = linear/splines, QMC if links = thresholds or if survival = T
       // check =  3 MC integration (even if links = linear/splines and survival = F)
@@ -380,7 +380,6 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
     vec K2_lambda_t = zeros<vec>(sum(k_i)); // which latent process linked to the observation in lambda
     int ind=0;
     //sum(k_i) number of observations for subject i
-    
     for(int j =0 ; j < Ytildi.n_rows; j++){
       for(int b = 0 ; b < Ytildi.n_cols; b++){
         if(!isnan(Ytildi(j,b))){
@@ -414,7 +413,6 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
         }
       }
     }
-    
     if(det(var_RE)<0){
       for(int j =0 ; j < var_RE.n_cols; j++){
         var_RE(j, j) += add_diag_varcov;
@@ -422,7 +420,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
     }
 
     mat chol_var_RE = chol(var_RE).t();
-    
+
     if(type_int == -1){// MC
       mat uii = chol_var_RE * randn< Mat<double> >(chol_var_RE.n_rows, MCnr);
       ui = uii.t();
@@ -438,7 +436,6 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
 
     bool aMC=true;
     
-
     bool chrono = false;
     std::chrono::duration<double> elapsed_L = steady_clock::duration::zero();
     std::chrono::duration<double> elapsed_S = steady_clock::duration::zero();
@@ -507,6 +504,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
         //   ui_r = ui.row(nr).t();
         // }
         //ui_r.fill(0);
+
         if(chrono)
           endL0 = std::chrono::system_clock::now();
         
@@ -562,12 +560,12 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
             //lvrais /= MCnr;
             
           }else if(type_int > 0){//QMC`
+            
             if(if_link(k)<2){// If linear or splines
               //vec Lambda_nr = matNui_ui(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi);
               //vec Ytildi_nu_i_ui = vectorise(Ytildi)-Lambda_nr;
               vec Ytildi_nu_i_uik = Ytildik-Lambda_nrk;
               out2 = -0.5*(nik*log(2*M_PI) + log(det(Sig_k)) + as_scalar(Ytildi_nu_i_uik.t()*inv_sympd(Sig_k)*Ytildi_nu_i_uik));
-
               if(printa==1&& nr<0){
                 cout <<" k :"<<k<< " nr "<<nr<< endl<<endl<<"lvraisr" << lvraisr<<" out2 "<<out2<< " nik "<<nik <<  " log(det(Sig_k)) "<<log(det(Sig_k))<< " scalar "<< as_scalar(Ytildi_nu_i_uik.t()*inv_sympd(Sig_k)*Ytildi_nu_i_uik) << " log_Jac_Phi "<<log_Jac_Phi<<endl;
                 cout <<  " ui_r " <<ui_r.t();

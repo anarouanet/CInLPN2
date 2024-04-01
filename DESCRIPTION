@@ -12,11 +12,11 @@ Description: Contains functions to fit a dynamic model for multiple latent proce
              The estimation is done in the maximum likelihood framework.
 License: GPL (>= 2)
 Imports: 
-    Rcpp (>= 0.11.0)
-Suggests:
+    Rcpp (>= 0.11.0),
     marqLevAlg, 
     MASS,
-    splines2 (>= 0.2.8)
+    splines2 (>= 0.2.8),
+    RcppArmadillo
 NeedsCompilation: yes
 LinkingTo: 
     Rcpp, 

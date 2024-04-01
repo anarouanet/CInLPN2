@@ -269,6 +269,12 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
     option$makepred <- TRUE
   }
 
+  survival= FALSE
+  if(!is.null(structural.model$fixed.survival)){
+    survival = TRUE
+    fixed.survival <- structural.model$fixed.survival
+  }
+  
   if(is.null(option$MCnr)|| option$MCnr == 0){
     if(any(measurement.model$link.functions$links == "thresholds") || survival){
       option$MCnr <- 500
@@ -321,11 +327,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
   randoms_DeltaX <- structural.model$random.DeltaLP
   mod_trans <- structural.model$trans.matrix
   DeltaT <- structural.model$delta.time
-  survival= FALSE
-  if(!is.null(structural.model$fixed.survival)){
-    survival = TRUE
-    fixed.survival <- structural.model$fixed.survival
-  }
+
   
   interactionY.survival <- NULL
   if(!is.null(structural.model$interactionY.survival)){

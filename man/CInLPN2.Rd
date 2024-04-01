@@ -140,7 +140,7 @@ e) the variances of the marker-specific measurement errors;
 
 f) the parameters of the transformation functions for markers 1,..., K;
 
-g) the parameters for the baseline hazard function for transition 1;
+g) the parameters $w_1$ and $w_2$ for the Weibull baseline hazard function for transition 1; The instantaneous baseline hazard function is written: a  b^a  t^a with a =w_1^2 and b =w_2^2
 
 h) the regression parameters in the survival model, not in interaction with dynamics of the latent process(es), for transition 1;
 

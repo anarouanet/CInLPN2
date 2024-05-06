@@ -136,11 +136,15 @@ bool compFun0(int i) {
 }
 
 
-double normalCDF(double value)
+double normalCDF2(double value)
 {
   return 0.5 * erfc(-value * M_SQRT1_2);
 }
 
+double normalCDF(double x) // Phi(-∞, x) aka N(x)
+{
+  return std::erfc(-x / std::sqrt(2)) / 2;
+}
 /*
  individual contribution to the log-likelihood
  Generate latent process for antithetic MC: \int f(Y|Lambda) f(Lambda) dLambda = 1/N sum^N/2 [f(Y|Lambda_n)+f(Y|\tilde{Lambda}_n)]
@@ -625,6 +629,12 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
                         phi1 = normalCDF(value);
                         value = (inf-Lambda_nrk(j))/abs(pow(Sig(k,k),0.5));//(ParaTransformYk(mm-1)-Lambda_nrk(j))/abs(Sig(k,k));
                         phi2 = normalCDF(value);
+                        
+                      //  cout << " Y "<<Ytildik(j)  << " zitr " <<zitr(2*k_t) + m+1
+                      //       << " sup "<< sup << " inf "<< inf
+                      //       << " value1 "<< (sup-Lambda_nrk(j))/abs(pow(Sig(k,k),0.5)) << " phi1 "
+                      //       << " value2 "<< (inf-Lambda_nrk(j))/abs(pow(Sig(k,k),0.5)) << " phi2 "<<phi2<<endl;
+                        
                         
                         if(printa)
                           cout << nr << " j "<< j<< " m "<<zitr(2*k_t) + m+1 << " inf "<< inf << " sup "<<sup<< " ui_r "<<ui_r.t()<<" value1 "<< (sup-Lambda_nrk(j))/abs(pow(Sig(k,k),0.5))
@@ -1224,6 +1234,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
                          t_0i, t_i, delta_i, xti1, xti2, xti1_intY, xti2_intY, basehaz, knots_surv, survival, param_surv, param_surv_intY, param_basehaz, assoc, truncation,
                          sequence, type_int, ind_seq_i, MCnr, n, nE, add_diag_varcov, q);      
       loglik += out1;
+      //std::cout << " n" <<n<< " logliki "<< out1<<endl;
     }
 
      

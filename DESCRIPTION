@@ -27,3 +27,6 @@ RoxygenNote: 7.1.2
 LazyData: true
 URL: https://github.com/anarouanet/CInLPN2
 Encoding: UTF-8
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

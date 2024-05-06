@@ -48,7 +48,7 @@ the temporal influences between latent processes.}
 \item{measurement.model}{is a list of arguments detailed below used to specify the measurement model: 
 
 \code{measurement.model$link}{ indicates the link functions to be used to transform the outcomes. 
-It takes values in "linear" for a linear transformation and "n-type-d" for a I-splines transformation 
+It takes values in "linear" for a linear transformation, "thresholds" for thresholds model and "n-type-d" for a I-splines transformation 
 where "n" indicates the number of nodes, "type" (which takes values in "quant", "manual", "equi") indicates 
 where the nodes are placed, and "d" indicates the degree of the I-splines.}
 

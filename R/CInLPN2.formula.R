@@ -447,6 +447,11 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
       assocT <- "r.intercept/slope"
       assoc <- 2 # random intercept and slope
     }
+    
+    if(assoc <= 2){
+      message(" add interactions ui * X in survival model")
+      
+    }
     if(!is.null(option$truncation)){
       truncation <- option$truncation
     }

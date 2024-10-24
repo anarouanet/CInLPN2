@@ -147,7 +147,7 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
     I2 <- rep(0,length(paras$paraOpt))
     
     if(nproc>1){
-      clustpar <- parallel::makeCluster(nproc, type="FORK")#, outfile="")
+      clustpar <- parallel::makeCluster(nproc, type="MPI")#, outfile="")
       doParallel::registerDoParallel(clustpar)    
       
       

@@ -150,8 +150,6 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
       clustpar <- parallel::makeCluster(nproc, type="FORK")#, outfile="")
       doParallel::registerDoParallel(clustpar)    
       
-      browser()
-      
       ll <- foreach(ii=1:N,
                     .combine=cbind) %dopar%
         {

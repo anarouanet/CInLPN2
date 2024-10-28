@@ -147,7 +147,7 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
     I2 <- rep(0,length(paras$paraOpt))
     
     if(nproc>1){
-      clustpar <- parallel::makeCluster(nproc, type="MPI")#, outfile="")
+      clustpar <- parallel::makeCluster(nproc, type="FORK")#, outfile="")
       doParallel::registerDoParallel(clustpar)    
       
       
@@ -179,8 +179,7 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
         I1 <- I1 + ll[,ii]%*%t(ll[,ii])
         I2 <- I2 + ll[,ii]
       }
-      
-      
+
     }else{
       for(ii in 1:N){
         # temp_ii <- marqLevAlg::marqLevAlg(b = paras$paraOpt, fn = Loglik, nproc = nproc, .packages = NULL, epsa=epsa, epsb=epsb, epsd=epsd,

@@ -48,8 +48,8 @@
 #' @return double 
 #' @export
 #' 
-Loglik <- function(K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, cholesky, data_surv, data_surv_intY, nYsurv, basehaz, knots_surv, np_surv, survival, assoc, truncation, nE, Xsurv1, Xsurv2, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT, ii) {
-    .Call(`_CInLPN2_Loglik`, K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, cholesky, data_surv, data_surv_intY, nYsurv, basehaz, knots_surv, np_surv, survival, assoc, truncation, nE, Xsurv1, Xsurv2, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT, ii)
+Loglik <- function(K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, cholesky, data_surv, data_surv_intY, nYsurv, basehaz, knots_surv, np_surv, survival, assoc, truncation, nE, Xsurv1, Xsurv2, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT, ii, pred = FALSE) {
+    .Call(`_CInLPN2_Loglik`, K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, cholesky, data_surv, data_surv_intY, nYsurv, basehaz, knots_surv, np_surv, survival, assoc, truncation, nE, Xsurv1, Xsurv2, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT, ii, pred)
 }
 
 #' Function that computes the predictions (marginal and subject-specific) for individuals
@@ -84,8 +84,8 @@ Loglik <- function(K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence,
 #' @return a matrix
 #' @export
 #' 
-pred <- function(K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, cholesky, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred) {
-    .Call(`_CInLPN2_pred`, K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, cholesky, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred)
+pred <- function(K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, cholesky, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred, ui_hat) {
+    .Call(`_CInLPN2_pred`, K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, cholesky, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred, ui_hat)
 }
 
 #' gammaX vector of linear predictors for 1 and 2 transitions (including association on random effects if assoc <=2)
@@ -298,8 +298,8 @@ f_Yi_r_NA_by0 <- function(Yi) {
     .Call(`_CInLPN2_f_Yi_r_NA_by0`, Yi)
 }
 
-#' Function that computes the difference (mat_Yi - mat_Nu_i), delates missing values (NAs) and 
-#' returns a vector. mat_Yi is the outcomes and mat_Nu_i is the expectation
+#' Function that computes the difference (mat_Yi - mat_Nu_i), deletes missing values (NAs) and 
+#' returns a vector. mat_Yi is the outcome and mat_Nu_i is the expectation
 #'  
 #' @param nD an integer indicating the number of processes
 #' @param matrixP a matrix that matches markers to latent processes

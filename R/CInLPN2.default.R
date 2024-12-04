@@ -185,6 +185,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
   #   # fitted value and correlation matrix
   #   m <- length(data$tau)
   res$fitted.values <- NULL
+
   if(makepred & res$conv==1){
     ptm2 <- proc.time() 
     cat("Computation of the predictions for the observed marker(s) \n")
@@ -313,20 +314,26 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
 
         
         if(assoc==0){
-          name_assoc <- "r.inter"
+          name_assoc0 <- "r.inter"
         }else if(assoc==1){
-          name_assoc <- "r.slope"
+          name_assoc0 <- "r.slope"
         }else if(assoc==2){
-          name_assoc <- c("r.inter", "r.slope")
+          name_assoc0 <- c("r.inter", "r.slope")
         }else if(assoc==3){
-          name_assoc <- "c.value"
+          name_assoc0 <- "c.value"
         }else if(assoc==4){
-          name_assoc <- "c.slope"
+          name_assoc0 <- "c.slope"
         }else if(assoc==5){
-          name_assoc <- c("c.value", "c.slope")
+          name_assoc0 <- c("c.value", "c.slope")
         }
-        if(nD>1)
-          name_assoc <- paste(name_assoc, 1:nD,sep=".")
+        name_assoc <- c()
+        for(d in 1:length(name_assoc0)){
+          for(dd in 1:nD)
+            name_assoc <- c(name_assoc, paste(name_assoc0[d], ij,dd,sep="."))
+          
+        }
+        
+        
         param_survie <- c(param_survie, name_assoc)
         
         if(!is.null(interactionY.survival.models)){

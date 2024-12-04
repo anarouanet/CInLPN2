@@ -60,7 +60,7 @@ arma::mat predi(int K, int nD, arma::mat matrixP, int m_i, arma::vec tau, arma::
 
   //==============================================================================================================
   // ###### Compute of marginal and conditional distribution of transformed onservations ########
-  // ##### here X define the netweork of latent processes
+  // ##### here X define the network of latent processes
   //==============================================================================================================
 
   // marginal distribution  : Expectation (Nu_Ytild_i) and variance-covariance matrix (matVYtild_iFull)
@@ -137,7 +137,7 @@ arma::mat predi(int K, int nD, arma::mat matrixP, int m_i, arma::vec tau, arma::
 
   //====================================================================================================================
   // Conditional distribution  Ytild_i : Expectation (Nu_YtildCond_i) and variance-covariance matrix Sig_i
-  // In case that K = D, then P = Id_K (identity matrix
+  // In case that K = D, then P = Id_K (identity matrix)
 
 
   mat VYtild_i = zeros(m,m);
@@ -179,7 +179,7 @@ arma::mat predi(int K, int nD, arma::mat matrixP, int m_i, arma::vec tau, arma::
     mat_Xi_hat.row(t) = Xi_hat(span(t*nD,((t+1)*nD-1))).t();
   }
   mat mat_Nu_YtildCond_i = mat_Xi_hat*matrixP.t();
-  pred_SSYtildFull = mat_Nu_YtildCond_i; // subject-specific pedictions in transformed scale
+  pred_SSYtildFull = mat_Nu_YtildCond_i; // subject-specific predictions in transformed scale
 
   vec Nu_YtildCond_i = vectorise(mat_Nu_YtildCond_i);
 
@@ -334,6 +334,7 @@ arma::mat predi(int K, int nD, arma::mat matrixP, int m_i, arma::vec tau, arma::
 }
 
 
+
 //==============================================================================================================================
 /* ******************************************************
 Predictions for overall individuals
@@ -376,7 +377,7 @@ arma::mat pred(int K, int nD, arma::vec& mapping, arma::vec& paras, arma::vec& m
                arma::mat& Mod_MatrixY, arma::vec df, arma::mat& x, arma::mat& z, arma::vec& q, bool cholesky,
                int nb_paraD, arma::mat& x0, arma::mat& z0, arma::vec& q0, arma::vec if_link, arma::vec tau,
                arma::vec& tau_is, arma::mat& modA_mat, double DeltaT, int MCnr, arma::vec minY, arma::vec maxY,
-               List& knots, arma::vec degree, double epsPred){
+               List& knots, arma::vec degree, double epsPred, arma::mat& ui_hat){
 
   // appel de fonctions externe R
   Rcpp::Environment base("package:CInLPN2");
@@ -501,7 +502,7 @@ arma::mat pred(int K, int nD, arma::vec& mapping, arma::vec& paras, arma::vec& m
                 x(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_x-1))), z(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_z-1))),
                 alpha_mu0, alpha_mu, matDw, matDw_u, matDu, Sig, G_mat_A_0_to_tau_i, G_mat_prod_A_0_to_tau, DeltaT,
                 GrilleY, GrilleYtild, ParaTransformY, if_link, df, minY, maxY, knots, degree, MCnr, epsPred);
-
+    
     p += m_is[n];
   }
   

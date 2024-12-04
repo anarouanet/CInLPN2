@@ -202,7 +202,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
                        randoms_DeltaX.models, mod_trans.model, link = NULL, knots = NULL, zitr = NULL, ide = NULL, 
                        outcomes, nD, Time, Survdata = NULL, basehaz = NULL, fixed.survival.models = NULL, 
                        interactionY.survival.models = NULL, DeltaT, assoc, truncation){
-  
+
   cl <- match.call()
   colnames<-colnames(data)
   id_and_Time <- data[,c(subject,Time)]
@@ -355,7 +355,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   colnames(x0) <- colnames[-c(1)]
   #   x0 <- as.matrix(x0)
   
-  
+
   ##only for x #####
   x <- NULL
   nb_x_n <- NULL

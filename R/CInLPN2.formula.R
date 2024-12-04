@@ -288,11 +288,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
   }
   
   if(is.null(option$MCnr2)){
-    if(any(measurement.model$link.functions$links == "thresholds") || survival){
-      option$MCnr2 <- 5000
-    }else{
       option$MCnr2 <- 0
-    }
   }
   #if(is.null(option$type_int)){
   #  option$type_int <- "montecarlo"
@@ -337,7 +333,7 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
   if(!is.null(structural.model$interactionY.survival)){
     interactionY.survival <- structural.model$interactionY.survival
   }
-  
+
   # components of measurement model
   link <- measurement.model$link.functions$links
   knots <- measurement.model$link.functions$knots
@@ -612,6 +608,8 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
   
   if(!is.null(sequence))
      est$sequence <- sequence
+  if(!is.null(Survdata))
+    est$Survdata <- Survdata
   
   p.time <- proc.time() - ptm
   cat("The program took:", p.time[1], "\n")

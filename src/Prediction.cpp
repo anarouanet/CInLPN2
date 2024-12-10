@@ -109,12 +109,13 @@ arma::mat predi(int K, int nD, arma::mat matrixP, int m_i, arma::vec tau, arma::
 
       VYtild_iFull(span(p_Yj,(p_Yj+K-1)), span((p_Yk), (p_Yk+K-1)))  = matrixP*matVX_i(span(p_Xj,(p_Xj+nD-1)), span((p_Xk), (p_Xk+nD-1)))*matrixP.t();
 
+      
       VXYtild_iFull(span(p_Xj,(p_Xj+nD-1)), span((p_Yk), (p_Yk+K-1))) = matVX_i(span(p_Xj,(p_Xj+nD-1)), span((p_Xk), (p_Xk+nD-1)))*matrixP.t();
 
       // ###### VY_i is a symetric matrix; so we fill lower triangular matri by transpose the upper triangular part #########
       if(k != j){
         matVX_i(span(p_Xk, (p_Xk+nD-1)), span(p_Xj,(p_Xj+nD-1))) = matVX_i(span(p_Xj,(p_Xj+nD-1)), span(p_Xk, (p_Xk+nD-1))).t();
-        VYtild_iFull(span(p_Yk,(p_Yk+K-1)), span((p_Yj), (p_Yj+K-1))) = VYtild_iFull(span(p_Yj,(p_Yj+K-1)), span((p_Yk), (p_Yk+K-1)));
+        VYtild_iFull(span(p_Yk,(p_Yk+K-1)), span((p_Yj), (p_Yj+K-1))) = VYtild_iFull(span(p_Yj,(p_Yj+K-1)), span((p_Yk), (p_Yk+K-1))).t();
       }
 
       p_Xk += nD; // incrementing p_k
@@ -377,12 +378,11 @@ arma::mat pred(int K, int nD, arma::vec& mapping, arma::vec& paras, arma::vec& m
                arma::mat& Mod_MatrixY, arma::vec df, arma::mat& x, arma::mat& z, arma::vec& q, bool cholesky,
                int nb_paraD, arma::mat& x0, arma::mat& z0, arma::vec& q0, arma::vec if_link, arma::vec tau,
                arma::vec& tau_is, arma::mat& modA_mat, double DeltaT, int MCnr, arma::vec minY, arma::vec maxY,
-               List& knots, arma::vec degree, double epsPred, arma::mat& ui_hat){
+               List& knots, arma::vec degree, double epsPred){//, arma::mat& ui_hat
 
   // appel de fonctions externe R
   Rcpp::Environment base("package:CInLPN2");
   Rcpp::Function f = base["f_trSpline"];
-
 
   //printf("Begining of predictions n \n");
   mat pred_Y = zeros(sum(m_is),7*K);
@@ -502,9 +502,9 @@ arma::mat pred(int K, int nD, arma::vec& mapping, arma::vec& paras, arma::vec& m
                 x(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_x-1))), z(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_z-1))),
                 alpha_mu0, alpha_mu, matDw, matDw_u, matDu, Sig, G_mat_A_0_to_tau_i, G_mat_prod_A_0_to_tau, DeltaT,
                 GrilleY, GrilleYtild, ParaTransformY, if_link, df, minY, maxY, knots, degree, MCnr, epsPred);
-    
+
     p += m_is[n];
   }
-  
+
   return(pred_Y);
 }

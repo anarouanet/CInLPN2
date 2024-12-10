@@ -606,6 +606,8 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
                       mod_trans.model = mod_trans.model, TimeDiscretization=TimeDiscretization)
   est$mapping.to.LP <- mapping.to.LP
   
+  est$zitr <- zitr
+  
   if(!is.null(sequence))
      est$sequence <- sequence
   if(!is.null(Survdata))

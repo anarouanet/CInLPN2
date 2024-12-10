@@ -12,8 +12,8 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // Loglik
-double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& paraFixe, arma::vec& posfix, arma::vec& paras_k, arma::mat& sequence, int type_int, arma::vec& ind_seq_i, int MCnr, arma::vec& nmes, arma::vec& m_is, arma::mat& Mod_MatrixY, arma::mat& Mod_MatrixYprim, arma::vec& df, arma::mat& x, arma::mat& z, arma::vec& q, int nb_paraD, arma::mat& x0, arma::mat& z0, arma::vec& q0, bool cholesky, arma::mat& data_surv, arma::mat& data_surv_intY, arma::vec& nYsurv, int basehaz, arma::vec& knots_surv, arma::vec& np_surv, bool survival, int assoc, bool truncation, int nE, arma::mat& Xsurv1, arma::mat& Xsurv2, arma::vec& if_link, arma::vec& zitr, arma::vec& ide, arma::vec& tau, arma::vec& tau_is, arma::mat& modA_mat, double DeltaT, int ii, bool pred);
-RcppExport SEXP _CInLPN2_Loglik(SEXP KSEXP, SEXP nDSEXP, SEXP mappingSEXP, SEXP paraOptSEXP, SEXP paraFixeSEXP, SEXP posfixSEXP, SEXP paras_kSEXP, SEXP sequenceSEXP, SEXP type_intSEXP, SEXP ind_seq_iSEXP, SEXP MCnrSEXP, SEXP nmesSEXP, SEXP m_isSEXP, SEXP Mod_MatrixYSEXP, SEXP Mod_MatrixYprimSEXP, SEXP dfSEXP, SEXP xSEXP, SEXP zSEXP, SEXP qSEXP, SEXP nb_paraDSEXP, SEXP x0SEXP, SEXP z0SEXP, SEXP q0SEXP, SEXP choleskySEXP, SEXP data_survSEXP, SEXP data_surv_intYSEXP, SEXP nYsurvSEXP, SEXP basehazSEXP, SEXP knots_survSEXP, SEXP np_survSEXP, SEXP survivalSEXP, SEXP assocSEXP, SEXP truncationSEXP, SEXP nESEXP, SEXP Xsurv1SEXP, SEXP Xsurv2SEXP, SEXP if_linkSEXP, SEXP zitrSEXP, SEXP ideSEXP, SEXP tauSEXP, SEXP tau_isSEXP, SEXP modA_matSEXP, SEXP DeltaTSEXP, SEXP iiSEXP, SEXP predSEXP) {
+double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& paraFixe, arma::vec& posfix, arma::vec& paras_k, arma::mat& sequence, int type_int, arma::vec& ind_seq_i, int MCnr, arma::vec& nmes, arma::vec& m_is, arma::mat& Mod_MatrixY, arma::mat& Mod_MatrixYprim, arma::vec& df, arma::mat& x, arma::mat& z, arma::vec& q, int nb_paraD, arma::mat& x0, arma::mat& z0, arma::vec& q0, bool cholesky, arma::mat& data_surv, arma::mat& data_surv_intY, arma::vec& nYsurv, int basehaz, arma::vec& knots_surv, arma::vec& np_surv, bool survival, int assoc, bool truncation, int nE, arma::mat& Xsurv1, arma::mat& Xsurv2, arma::vec& if_link, arma::vec& zitr, arma::vec& ide, arma::vec& tau, arma::vec& tau_is, arma::mat& modA_mat, double DeltaT, int ii);
+RcppExport SEXP _CInLPN2_Loglik(SEXP KSEXP, SEXP nDSEXP, SEXP mappingSEXP, SEXP paraOptSEXP, SEXP paraFixeSEXP, SEXP posfixSEXP, SEXP paras_kSEXP, SEXP sequenceSEXP, SEXP type_intSEXP, SEXP ind_seq_iSEXP, SEXP MCnrSEXP, SEXP nmesSEXP, SEXP m_isSEXP, SEXP Mod_MatrixYSEXP, SEXP Mod_MatrixYprimSEXP, SEXP dfSEXP, SEXP xSEXP, SEXP zSEXP, SEXP qSEXP, SEXP nb_paraDSEXP, SEXP x0SEXP, SEXP z0SEXP, SEXP q0SEXP, SEXP choleskySEXP, SEXP data_survSEXP, SEXP data_surv_intYSEXP, SEXP nYsurvSEXP, SEXP basehazSEXP, SEXP knots_survSEXP, SEXP np_survSEXP, SEXP survivalSEXP, SEXP assocSEXP, SEXP truncationSEXP, SEXP nESEXP, SEXP Xsurv1SEXP, SEXP Xsurv2SEXP, SEXP if_linkSEXP, SEXP zitrSEXP, SEXP ideSEXP, SEXP tauSEXP, SEXP tau_isSEXP, SEXP modA_matSEXP, SEXP DeltaTSEXP, SEXP iiSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -61,14 +61,68 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat& >::type modA_mat(modA_matSEXP);
     Rcpp::traits::input_parameter< double >::type DeltaT(DeltaTSEXP);
     Rcpp::traits::input_parameter< int >::type ii(iiSEXP);
-    Rcpp::traits::input_parameter< bool >::type pred(predSEXP);
-    rcpp_result_gen = Rcpp::wrap(Loglik(K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, cholesky, data_surv, data_surv_intY, nYsurv, basehaz, knots_surv, np_surv, survival, assoc, truncation, nE, Xsurv1, Xsurv2, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT, ii, pred));
+    rcpp_result_gen = Rcpp::wrap(Loglik(K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, cholesky, data_surv, data_surv_intY, nYsurv, basehaz, knots_surv, np_surv, survival, assoc, truncation, nE, Xsurv1, Xsurv2, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT, ii));
+    return rcpp_result_gen;
+END_RCPP
+}
+// Loglik2
+double Loglik2(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& paraFixe, arma::vec& posfix, arma::vec& paras_k, arma::mat& sequence, int type_int, arma::vec& ind_seq_i, int MCnr, arma::vec& nmes, arma::vec& m_is, arma::mat& Mod_MatrixY, arma::mat& Mod_MatrixYprim, arma::vec& df, arma::mat& x, arma::mat& z, arma::vec& q, int nb_paraD, arma::mat& x0, arma::mat& z0, arma::vec& q0, bool cholesky, arma::mat& data_surv, arma::mat& data_surv_intY, arma::vec& nYsurv, int basehaz, arma::vec& knots_surv, arma::vec& np_surv, bool survival, int assoc, bool truncation, int nE, arma::mat& Xsurv1, arma::mat& Xsurv2, arma::vec& if_link, arma::vec& zitr, arma::vec& ide, arma::vec& tau, arma::vec& tau_is, arma::mat& modA_mat, double DeltaT, int ii, arma::vec& ui);
+RcppExport SEXP _CInLPN2_Loglik2(SEXP KSEXP, SEXP nDSEXP, SEXP mappingSEXP, SEXP paraOptSEXP, SEXP paraFixeSEXP, SEXP posfixSEXP, SEXP paras_kSEXP, SEXP sequenceSEXP, SEXP type_intSEXP, SEXP ind_seq_iSEXP, SEXP MCnrSEXP, SEXP nmesSEXP, SEXP m_isSEXP, SEXP Mod_MatrixYSEXP, SEXP Mod_MatrixYprimSEXP, SEXP dfSEXP, SEXP xSEXP, SEXP zSEXP, SEXP qSEXP, SEXP nb_paraDSEXP, SEXP x0SEXP, SEXP z0SEXP, SEXP q0SEXP, SEXP choleskySEXP, SEXP data_survSEXP, SEXP data_surv_intYSEXP, SEXP nYsurvSEXP, SEXP basehazSEXP, SEXP knots_survSEXP, SEXP np_survSEXP, SEXP survivalSEXP, SEXP assocSEXP, SEXP truncationSEXP, SEXP nESEXP, SEXP Xsurv1SEXP, SEXP Xsurv2SEXP, SEXP if_linkSEXP, SEXP zitrSEXP, SEXP ideSEXP, SEXP tauSEXP, SEXP tau_isSEXP, SEXP modA_matSEXP, SEXP DeltaTSEXP, SEXP iiSEXP, SEXP uiSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type K(KSEXP);
+    Rcpp::traits::input_parameter< int >::type nD(nDSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type mapping(mappingSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type paraOpt(paraOptSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type paraFixe(paraFixeSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type posfix(posfixSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type paras_k(paras_kSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type sequence(sequenceSEXP);
+    Rcpp::traits::input_parameter< int >::type type_int(type_intSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type ind_seq_i(ind_seq_iSEXP);
+    Rcpp::traits::input_parameter< int >::type MCnr(MCnrSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type nmes(nmesSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type m_is(m_isSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Mod_MatrixY(Mod_MatrixYSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Mod_MatrixYprim(Mod_MatrixYprimSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type df(dfSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type z(zSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type q(qSEXP);
+    Rcpp::traits::input_parameter< int >::type nb_paraD(nb_paraDSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type x0(x0SEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type z0(z0SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type q0(q0SEXP);
+    Rcpp::traits::input_parameter< bool >::type cholesky(choleskySEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type data_surv(data_survSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type data_surv_intY(data_surv_intYSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type nYsurv(nYsurvSEXP);
+    Rcpp::traits::input_parameter< int >::type basehaz(basehazSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type knots_surv(knots_survSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type np_surv(np_survSEXP);
+    Rcpp::traits::input_parameter< bool >::type survival(survivalSEXP);
+    Rcpp::traits::input_parameter< int >::type assoc(assocSEXP);
+    Rcpp::traits::input_parameter< bool >::type truncation(truncationSEXP);
+    Rcpp::traits::input_parameter< int >::type nE(nESEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Xsurv1(Xsurv1SEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Xsurv2(Xsurv2SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type if_link(if_linkSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type zitr(zitrSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type ide(ideSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type tau_is(tau_isSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type modA_mat(modA_matSEXP);
+    Rcpp::traits::input_parameter< double >::type DeltaT(DeltaTSEXP);
+    Rcpp::traits::input_parameter< int >::type ii(iiSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type ui(uiSEXP);
+    rcpp_result_gen = Rcpp::wrap(Loglik2(K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, cholesky, data_surv, data_surv_intY, nYsurv, basehaz, knots_surv, np_surv, survival, assoc, truncation, nE, Xsurv1, Xsurv2, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT, ii, ui));
     return rcpp_result_gen;
 END_RCPP
 }
 // pred
-arma::mat pred(int K, int nD, arma::vec& mapping, arma::vec& paras, arma::vec& m_is, arma::mat& Mod_MatrixY, arma::vec df, arma::mat& x, arma::mat& z, arma::vec& q, bool cholesky, int nb_paraD, arma::mat& x0, arma::mat& z0, arma::vec& q0, arma::vec if_link, arma::vec tau, arma::vec& tau_is, arma::mat& modA_mat, double DeltaT, int MCnr, arma::vec minY, arma::vec maxY, List& knots, arma::vec degree, double epsPred, arma::mat& ui_hat);
-RcppExport SEXP _CInLPN2_pred(SEXP KSEXP, SEXP nDSEXP, SEXP mappingSEXP, SEXP parasSEXP, SEXP m_isSEXP, SEXP Mod_MatrixYSEXP, SEXP dfSEXP, SEXP xSEXP, SEXP zSEXP, SEXP qSEXP, SEXP choleskySEXP, SEXP nb_paraDSEXP, SEXP x0SEXP, SEXP z0SEXP, SEXP q0SEXP, SEXP if_linkSEXP, SEXP tauSEXP, SEXP tau_isSEXP, SEXP modA_matSEXP, SEXP DeltaTSEXP, SEXP MCnrSEXP, SEXP minYSEXP, SEXP maxYSEXP, SEXP knotsSEXP, SEXP degreeSEXP, SEXP epsPredSEXP, SEXP ui_hatSEXP) {
+arma::mat pred(int K, int nD, arma::vec& mapping, arma::vec& paras, arma::vec& m_is, arma::mat& Mod_MatrixY, arma::vec df, arma::mat& x, arma::mat& z, arma::vec& q, bool cholesky, int nb_paraD, arma::mat& x0, arma::mat& z0, arma::vec& q0, arma::vec if_link, arma::vec tau, arma::vec& tau_is, arma::mat& modA_mat, double DeltaT, int MCnr, arma::vec minY, arma::vec maxY, List& knots, arma::vec degree, double epsPred);
+RcppExport SEXP _CInLPN2_pred(SEXP KSEXP, SEXP nDSEXP, SEXP mappingSEXP, SEXP parasSEXP, SEXP m_isSEXP, SEXP Mod_MatrixYSEXP, SEXP dfSEXP, SEXP xSEXP, SEXP zSEXP, SEXP qSEXP, SEXP choleskySEXP, SEXP nb_paraDSEXP, SEXP x0SEXP, SEXP z0SEXP, SEXP q0SEXP, SEXP if_linkSEXP, SEXP tauSEXP, SEXP tau_isSEXP, SEXP modA_matSEXP, SEXP DeltaTSEXP, SEXP MCnrSEXP, SEXP minYSEXP, SEXP maxYSEXP, SEXP knotsSEXP, SEXP degreeSEXP, SEXP epsPredSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -98,8 +152,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< List& >::type knots(knotsSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type degree(degreeSEXP);
     Rcpp::traits::input_parameter< double >::type epsPred(epsPredSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type ui_hat(ui_hatSEXP);
-    rcpp_result_gen = Rcpp::wrap(pred(K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, cholesky, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred, ui_hat));
+    rcpp_result_gen = Rcpp::wrap(pred(K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, cholesky, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -367,8 +420,9 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_CInLPN2_Loglik", (DL_FUNC) &_CInLPN2_Loglik, 45},
-    {"_CInLPN2_pred", (DL_FUNC) &_CInLPN2_pred, 27},
+    {"_CInLPN2_Loglik", (DL_FUNC) &_CInLPN2_Loglik, 44},
+    {"_CInLPN2_Loglik2", (DL_FUNC) &_CInLPN2_Loglik2, 45},
+    {"_CInLPN2_pred", (DL_FUNC) &_CInLPN2_pred, 26},
     {"_CInLPN2_vectorise", (DL_FUNC) &_CInLPN2_vectorise, 1},
     {"_CInLPN2_KmatDiag", (DL_FUNC) &_CInLPN2_KmatDiag, 1},
     {"_CInLPN2_DparChol", (DL_FUNC) &_CInLPN2_DparChol, 2},

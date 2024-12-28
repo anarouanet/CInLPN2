@@ -60,6 +60,9 @@ Loglik2 <- function(K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence
 }
 
 #' Function that computes the predictions (marginal and subject-specific) for individuals
+NULL
+
+#' Function that computes the predictions (marginal and subject-specific) for individuals
 #'  
 #' @param K an integer indicating the number of markers
 #' @param nD an integer indicating the number of latent processes
@@ -86,14 +89,20 @@ Loglik2 <- function(K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence
 #' @param maxY a vector of maxima of outcomes
 #' @param knots indicates position of knots used to transform outcomes
 #' @param degree indicates degree of the basis of splines
-#' @param epsPred convergence criteria for prediction using MC method
-#' 
+#' @param epsPred convergence criteria for prediction using MC method//' 
 #' @return a matrix
 #' @export
 #' 
-pred <- function(K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, cholesky, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred) {
-    .Call(`_CInLPN2_pred`, K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, cholesky, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred)
+pred <- function(K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, cholesky, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred, ui_hat, nE = 0L) {
+    .Call(`_CInLPN2_pred`, K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, cholesky, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred, ui_hat, nE)
 }
+
+pred0 <- function(K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred) {
+    .Call(`_CInLPN2_pred0`, K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred)
+}
+
+#'  Function that constructs the matrix matYtild_ui (Lambda_i|ui), the expectation of the processes at time t_j given ui
+NULL
 
 #' gammaX vector of linear predictors for 1 and 2 transitions (including association on random effects if assoc <=2)
 #' surv Computation of survival funtion (1) or risk function (0)
@@ -292,6 +301,10 @@ YiwoNA <- function(Yi) {
 #' 
 matNui <- function(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i) {
     .Call(`_CInLPN2_matNui`, nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i)
+}
+
+matYtild_ui <- function(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, ui, vi) {
+    .Call(`_CInLPN2_matYtild_ui`, nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, ui, vi)
 }
 
 #' Function that replaces NAs by 0.0 just for computatinal need

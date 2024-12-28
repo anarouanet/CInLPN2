@@ -249,11 +249,10 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
     #                  nb_paraDw= data$nb_paraDw, tau = data$tau, tau_is=data$tau_is))    
   }
 
-  
   pred=TRUE
   ui=rep(0,sum(data$q)+sum(data$q0))
-  if(pred & (data$nE>0 || any(if_link==2))){
-    
+  #if(pred & (data$nE>0 || any(if_link==2))){
+    if(pred ){
     # temp <- Loglik2(K = K, nD = nD, mapping =  mapping.to.LP, paraOpt = paras$paraOpt,  paraFixe = paras$paraFixe, posfix = paras$posfix, paras_k = paras$npara_k,
     #                sequence = as.matrix(paras$sequence), type_int = paras$type_int, ind_seq_i = paras$ind_seq_i, MCnr = MCnr, nmes = nmes,
     #                m_is = data$m_i, Mod_MatrixY = data$Mod.MatrixY, Mod_MatrixYprim = data$Mod.MatrixYprim, df=data$df,
@@ -266,11 +265,12 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
     #                tau = data$tau, tau_is=data$tau_is, 
     #                modA_mat = data$modA_mat, DeltaT, ii=length(data$m_i)+10, ui=ui)
     
-    ui_hat <- matrix(NA,N,sum(data$q)+sum(data$q0))
+    ui_hat <- matrix(NA,length(data$m_i),sum(data$q)+sum(data$q0))
     maxiter=100
-    for(i in 1:N){
+    for(i in 1:length(data$m_i)){
+      cat("i: ",i,"\n")
       optim_ui<- try(marqLevAlg::marqLevAlg(b = ui, paraOpt = paras$paraOpt, fn = Loglik2, nproc = nproc, .packages = NULL, epsa=epsa, epsb=epsb, epsd=epsd,
-                                         maxiter=maxiter, print.info = print.info,  minimize = FALSE,
+                                         maxiter=maxiter, print.info = F,  minimize = FALSE,
                                          DeltaT=DeltaT, paraFixe = paras$paraFixe, posfix = paras$posfix,
                                          paras_k = paras$npara_k, 
                                          sequence = as.matrix(paras$sequence), type_int = paras$type_int, ind_seq_i = paras$ind_seq_i,  MCnr = MCnr, nmes = nmes,
@@ -278,11 +278,12 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
                                          Mod_MatrixY = data$Mod.MatrixY, Mod_MatrixYprim = data$Mod.MatrixYprim, df=data$df,
                                          x = data$x, z = data$z, q = data$q, nb_paraD = data$nb_paraD,
                                          x0 = data$x0, z0 = data$z0, q0 = data$q0, cholesky = cholesky, tau = data$tau, tau_is=data$tau_is,
-                                         modA_mat = data$modA_mat, data_surv = as.matrix(data_surv), data_surv_intY = as.matrix(data$intYsurv), nYsurv = data$nYsurv, basehaz = ifelse(paras$basehaz=="Weibull", 0, 1), knots_surv = paras$knots_surv, 
+                                         modA_mat = data$modA_mat, data_surv = as.matrix(data_surv), data_surv_intY = as.matrix(data$intYsurv), 
+                                         nYsurv = data$nYsurv, basehaz = ifelse(paras$basehaz=="Weibull", 0, 1), knots_surv = paras$knots_surv, 
                                          np_surv = paras$np_surv, survival = (data$nE>0), assoc =  paras$assoc, truncation = paras$truncation, 
                                          nE = data$nE, Xsurv1 = as.matrix(data$Xsurv1), Xsurv2 = as.matrix(data$Xsurv2), 
                                          clustertype="FORK", ii=i)
-                  ,silent = FALSE)
+                  ,silent = T)
       ui_hat[i,] <- optim_ui$b
     }
     est$ui_hat <- ui_hat
@@ -303,6 +304,5 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
   }else{
     est$LouisV <- NULL
   }
-  est$ui_hat <- ui_hat
   est
 }

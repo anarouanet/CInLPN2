@@ -467,6 +467,53 @@ arma::mat matNui(int nD, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arma::
   return (matNu_i);
 }
 
+//===========================================================================================
+//'  Function that constructs the matrix matYtild_ui (Lambda_i|ui), the expectation of the processes at time t_j given ui
+ //'  
+ //' @param nD an integer indicating the number of processes
+ //' @param tau_i vector of integers indicating times 
+ //' @param DeltaT double that indicates the discretization step
+ //' @param x0i model.matrix for baseline's submodel
+ //' @param xi model.matrix for change's submodel
+ //' @param alpha_mu0 a vector of parameters associated to the model.matrix for the baseline's submodel
+ //' @param alpha_mu a vector of parameters associated to the model.matrix for the change's submodel
+ //' @param G_mat_A_0_to_tau_i matrix containing  Prod(A_t)t=0,tau_i where A_t is the transition
+ //' matrix containing at time t
+ //' @param zi model.matrix for change's submodel random effects
+ //' @param ui matrix containing the random intercepts on the baseline level
+ //' @param vi matrix containing the random intercepts on the change model
+ //' 
+ //' @return a matrix
+ //' @export
+ //' 
+ // [[Rcpp::export]]
+ arma::mat matYtild_ui(int nD, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arma::colvec& alpha_mu0,
+                  arma::mat& xi, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::mat& zi, arma::colvec& ui, arma::colvec& vi){
+   // matNu_i : matrix of size xi.n_rows*nD containing expectation of processes
+   int n_cols_xi = xi.n_cols;
+   int n_cols_zi = zi.n_cols;
+   
+   int mi=tau_i.size(); // number of observations
+   int T = max(tau_i)+1;
+   mat matNu_i = zeros(mi,nD);
+   mat Mu_t = zeros(nD,1);
+   int i = 0;
+   for(int t=0; t< T; t++){
+     if(t==0){
+       Mu_t = x0i*alpha_mu0 + ui;
+     }
+     else{
+       Mu_t = DeltaT*(xi(span(t*nD,(t+1)*nD-1), span(0,n_cols_xi-1))*alpha_mu + zi(span(t*nD,(t+1)*nD-1), span(0,n_cols_zi-1))*vi)
+       + G_mat_A_0_to_tau_i(span(0,nD-1),span(nD*(t-1),nD*(t-1)+nD-1))*Mu_t;
+     }
+     if(t ==(int)tau_i(i)){
+       matNu_i(span(i,i), span(0,nD-1)) = Mu_t.t();
+       i++;
+     }
+   }
+   return (matNu_i);
+ }
+
 /* ***********************************
 Function f_Yi_r_NA_by0
 Description:

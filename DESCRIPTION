@@ -19,7 +19,8 @@ Imports:
     RcppArmadillo,
     survival, 
     randtoolbox,
-    doParallel
+    doParallel,
+    foreach
 NeedsCompilation: yes
 LinkingTo: 
     Rcpp, 

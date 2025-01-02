@@ -30,7 +30,9 @@ pred(
   maxY,
   knots,
   degree,
-  epsPred
+  epsPred,
+  ui_hat,
+  nE = 0L
 )
 }
 \arguments{
@@ -83,7 +85,7 @@ outcomes and latents processes}
 
 \item{degree}{indicates degree of the basis of splines}
 
-\item{epsPred}{convergence criteria for prediction using MC method}
+\item{epsPred}{convergence criteria for prediction using MC method//'}
 }
 \value{
 a matrix

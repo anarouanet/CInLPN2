@@ -21,13 +21,13 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
                       data, outcomes, df, nE = 0, np_surv = 0, fixed.survival.models = NULL, 
                       interactionY.survival.models = NULL, nYsurv = 0){
   cl <- match.call()
-
+  
   #   require(MASS)
   #initialisation des parametres
   # L = number of parameters for each coefficient a of matrix A
   # K = number of outcomes
   #======================================================================================
-
+  
   nb_paraD = nb_RE*(nb_RE+1)/2
   indexparaFixeForIden <- NULL
   # if user not specified initial parameters
@@ -53,7 +53,7 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
     alpha_mu <-rep(.3,n_col_x)
     p <- p+n_col_x
     cpt1 <- cpt1 + n_col_x
-
+    
     alpha_D <-rep(.1,nb_paraD)
     to_nrow <- nb_RE
     i_alpha_D <- 0
@@ -85,13 +85,13 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
     for(k in 1:K){
       if(link[k]=='thresholds'){
         ParaTransformY <- c (ParaTransformY, c(2*qunif(0.98)*(-median(data[,outcomes[k]]) + min(data[,outcomes[k]]) +1)/(length(unique(data[,outcomes[k]]))-2),
-        rep(sqrt(2*qunif(0.98)/(length(unique(data[,outcomes[k]]))-2)), length(unique(data[,outcomes[k]]))-2)))
+                                               rep(sqrt(2*qunif(0.98)/(length(unique(data[,outcomes[k]]))-2)), length(unique(data[,outcomes[k]]))-2)))
         #ParaTransformY <- c(min(data[,outcomes[k]]), rep(1, length(unique(data[,outcomes[k]]))-2))
       }else{
         ParaTransformY <- c(ParaTransformY, rep(1, ncolMod.MatrixY))
       }
     }
-
+    
     cpt1 <- cpt1 + ncolMod.MatrixY
     p <- p + ncolMod.MatrixY
     
@@ -113,7 +113,7 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
         cov_survexpanded <- paste(names(Survdatalong)[(dim0+1):dim(Survdatalong)[2]],collapse='+')
         form <- as.formula(paste("Surv(time, status) ~ ",cov_survexpanded, "+ factor(trans)+ strata(trans)", sep=""))
         mod_surv <- survreg(form, data = Survdatalong, dist="weibull")
-
+        
         #   1/(survreg's scale)  =    rweibull shape a
         #   exp(survreg's intercept) = rweibull scale b
         # (a/b) (x/b)^(a-1) shape a, scale b
@@ -121,7 +121,7 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
         n1 <- 1+np_surv[1]-1+ifelse(assoc%in%c(0, 1, 3, 4),1,2)*nD
         para_surv <- c(mod_surv$coefficients[2:(1+np_surv[1]-1)], rep(0, ifelse(assoc%in%c(0, 1, 3, 4),1,2)*nD), 
                        mod_surv$coefficients[(n1):(n1-1+np_surv[1]-1)], rep(0, ifelse(assoc%in%c(0, 1, 3, 4),1,2)*nD))
-
+        
       }else if (nE==1){
         
         form <- as.formula(paste("Surv(Event, StatusEvent) ~ ",cov_surv, sep=""))
@@ -132,12 +132,12 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
       p <- p + length(para_basehaz) + length(para_surv)
       np_baz <- length(para_basehaz)/nE
     }
-
+    
     if(!is.null(interactionY.survival.models)){
       browser()
     }
   }
-
+  
   # if user specified initial parameters
   if(!is.null(paras.ini)){
     p <- 0 # position in the initialize parameters
@@ -162,7 +162,7 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
     to_nrow <- nb_RE
     i_alpha_D <- 0
     index_paraFixeDconstraint <- NULL
-
+    
     for(n in 1:nD){
       #if(link[n] != "thresholds")
       #alpha_D[i_alpha_D+1] <- 1
@@ -188,15 +188,15 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
     paraSig <- paras.ini[(p+1):(p + K)]
     p <- p + K
     cpt1 <- cpt1 + K
-
+    
     ### para of link function
     ParaTransformY <- paras.ini[(p+1):(p + ncolMod.MatrixY)]
     i_para <- 0
-     for(k in 1:K){
-       if(link[k]=="linear" & ParaTransformY[i_para+2]==0){
-         stop('Second parameter for linear link function cannot be set at 0 (variance)')
-       }
-       i_para <- i_para + npara_k[k]
+    for(k in 1:K){
+      if(link[k]=="linear" & ParaTransformY[i_para+2]==0){
+        stop('Second parameter for linear link function cannot be set at 0 (variance)')
+      }
+      i_para <- i_para + npara_k[k]
     }
     
     cpt1 <- cpt1 + ncolMod.MatrixY
@@ -214,12 +214,12 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
       #   np_surv <- dim(Survdata)[2]-3 + ifelse(assoc%in%c(0, 1, 3, 4),1,2)
       # }
       np_baz <- ifelse(basehaz=="Weibull",2, 0)# changer 0!!
-
+      
       for (jj in 1:nE){
         para_basehaz <- c(para_basehaz, paras.ini[(p+1) : (p + np_baz)])  
         p <- p + np_baz  # change here?
-      #}
-      #for (jj in 1:nE){
+        #}
+        #for (jj in 1:nE){
         para_surv <- c(para_surv, paras.ini[(p + 1 ) : (p + np_surv[jj])]) 
         p <- p + np_surv[jj] # change here?
       }
@@ -231,7 +231,7 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
     #if(length(paras.ini) != (p + sum(df)))
     #  stop("The length of paras.ini is not correct.")
   }
-
+  
   #final vector of initial parameters
   paras <- c(alpha_mu0, alpha_mu, alpha_D, vec_alpha_ij,  paraB, paraSig, ParaTransformY)
   t1 <- 0
@@ -245,7 +245,7 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
       t2 <- t2 + np_surv[jj]
     }
   }
-
+  
   # if(nE>0){
   #   for(jj in 1:nE){
   #     paras <- c(paras, para_basehaz[(t1+1) : (t1 + np_baz)]) # change 0!!
@@ -257,7 +257,7 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
   #     t2 <- t2 + np_surv[jj]
   #   }
   # }
-
+  
   if(!is.null(paras.ini)){
     if(length(paras) != p || length(paras.ini) != p ){
       message("The length of paras.ini is not correct.")
@@ -268,13 +268,13 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
     if(length(paras) != p )
       stop("The length of paras.ini is not correct.")
   }
-
+  
   #initialisation
   #   paraOpt <- paras
   posfix <- rep(0,length(paras)) # 0 = non fixe 1 = fixe # initialisation
   # constraining of parameters==============
   indexFixe <- indexparaFixeForIden
-
+  
   if(!is.null(indexparaFixeUser)){
     if(length(indexparaFixeUser) != length(paraFixeUser)){
       stop("The length of paraFixe does not correspond with the length of indexparaFixe")
@@ -350,7 +350,7 @@ f_paras.ini <- function(data, outcomes, mapped.to.LP, fixed_X0.models, fixed_Del
   para.Sig <- NULL
   ParaTransformY <- NULL
   paras.ini <- list()
-
+  
   fixed.survival <- NULL
   if(!is.null(fixed.survival.models)){
     fixed.survival <- paste("~", fixed.survival.models[1], sep="")
@@ -371,7 +371,7 @@ f_paras.ini <- function(data, outcomes, mapped.to.LP, fixed_X0.models, fixed_Del
     indexparaFixeUser <- c(1,(n_col_x0_k+n_col_x_k+1))
     paraFixeUser <- c(0,1)  #intercept latent process = 0
     #link_k <- ifelse(link[k]=="thresholds", "linear",link[k])
-
+    
     structural.model <- list(fixed.LP0 = fixed_X0,
                              fixed.DeltaLP = fixed_DeltaX,
                              random.DeltaLP = mod_randoms_DeltaX, 
@@ -384,13 +384,13 @@ f_paras.ini <- function(data, outcomes, mapped.to.LP, fixed_X0.models, fixed_Del
     
     option = list(nproc = nproc, print.info = print.info, maxiter = maxiter, MCnr = MCnr, type_int = type_int,
                   basehaz = basehaz, assocT = assocT, truncation = truncation)
-
-    mod <- DynNet:::DynNet(structural.model = structural.model, measurement.model = measurement.model, parameters = parameters,
-                               option = option, Time = Time, subject = subject, data = data, links = links[k], 
-                               Tentry = Tentry, Event = Event, StatusEvent = StatusEvent, TimeDiscretization = TimeDiscretization)
-
+    
+    mod <- DynNet(structural.model = structural.model, measurement.model = measurement.model, parameters = parameters,
+                  option = option, Time = Time, subject = subject, data = data, links = links[k], 
+                  Tentry = Tentry, Event = Event, StatusEvent = StatusEvent, TimeDiscretization = TimeDiscretization)
+    
     L <- ncol(mod$modA_mat) 
-
+    
     ## compute number of parameter per component
     coefficients <- as.vector(mod$coefficients)
     i1 <- 0
@@ -406,7 +406,7 @@ f_paras.ini <- function(data, outcomes, mapped.to.LP, fixed_X0.models, fixed_Del
     
     #eta_k =(H(k)+H(k+1))/2
     
-
+    
     if(k==1){
       para.trans <- c(para.trans, coefficients[(i1+1):(i1+L)])
     }
@@ -420,13 +420,13 @@ f_paras.ini <- function(data, outcomes, mapped.to.LP, fixed_X0.models, fixed_Del
     
     
     ParaTransformY <- c(ParaTransformY,  coefficients[(i1+1):(i1+mod$length_para_trY)])
-
+    
     i1 <- i1+mod$length_para_trY
   }
   para.RE <- rep(0.1, (nb_RE*(nb_RE+1)/2))
-
+  
   paras.ini <- c(para.fixed_X0, para.fixed_DeltaX, para.RE, para.trans, para.Sig, ParaTransformY) 
-
+  
   
   #Survival sub model
   if(!is.null(Survdata)){
@@ -436,10 +436,10 @@ f_paras.ini <- function(data, outcomes, mapped.to.LP, fixed_X0.models, fixed_Del
       mod_S <- survreg(Surv(Event, StatusEvent, type='left') ~ 1,
                        data=Survdata, dist='weibull')
       cat("check: type= left is left truncation? add type_surv + X_surv.")
-      }else{
-        cat("ToDo survreg with splines")
-      }
-
+    }else{
+      cat("ToDo survreg with splines")
+    }
+    
     paras.ini <- c(paras.ini, mod_S$coefficients)
   }
   return(paras.ini)

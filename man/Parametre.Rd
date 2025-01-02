@@ -2,7 +2,7 @@
 % Please edit documentation in R/Parametre.R
 \name{Parametre}
 \alias{Parametre}
-\title{Function to initialize parameters k in multivariate CInLPN2 model}
+\title{Function to initialize parameters k in multivariate DynNet model}
 \usage{
 Parametre(
   K,
@@ -60,5 +60,5 @@ Parametre(
 a list
 }
 \description{
-Function to initialize parameters k in multivariate CInLPN2 model
+Function to initialize parameters k in multivariate DynNet model
 }

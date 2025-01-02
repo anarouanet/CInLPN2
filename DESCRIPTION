@@ -26,7 +26,7 @@ LinkingTo:
     RcppArmadillo
 Depends: 
     R (>= 3.4.3)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.3.2
 LazyData: true
 URL: https://github.com/anarouanet/DynNet
 Encoding: UTF-8

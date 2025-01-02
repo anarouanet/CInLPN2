@@ -2,8 +2,8 @@
 % Please edit documentation in R/RcppExports.R
 \name{YiNui}
 \alias{YiNui}
-\title{Function that computes the difference (mat_Yi - mat_Nu_i), delates missing values (NAs) and 
-returns a vector. mat_Yi is the outcomes and mat_Nu_i is the expectation}
+\title{Function that computes the difference (mat_Yi - mat_Nu_i), deletes missing values (NAs) and 
+returns a vector. mat_Yi is the outcome and mat_Nu_i is the expectation}
 \usage{
 YiNui(
   nD,
@@ -47,6 +47,6 @@ matric containing at time t}
 a vector
 }
 \description{
-Function that computes the difference (mat_Yi - mat_Nu_i), delates missing values (NAs) and 
-returns a vector. mat_Yi is the outcomes and mat_Nu_i is the expectation
+Function that computes the difference (mat_Yi - mat_Nu_i), deletes missing values (NAs) and 
+returns a vector. mat_Yi is the outcome and mat_Nu_i is the expectation
 }

@@ -129,13 +129,11 @@ outcomes and latents processes}
 
 \item{modA_mat_predGK_t}{design matrix for computing predictions of Y on [0;ti] in Gauss Konrod for all subject}
 
-\item{ii}{Number of the subject, for computation of individual contribution to the likelihood}
+\item{modA_mat_predGK_t0}{design matrix for computing predictions of Y on [0;t0i] in Gauss Konrod for all subject}
 
-%\item{modA_mat_predGK_t0}{design matrix for computing predictions of Y on [0;t0i] in Gauss Konrod for all subject}
+\item{pt_GK_t}{Gauss-Konrod nodes for integration on [0;ti] for all subject}
 
-%\item{pt_GK_t}{Gauss-Konrod nodes for integration on [0;ti] for all subject}
-
-%\item{pt_GK_t0}{Gauss-Konrod nodes for integration on [0;t0i] for all subject}
+\item{pt_GK_t0}{Gauss-Konrod nodes for integration on [0;t0i] for all subject}
 }
 \value{
 double

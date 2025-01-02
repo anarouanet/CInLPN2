@@ -42,7 +42,8 @@
 #'
 #' @return DynNet object
 #' 
-#' @import survival splines2
+#' @importFrom splines2 iSpline
+#' @importFrom survival Surv
 #' 
 DynNet.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.models, randoms_DeltaX.models, mod_trans.model, 
                            DeltaT, outcomes, nD, mapping.to.LP, link, knots=NULL, subject, data, Time, 

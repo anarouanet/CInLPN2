@@ -25,7 +25,7 @@ is_na_vec <- function(vec){
 #'
 #' @return a list
 #' 
-#' @import splines2
+#' @importFrom splines2 iSpline
 
 f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
   

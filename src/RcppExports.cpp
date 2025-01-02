@@ -13,7 +13,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 
 // Loglik
 double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& paraFixe, arma::vec& posfix, arma::vec& paras_k, arma::mat& sequence, int type_int, arma::vec& ind_seq_i, int MCnr, arma::vec& nmes, arma::vec& m_is, arma::mat& Mod_MatrixY, arma::mat& Mod_MatrixYprim, arma::vec& df, arma::mat& x, arma::mat& z, arma::vec& q, int nb_paraD, arma::mat& x0, arma::mat& z0, arma::vec& q0, bool cholesky, arma::mat& data_surv, arma::mat& data_surv_intY, arma::vec& nYsurv, int basehaz, arma::vec& knots_surv, arma::vec& np_surv, bool survival, int assoc, bool truncation, int nE, arma::mat& Xsurv1, arma::mat& Xsurv2, arma::vec& if_link, arma::vec& zitr, arma::vec& ide, arma::vec& tau, arma::vec& tau_is, arma::mat& modA_mat, double DeltaT, int ii);
-RcppExport SEXP _CInLPN2_Loglik(SEXP KSEXP, SEXP nDSEXP, SEXP mappingSEXP, SEXP paraOptSEXP, SEXP paraFixeSEXP, SEXP posfixSEXP, SEXP paras_kSEXP, SEXP sequenceSEXP, SEXP type_intSEXP, SEXP ind_seq_iSEXP, SEXP MCnrSEXP, SEXP nmesSEXP, SEXP m_isSEXP, SEXP Mod_MatrixYSEXP, SEXP Mod_MatrixYprimSEXP, SEXP dfSEXP, SEXP xSEXP, SEXP zSEXP, SEXP qSEXP, SEXP nb_paraDSEXP, SEXP x0SEXP, SEXP z0SEXP, SEXP q0SEXP, SEXP choleskySEXP, SEXP data_survSEXP, SEXP data_surv_intYSEXP, SEXP nYsurvSEXP, SEXP basehazSEXP, SEXP knots_survSEXP, SEXP np_survSEXP, SEXP survivalSEXP, SEXP assocSEXP, SEXP truncationSEXP, SEXP nESEXP, SEXP Xsurv1SEXP, SEXP Xsurv2SEXP, SEXP if_linkSEXP, SEXP zitrSEXP, SEXP ideSEXP, SEXP tauSEXP, SEXP tau_isSEXP, SEXP modA_matSEXP, SEXP DeltaTSEXP, SEXP iiSEXP) {
+RcppExport SEXP _DynNet_Loglik(SEXP KSEXP, SEXP nDSEXP, SEXP mappingSEXP, SEXP paraOptSEXP, SEXP paraFixeSEXP, SEXP posfixSEXP, SEXP paras_kSEXP, SEXP sequenceSEXP, SEXP type_intSEXP, SEXP ind_seq_iSEXP, SEXP MCnrSEXP, SEXP nmesSEXP, SEXP m_isSEXP, SEXP Mod_MatrixYSEXP, SEXP Mod_MatrixYprimSEXP, SEXP dfSEXP, SEXP xSEXP, SEXP zSEXP, SEXP qSEXP, SEXP nb_paraDSEXP, SEXP x0SEXP, SEXP z0SEXP, SEXP q0SEXP, SEXP choleskySEXP, SEXP data_survSEXP, SEXP data_surv_intYSEXP, SEXP nYsurvSEXP, SEXP basehazSEXP, SEXP knots_survSEXP, SEXP np_survSEXP, SEXP survivalSEXP, SEXP assocSEXP, SEXP truncationSEXP, SEXP nESEXP, SEXP Xsurv1SEXP, SEXP Xsurv2SEXP, SEXP if_linkSEXP, SEXP zitrSEXP, SEXP ideSEXP, SEXP tauSEXP, SEXP tau_isSEXP, SEXP modA_matSEXP, SEXP DeltaTSEXP, SEXP iiSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -67,7 +67,7 @@ END_RCPP
 }
 // Loglik2
 double Loglik2(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& paraFixe, arma::vec& posfix, arma::vec& paras_k, arma::mat& sequence, int type_int, arma::vec& ind_seq_i, int MCnr, arma::vec& nmes, arma::vec& m_is, arma::mat& Mod_MatrixY, arma::mat& Mod_MatrixYprim, arma::vec& df, arma::mat& x, arma::mat& z, arma::vec& q, int nb_paraD, arma::mat& x0, arma::mat& z0, arma::vec& q0, bool cholesky, arma::mat& data_surv, arma::mat& data_surv_intY, arma::vec& nYsurv, int basehaz, arma::vec& knots_surv, arma::vec& np_surv, bool survival, int assoc, bool truncation, int nE, arma::mat& Xsurv1, arma::mat& Xsurv2, arma::vec& if_link, arma::vec& zitr, arma::vec& ide, arma::vec& tau, arma::vec& tau_is, arma::mat& modA_mat, double DeltaT, int ii, arma::vec& ui);
-RcppExport SEXP _CInLPN2_Loglik2(SEXP KSEXP, SEXP nDSEXP, SEXP mappingSEXP, SEXP paraOptSEXP, SEXP paraFixeSEXP, SEXP posfixSEXP, SEXP paras_kSEXP, SEXP sequenceSEXP, SEXP type_intSEXP, SEXP ind_seq_iSEXP, SEXP MCnrSEXP, SEXP nmesSEXP, SEXP m_isSEXP, SEXP Mod_MatrixYSEXP, SEXP Mod_MatrixYprimSEXP, SEXP dfSEXP, SEXP xSEXP, SEXP zSEXP, SEXP qSEXP, SEXP nb_paraDSEXP, SEXP x0SEXP, SEXP z0SEXP, SEXP q0SEXP, SEXP choleskySEXP, SEXP data_survSEXP, SEXP data_surv_intYSEXP, SEXP nYsurvSEXP, SEXP basehazSEXP, SEXP knots_survSEXP, SEXP np_survSEXP, SEXP survivalSEXP, SEXP assocSEXP, SEXP truncationSEXP, SEXP nESEXP, SEXP Xsurv1SEXP, SEXP Xsurv2SEXP, SEXP if_linkSEXP, SEXP zitrSEXP, SEXP ideSEXP, SEXP tauSEXP, SEXP tau_isSEXP, SEXP modA_matSEXP, SEXP DeltaTSEXP, SEXP iiSEXP, SEXP uiSEXP) {
+RcppExport SEXP _DynNet_Loglik2(SEXP KSEXP, SEXP nDSEXP, SEXP mappingSEXP, SEXP paraOptSEXP, SEXP paraFixeSEXP, SEXP posfixSEXP, SEXP paras_kSEXP, SEXP sequenceSEXP, SEXP type_intSEXP, SEXP ind_seq_iSEXP, SEXP MCnrSEXP, SEXP nmesSEXP, SEXP m_isSEXP, SEXP Mod_MatrixYSEXP, SEXP Mod_MatrixYprimSEXP, SEXP dfSEXP, SEXP xSEXP, SEXP zSEXP, SEXP qSEXP, SEXP nb_paraDSEXP, SEXP x0SEXP, SEXP z0SEXP, SEXP q0SEXP, SEXP choleskySEXP, SEXP data_survSEXP, SEXP data_surv_intYSEXP, SEXP nYsurvSEXP, SEXP basehazSEXP, SEXP knots_survSEXP, SEXP np_survSEXP, SEXP survivalSEXP, SEXP assocSEXP, SEXP truncationSEXP, SEXP nESEXP, SEXP Xsurv1SEXP, SEXP Xsurv2SEXP, SEXP if_linkSEXP, SEXP zitrSEXP, SEXP ideSEXP, SEXP tauSEXP, SEXP tau_isSEXP, SEXP modA_matSEXP, SEXP DeltaTSEXP, SEXP iiSEXP, SEXP uiSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -122,7 +122,7 @@ END_RCPP
 }
 // pred
 arma::mat pred(int K, int nD, arma::vec& mapping, arma::vec& paras, arma::vec& m_is, arma::mat& Mod_MatrixY, arma::vec df, arma::mat& x, arma::mat& z, arma::vec& q, bool cholesky, int nb_paraD, arma::mat& x0, arma::mat& z0, arma::vec& q0, arma::vec if_link, arma::vec tau, arma::vec& tau_is, arma::mat& modA_mat, double DeltaT, int MCnr, arma::vec minY, arma::vec maxY, List& knots, arma::vec degree, double epsPred, arma::mat& ui_hat, int nE);
-RcppExport SEXP _CInLPN2_pred(SEXP KSEXP, SEXP nDSEXP, SEXP mappingSEXP, SEXP parasSEXP, SEXP m_isSEXP, SEXP Mod_MatrixYSEXP, SEXP dfSEXP, SEXP xSEXP, SEXP zSEXP, SEXP qSEXP, SEXP choleskySEXP, SEXP nb_paraDSEXP, SEXP x0SEXP, SEXP z0SEXP, SEXP q0SEXP, SEXP if_linkSEXP, SEXP tauSEXP, SEXP tau_isSEXP, SEXP modA_matSEXP, SEXP DeltaTSEXP, SEXP MCnrSEXP, SEXP minYSEXP, SEXP maxYSEXP, SEXP knotsSEXP, SEXP degreeSEXP, SEXP epsPredSEXP, SEXP ui_hatSEXP, SEXP nESEXP) {
+RcppExport SEXP _DynNet_pred(SEXP KSEXP, SEXP nDSEXP, SEXP mappingSEXP, SEXP parasSEXP, SEXP m_isSEXP, SEXP Mod_MatrixYSEXP, SEXP dfSEXP, SEXP xSEXP, SEXP zSEXP, SEXP qSEXP, SEXP choleskySEXP, SEXP nb_paraDSEXP, SEXP x0SEXP, SEXP z0SEXP, SEXP q0SEXP, SEXP if_linkSEXP, SEXP tauSEXP, SEXP tau_isSEXP, SEXP modA_matSEXP, SEXP DeltaTSEXP, SEXP MCnrSEXP, SEXP minYSEXP, SEXP maxYSEXP, SEXP knotsSEXP, SEXP degreeSEXP, SEXP epsPredSEXP, SEXP ui_hatSEXP, SEXP nESEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -160,7 +160,7 @@ END_RCPP
 }
 // pred0
 arma::mat pred0(int K, int nD, arma::vec& mapping, arma::vec& paras, arma::vec& m_is, arma::mat& Mod_MatrixY, arma::vec df, arma::mat& x, arma::mat& z, arma::vec& q, int nb_paraD, arma::mat& x0, arma::mat& z0, arma::vec& q0, arma::vec if_link, arma::vec tau, arma::vec& tau_is, arma::mat& modA_mat, double DeltaT, int MCnr, arma::vec minY, arma::vec maxY, List& knots, arma::vec degree, double epsPred);
-RcppExport SEXP _CInLPN2_pred0(SEXP KSEXP, SEXP nDSEXP, SEXP mappingSEXP, SEXP parasSEXP, SEXP m_isSEXP, SEXP Mod_MatrixYSEXP, SEXP dfSEXP, SEXP xSEXP, SEXP zSEXP, SEXP qSEXP, SEXP nb_paraDSEXP, SEXP x0SEXP, SEXP z0SEXP, SEXP q0SEXP, SEXP if_linkSEXP, SEXP tauSEXP, SEXP tau_isSEXP, SEXP modA_matSEXP, SEXP DeltaTSEXP, SEXP MCnrSEXP, SEXP minYSEXP, SEXP maxYSEXP, SEXP knotsSEXP, SEXP degreeSEXP, SEXP epsPredSEXP) {
+RcppExport SEXP _DynNet_pred0(SEXP KSEXP, SEXP nDSEXP, SEXP mappingSEXP, SEXP parasSEXP, SEXP m_isSEXP, SEXP Mod_MatrixYSEXP, SEXP dfSEXP, SEXP xSEXP, SEXP zSEXP, SEXP qSEXP, SEXP nb_paraDSEXP, SEXP x0SEXP, SEXP z0SEXP, SEXP q0SEXP, SEXP if_linkSEXP, SEXP tauSEXP, SEXP tau_isSEXP, SEXP modA_matSEXP, SEXP DeltaTSEXP, SEXP MCnrSEXP, SEXP minYSEXP, SEXP maxYSEXP, SEXP knotsSEXP, SEXP degreeSEXP, SEXP epsPredSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -195,7 +195,7 @@ END_RCPP
 }
 // vectorise
 arma::vec vectorise(arma::mat& M);
-RcppExport SEXP _CInLPN2_vectorise(SEXP MSEXP) {
+RcppExport SEXP _DynNet_vectorise(SEXP MSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -206,7 +206,7 @@ END_RCPP
 }
 // KmatDiag
 arma::mat KmatDiag(arma::vec& Kvector);
-RcppExport SEXP _CInLPN2_KmatDiag(SEXP KvectorSEXP) {
+RcppExport SEXP _DynNet_KmatDiag(SEXP KvectorSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -217,7 +217,7 @@ END_RCPP
 }
 // DparChol
 arma::mat DparChol(int q, arma::vec& qvector);
-RcppExport SEXP _CInLPN2_DparChol(SEXP qSEXP, SEXP qvectorSEXP) {
+RcppExport SEXP _DynNet_DparChol(SEXP qSEXP, SEXP qvectorSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -229,7 +229,7 @@ END_RCPP
 }
 // vecaijt
 arma::vec vecaijt(int K, int t, arma::vec& vec_alpha_ij, arma::mat& modA_mat);
-RcppExport SEXP _CInLPN2_vecaijt(SEXP KSEXP, SEXP tSEXP, SEXP vec_alpha_ijSEXP, SEXP modA_matSEXP) {
+RcppExport SEXP _DynNet_vecaijt(SEXP KSEXP, SEXP tSEXP, SEXP vec_alpha_ijSEXP, SEXP modA_matSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -243,7 +243,7 @@ END_RCPP
 }
 // ConstrA
 arma::mat ConstrA(int K, int t, double DeltaT, arma::vec& vec_alpha_ij, arma::mat& modA_mat);
-RcppExport SEXP _CInLPN2_ConstrA(SEXP KSEXP, SEXP tSEXP, SEXP DeltaTSEXP, SEXP vec_alpha_ijSEXP, SEXP modA_matSEXP) {
+RcppExport SEXP _DynNet_ConstrA(SEXP KSEXP, SEXP tSEXP, SEXP DeltaTSEXP, SEXP vec_alpha_ijSEXP, SEXP modA_matSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -258,7 +258,7 @@ END_RCPP
 }
 // GmatA0totaui
 arma::mat GmatA0totaui(int K, arma::vec& vec_alpha_ij, arma::vec& tau_i, double DeltaT, arma::mat modA_mat);
-RcppExport SEXP _CInLPN2_GmatA0totaui(SEXP KSEXP, SEXP vec_alpha_ijSEXP, SEXP tau_iSEXP, SEXP DeltaTSEXP, SEXP modA_matSEXP) {
+RcppExport SEXP _DynNet_GmatA0totaui(SEXP KSEXP, SEXP vec_alpha_ijSEXP, SEXP tau_iSEXP, SEXP DeltaTSEXP, SEXP modA_matSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -273,7 +273,7 @@ END_RCPP
 }
 // ProdA
 arma::mat ProdA(int K, int t2, int t1, double DeltaT, arma::vec& vec_alpha_ij, arma::mat& modA_mat);
-RcppExport SEXP _CInLPN2_ProdA(SEXP KSEXP, SEXP t2SEXP, SEXP t1SEXP, SEXP DeltaTSEXP, SEXP vec_alpha_ijSEXP, SEXP modA_matSEXP) {
+RcppExport SEXP _DynNet_ProdA(SEXP KSEXP, SEXP t2SEXP, SEXP t1SEXP, SEXP DeltaTSEXP, SEXP vec_alpha_ijSEXP, SEXP modA_matSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -289,7 +289,7 @@ END_RCPP
 }
 // GmatprodAstotau
 arma::mat GmatprodAstotau(int K, arma::vec& vec_alpha_ij, arma::vec& tau, int t_ini, double DeltaT, arma::mat modA_mat);
-RcppExport SEXP _CInLPN2_GmatprodAstotau(SEXP KSEXP, SEXP vec_alpha_ijSEXP, SEXP tauSEXP, SEXP t_iniSEXP, SEXP DeltaTSEXP, SEXP modA_matSEXP) {
+RcppExport SEXP _DynNet_GmatprodAstotau(SEXP KSEXP, SEXP vec_alpha_ijSEXP, SEXP tauSEXP, SEXP t_iniSEXP, SEXP DeltaTSEXP, SEXP modA_matSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -305,7 +305,7 @@ END_RCPP
 }
 // tsGmatprodA0totau
 arma::mat tsGmatprodA0totau(int K, arma::vec& vec_alpha_ij, arma::vec& tau, double DeltaT, arma::mat modA_mat);
-RcppExport SEXP _CInLPN2_tsGmatprodA0totau(SEXP KSEXP, SEXP vec_alpha_ijSEXP, SEXP tauSEXP, SEXP DeltaTSEXP, SEXP modA_matSEXP) {
+RcppExport SEXP _DynNet_tsGmatprodA0totau(SEXP KSEXP, SEXP vec_alpha_ijSEXP, SEXP tauSEXP, SEXP DeltaTSEXP, SEXP modA_matSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -320,7 +320,7 @@ END_RCPP
 }
 // compoYiNA
 arma::vec compoYiNA(arma::mat& Yi);
-RcppExport SEXP _CInLPN2_compoYiNA(SEXP YiSEXP) {
+RcppExport SEXP _DynNet_compoYiNA(SEXP YiSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -331,7 +331,7 @@ END_RCPP
 }
 // YiwoNA
 arma::vec YiwoNA(arma::vec Yi);
-RcppExport SEXP _CInLPN2_YiwoNA(SEXP YiSEXP) {
+RcppExport SEXP _DynNet_YiwoNA(SEXP YiSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -342,7 +342,7 @@ END_RCPP
 }
 // matNui
 arma::mat matNui(int nD, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arma::colvec& alpha_mu0, arma::mat& xi, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i);
-RcppExport SEXP _CInLPN2_matNui(SEXP nDSEXP, SEXP tau_iSEXP, SEXP DeltaTSEXP, SEXP x0iSEXP, SEXP alpha_mu0SEXP, SEXP xiSEXP, SEXP alpha_muSEXP, SEXP G_mat_A_0_to_tau_iSEXP) {
+RcppExport SEXP _DynNet_matNui(SEXP nDSEXP, SEXP tau_iSEXP, SEXP DeltaTSEXP, SEXP x0iSEXP, SEXP alpha_mu0SEXP, SEXP xiSEXP, SEXP alpha_muSEXP, SEXP G_mat_A_0_to_tau_iSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -360,7 +360,7 @@ END_RCPP
 }
 // matYtild_ui
 arma::mat matYtild_ui(int nD, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arma::colvec& alpha_mu0, arma::mat& xi, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::mat& zi, arma::colvec& ui, arma::colvec& vi);
-RcppExport SEXP _CInLPN2_matYtild_ui(SEXP nDSEXP, SEXP tau_iSEXP, SEXP DeltaTSEXP, SEXP x0iSEXP, SEXP alpha_mu0SEXP, SEXP xiSEXP, SEXP alpha_muSEXP, SEXP G_mat_A_0_to_tau_iSEXP, SEXP ziSEXP, SEXP uiSEXP, SEXP viSEXP) {
+RcppExport SEXP _DynNet_matYtild_ui(SEXP nDSEXP, SEXP tau_iSEXP, SEXP DeltaTSEXP, SEXP x0iSEXP, SEXP alpha_mu0SEXP, SEXP xiSEXP, SEXP alpha_muSEXP, SEXP G_mat_A_0_to_tau_iSEXP, SEXP ziSEXP, SEXP uiSEXP, SEXP viSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -381,7 +381,7 @@ END_RCPP
 }
 // f_Yi_r_NA_by0
 arma::mat f_Yi_r_NA_by0(arma::mat& Yi);
-RcppExport SEXP _CInLPN2_f_Yi_r_NA_by0(SEXP YiSEXP) {
+RcppExport SEXP _DynNet_f_Yi_r_NA_by0(SEXP YiSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -392,7 +392,7 @@ END_RCPP
 }
 // YiNui
 arma::vec YiNui(int nD, arma::mat matrixP, arma::vec& tau, arma::vec& tau_i, double DeltaT, arma::mat& Yi, arma::mat& x0i, arma::colvec& alpha_mu0, arma::mat& xi, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i);
-RcppExport SEXP _CInLPN2_YiNui(SEXP nDSEXP, SEXP matrixPSEXP, SEXP tauSEXP, SEXP tau_iSEXP, SEXP DeltaTSEXP, SEXP YiSEXP, SEXP x0iSEXP, SEXP alpha_mu0SEXP, SEXP xiSEXP, SEXP alpha_muSEXP, SEXP G_mat_A_0_to_tau_iSEXP) {
+RcppExport SEXP _DynNet_YiNui(SEXP nDSEXP, SEXP matrixPSEXP, SEXP tauSEXP, SEXP tau_iSEXP, SEXP DeltaTSEXP, SEXP YiSEXP, SEXP x0iSEXP, SEXP alpha_mu0SEXP, SEXP xiSEXP, SEXP alpha_muSEXP, SEXP G_mat_A_0_to_tau_iSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -413,7 +413,7 @@ END_RCPP
 }
 // f_marker
 double f_marker(arma::mat& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, arma::vec& tau_i, double DeltaT, arma::mat& Ytildi, arma::mat& YtildPrimi, arma::mat& x0i, arma::colvec& alpha_mu0, arma::mat& xi, arma::vec& paraSig, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::colvec& paraEtha2, arma::vec& if_link, arma::colvec& zitr, arma::mat& ide, arma::vec& paras_k, arma::vec& K2_lambda_t, arma::vec& K2_lambda);
-RcppExport SEXP _CInLPN2_f_marker(SEXP LambdaiSEXP, SEXP nDSEXP, SEXP matrixPSEXP, SEXP tauSEXP, SEXP tau_iSEXP, SEXP DeltaTSEXP, SEXP YtildiSEXP, SEXP YtildPrimiSEXP, SEXP x0iSEXP, SEXP alpha_mu0SEXP, SEXP xiSEXP, SEXP paraSigSEXP, SEXP alpha_muSEXP, SEXP G_mat_A_0_to_tau_iSEXP, SEXP paraEtha2SEXP, SEXP if_linkSEXP, SEXP zitrSEXP, SEXP ideSEXP, SEXP paras_kSEXP, SEXP K2_lambda_tSEXP, SEXP K2_lambdaSEXP) {
+RcppExport SEXP _DynNet_f_marker(SEXP LambdaiSEXP, SEXP nDSEXP, SEXP matrixPSEXP, SEXP tauSEXP, SEXP tau_iSEXP, SEXP DeltaTSEXP, SEXP YtildiSEXP, SEXP YtildPrimiSEXP, SEXP x0iSEXP, SEXP alpha_mu0SEXP, SEXP xiSEXP, SEXP paraSigSEXP, SEXP alpha_muSEXP, SEXP G_mat_A_0_to_tau_iSEXP, SEXP paraEtha2SEXP, SEXP if_linkSEXP, SEXP zitrSEXP, SEXP ideSEXP, SEXP paras_kSEXP, SEXP K2_lambda_tSEXP, SEXP K2_lambdaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -444,7 +444,7 @@ END_RCPP
 }
 // matNui_ui
 arma::vec matNui_ui(int nD, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arma::colvec& alpha_mu0, arma::mat& xi, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::vec& randomeffects, arma::mat& zi, bool ordered);
-RcppExport SEXP _CInLPN2_matNui_ui(SEXP nDSEXP, SEXP tau_iSEXP, SEXP DeltaTSEXP, SEXP x0iSEXP, SEXP alpha_mu0SEXP, SEXP xiSEXP, SEXP alpha_muSEXP, SEXP G_mat_A_0_to_tau_iSEXP, SEXP randomeffectsSEXP, SEXP ziSEXP, SEXP orderedSEXP) {
+RcppExport SEXP _DynNet_matNui_ui(SEXP nDSEXP, SEXP tau_iSEXP, SEXP DeltaTSEXP, SEXP x0iSEXP, SEXP alpha_mu0SEXP, SEXP xiSEXP, SEXP alpha_muSEXP, SEXP G_mat_A_0_to_tau_iSEXP, SEXP randomeffectsSEXP, SEXP ziSEXP, SEXP orderedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -465,7 +465,7 @@ END_RCPP
 }
 // VecToMat
 arma::mat VecToMat(arma::vec& y, int K, int m_i);
-RcppExport SEXP _CInLPN2_VecToMat(SEXP ySEXP, SEXP KSEXP, SEXP m_iSEXP) {
+RcppExport SEXP _DynNet_VecToMat(SEXP ySEXP, SEXP KSEXP, SEXP m_iSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -478,32 +478,32 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_CInLPN2_Loglik", (DL_FUNC) &_CInLPN2_Loglik, 44},
-    {"_CInLPN2_Loglik2", (DL_FUNC) &_CInLPN2_Loglik2, 45},
-    {"_CInLPN2_pred", (DL_FUNC) &_CInLPN2_pred, 28},
-    {"_CInLPN2_pred0", (DL_FUNC) &_CInLPN2_pred0, 25},
-    {"_CInLPN2_vectorise", (DL_FUNC) &_CInLPN2_vectorise, 1},
-    {"_CInLPN2_KmatDiag", (DL_FUNC) &_CInLPN2_KmatDiag, 1},
-    {"_CInLPN2_DparChol", (DL_FUNC) &_CInLPN2_DparChol, 2},
-    {"_CInLPN2_vecaijt", (DL_FUNC) &_CInLPN2_vecaijt, 4},
-    {"_CInLPN2_ConstrA", (DL_FUNC) &_CInLPN2_ConstrA, 5},
-    {"_CInLPN2_GmatA0totaui", (DL_FUNC) &_CInLPN2_GmatA0totaui, 5},
-    {"_CInLPN2_ProdA", (DL_FUNC) &_CInLPN2_ProdA, 6},
-    {"_CInLPN2_GmatprodAstotau", (DL_FUNC) &_CInLPN2_GmatprodAstotau, 6},
-    {"_CInLPN2_tsGmatprodA0totau", (DL_FUNC) &_CInLPN2_tsGmatprodA0totau, 5},
-    {"_CInLPN2_compoYiNA", (DL_FUNC) &_CInLPN2_compoYiNA, 1},
-    {"_CInLPN2_YiwoNA", (DL_FUNC) &_CInLPN2_YiwoNA, 1},
-    {"_CInLPN2_matNui", (DL_FUNC) &_CInLPN2_matNui, 8},
-    {"_CInLPN2_matYtild_ui", (DL_FUNC) &_CInLPN2_matYtild_ui, 11},
-    {"_CInLPN2_f_Yi_r_NA_by0", (DL_FUNC) &_CInLPN2_f_Yi_r_NA_by0, 1},
-    {"_CInLPN2_YiNui", (DL_FUNC) &_CInLPN2_YiNui, 11},
-    {"_CInLPN2_f_marker", (DL_FUNC) &_CInLPN2_f_marker, 21},
-    {"_CInLPN2_matNui_ui", (DL_FUNC) &_CInLPN2_matNui_ui, 11},
-    {"_CInLPN2_VecToMat", (DL_FUNC) &_CInLPN2_VecToMat, 3},
+    {"_DynNet_Loglik", (DL_FUNC) &_DynNet_Loglik, 44},
+    {"_DynNet_Loglik2", (DL_FUNC) &_DynNet_Loglik2, 45},
+    {"_DynNet_pred", (DL_FUNC) &_DynNet_pred, 28},
+    {"_DynNet_pred0", (DL_FUNC) &_DynNet_pred0, 25},
+    {"_DynNet_vectorise", (DL_FUNC) &_DynNet_vectorise, 1},
+    {"_DynNet_KmatDiag", (DL_FUNC) &_DynNet_KmatDiag, 1},
+    {"_DynNet_DparChol", (DL_FUNC) &_DynNet_DparChol, 2},
+    {"_DynNet_vecaijt", (DL_FUNC) &_DynNet_vecaijt, 4},
+    {"_DynNet_ConstrA", (DL_FUNC) &_DynNet_ConstrA, 5},
+    {"_DynNet_GmatA0totaui", (DL_FUNC) &_DynNet_GmatA0totaui, 5},
+    {"_DynNet_ProdA", (DL_FUNC) &_DynNet_ProdA, 6},
+    {"_DynNet_GmatprodAstotau", (DL_FUNC) &_DynNet_GmatprodAstotau, 6},
+    {"_DynNet_tsGmatprodA0totau", (DL_FUNC) &_DynNet_tsGmatprodA0totau, 5},
+    {"_DynNet_compoYiNA", (DL_FUNC) &_DynNet_compoYiNA, 1},
+    {"_DynNet_YiwoNA", (DL_FUNC) &_DynNet_YiwoNA, 1},
+    {"_DynNet_matNui", (DL_FUNC) &_DynNet_matNui, 8},
+    {"_DynNet_matYtild_ui", (DL_FUNC) &_DynNet_matYtild_ui, 11},
+    {"_DynNet_f_Yi_r_NA_by0", (DL_FUNC) &_DynNet_f_Yi_r_NA_by0, 1},
+    {"_DynNet_YiNui", (DL_FUNC) &_DynNet_YiNui, 11},
+    {"_DynNet_f_marker", (DL_FUNC) &_DynNet_f_marker, 21},
+    {"_DynNet_matNui_ui", (DL_FUNC) &_DynNet_matNui_ui, 11},
+    {"_DynNet_VecToMat", (DL_FUNC) &_DynNet_VecToMat, 3},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_CInLPN2(DllInfo *dll) {
+RcppExport void R_init_DynNet(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

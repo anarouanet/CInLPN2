@@ -20,7 +20,7 @@ arma::mat predi(int K, int nD, arma::mat matrixP, int m_i, arma::vec tau, arma::
                 List& knots, arma::vec degree, int MCnr, double eps){
 
   // to call R fonction from C++ code :
-  Rcpp::Environment base("package:CInLPN2");
+  Rcpp::Environment base("package:DynNet");
   Rcpp::Function f = base["f_trSpline"]; // make visible R function f_trSpline
 
   Rcpp::Function g = base["f_mvrnorm"]; // make visible R function f_mvrnorm
@@ -342,7 +342,7 @@ arma::mat predi_GLM(int K, int nD, arma::mat matrixP, int m_i, arma::vec tau, ar
                 List& knots, arma::vec degree, int MCnr, double eps, arma::colvec& ui, arma::colvec& vi){
   
   // to call R fonction from C++ code :
-  Rcpp::Environment base("package:CInLPN2");
+  Rcpp::Environment base("package:DynNet");
   Rcpp::Function f = base["f_trSpline"]; // make visible R function f_trSpline
   Rcpp::Function g = base["f_mvrnorm"]; // make visible R function f_mvrnorm
   
@@ -802,7 +802,7 @@ arma::mat pred(int K, int nD, arma::vec& mapping, arma::vec& paras, arma::vec& m
                List& knots, arma::vec degree, double epsPred, arma::mat& ui_hat, int nE=0){
 
   // appel de fonctions externe R
-  Rcpp::Environment base("package:CInLPN2");
+  Rcpp::Environment base("package:DynNet");
   Rcpp::Function f = base["f_trSpline"];
 
   //printf("Begining of predictions n \n");

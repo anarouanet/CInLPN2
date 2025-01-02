@@ -5,12 +5,11 @@
 #' @param sd standard deviation of the distribution
 #'
 #' @return a multivate normal vector
+#' 
+#' @import MASS
+
 
 f_mvrnorm<- function(seed, m, sd){
-  if(requireNamespace("MASS", quietly = TRUE)){
-    set.seed(seed)
-    return(MASS::mvrnorm(n=1, mu = m, Sigma = sd))
-  }else{
-    stop("Need package MASS to work, Please install it.")
-  }
+  set.seed(seed)
+  return(MASS::mvrnorm(n=1, mu = m, Sigma = sd))
 }

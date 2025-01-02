@@ -1,21 +1,21 @@
-#' Marginal and subject-specific predictions for CInLPN2 objects
+#' Marginal and subject-specific predictions for DynNet objects
 #'
-#' @param object CInLPN2 object
+#' @param object DynNet object
 #' @param newdata dataset
 #' @param MCnr an integer that gives the number of Monte Carlo iterations
 #' @param \dots optional parameters
 #'
 #' @return list of marginal and subject-specific predictions
 #' @export
-predict2.CInLPN2 <- function(object, newdata, MCnr = 10, ...){
-
+predict2.DynNet <- function(object, newdata, MCnr = 10, ...){
+  
   model <- object
   cl <- match.call()
   if(missing(model)) stop("The argument model should be specified")
-  if(class(model)!="CInLPN2" & class(model)!="CInLPN" ) stop("argument model must be a CInLPN2 or CInLPN object")
+  if(class(model)!="DynNet" & class(model)!="CInLPN" ) stop("argument model must be a DynNet or CInLPN object")
   x <- model$call
   if(missing(newdata)) stop("The argument newdata should be specified")
-
+  
   ### identification of all components and sub-models of the model
   
   ## components of structural model
@@ -34,10 +34,10 @@ predict2.CInLPN2 <- function(object, newdata, MCnr = 10, ...){
     #link <- as.formula(x$measurement.model$link.functions$links)
     link <- x$measurement.model$link.functions$links
   }
-    #knots <- as.formula(x$measurement.model$link.functions$knots)
-    knots <- x$measurement.model$link.functions$knots
-
-
+  #knots <- as.formula(x$measurement.model$link.functions$knots)
+  knots <- x$measurement.model$link.functions$knots
+  
+  
   ## subject, Time
   subject <- x$subject
   Time <- x$Time
@@ -95,11 +95,11 @@ predict2.CInLPN2 <- function(object, newdata, MCnr = 10, ...){
     fixed.survival.models <- NULL
     interactionY.survival.models <- NULL
   }
-
+  
   
   #### pre-processing of  mod_trans transition matrix 
   mod_trans.model=strsplit(gsub("[[:space:]]","",as.character(mod_trans)),"~")[[2]]
-
+  
   data_F <- DataFormat(data=newdata, subject = subject, fixed_X0.models = fixed_X0.models,
                        randoms_X0.models = randoms_X0.models, fixed_DeltaX.models = fixed_DeltaX.models, 
                        randoms_DeltaX.models = randoms_DeltaX.models, mod_trans.model = mod_trans.model, 
@@ -113,7 +113,7 @@ predict2.CInLPN2 <- function(object, newdata, MCnr = 10, ...){
   # for(k in 1:K){
   #   if(link[k] !="linear") if_link[k] <- 1
   # }
-
+  
   if_link <- rep(0,K)
   for(k in 1:K){
     if(!link[k] %in%c("linear","thresholds")){
@@ -159,31 +159,28 @@ predict2.CInLPN2 <- function(object, newdata, MCnr = 10, ...){
   # 
   # ### returning fitted values
   # return(list(Marginal_Predict = Marginal_Predict, SubjectSpecific_Predict = SubjectSpecific_Predict))
-
+  
   if(is.null(model$ui_hat))
     model$ui_hat<-0
   
   Marginal_Predict <- data_F$id_and_Time
   col <- colnames(Marginal_Predict)
   
-  if(requireNamespace("splines2", quietly = TRUE)){
-    # Predict <- pred(K = K, nD = nD, mapping = mapping.to.LP, paras = model$coefficients,
-    #                 m_is= data_F$m_i, Mod_MatrixY = data_F$Mod.MatrixY, df= data_F$df,
-    #                 x = data_F$x, z = data_F$z, q = data_F$q, nb_paraD = data_F$nb_paraD, x0 = data_F$x0, z0 = data_F$z0,
-    #                 q0 = data_F$q0, if_link = if_link, tau = data_F$tau,
-    #                 tau_is=data_F$tau_is, modA_mat = data_F$modA_mat, DeltaT=DeltaT, 
-    #                 MCnr = MCnr, model$minY, model$maxY, data_F$knots, data_F$degree, epsPred = 1.e-9)
-    
-      Predict <- pred(K = K, nD = nD, mapping = mapping.to.LP, paras = model$coefficients, cholesky=FALSE,
-                      m_is= data_F$m_i, Mod_MatrixY = data_F$Mod.MatrixY, df= data_F$df,
-                      x = data_F$x, z = data_F$z, q = data_F$q, nb_paraD = data_F$nb_paraD, x0 = data_F$x0, z0 = data_F$z0,
-                      q0 = data_F$q0, if_link = if_link, tau = data_F$tau,
-                      tau_is=data_F$tau_is, modA_mat = data_F$modA_mat, DeltaT=DeltaT, 
-                      MCnr = MCnr, minY = data_F$minY, maxY = data_F$maxY, knots = data_F$linknodes, degree = data_F$degree, epsPred = 1.e-9,
-                      ui_hat = model$ui_hat, nE = data_F$nE)
-  }else{
-    stop("Need package MASS to work, Please install it.")
-  }
+  # Predict <- pred(K = K, nD = nD, mapping = mapping.to.LP, paras = model$coefficients,
+  #                 m_is= data_F$m_i, Mod_MatrixY = data_F$Mod.MatrixY, df= data_F$df,
+  #                 x = data_F$x, z = data_F$z, q = data_F$q, nb_paraD = data_F$nb_paraD, x0 = data_F$x0, z0 = data_F$z0,
+  #                 q0 = data_F$q0, if_link = if_link, tau = data_F$tau,
+  #                 tau_is=data_F$tau_is, modA_mat = data_F$modA_mat, DeltaT=DeltaT, 
+  #                 MCnr = MCnr, model$minY, model$maxY, data_F$knots, data_F$degree, epsPred = 1.e-9)
+  
+  Predict <- pred(K = K, nD = nD, mapping = mapping.to.LP, paras = model$coefficients, cholesky=FALSE,
+                  m_is= data_F$m_i, Mod_MatrixY = data_F$Mod.MatrixY, df= data_F$df,
+                  x = data_F$x, z = data_F$z, q = data_F$q, nb_paraD = data_F$nb_paraD, x0 = data_F$x0, z0 = data_F$z0,
+                  q0 = data_F$q0, if_link = if_link, tau = data_F$tau,
+                  tau_is=data_F$tau_is, modA_mat = data_F$modA_mat, DeltaT=DeltaT, 
+                  MCnr = MCnr, minY = data_F$minY, maxY = data_F$maxY, knots = data_F$linknodes, degree = data_F$degree, epsPred = 1.e-9,
+                  ui_hat = model$ui_hat, nE = data_F$nE)
+  
   
   # pred.col(ii) = pred_MYFull.col(k);
   # pred.col(ii+1) = Ytild_i.col(k);
@@ -224,9 +221,9 @@ predict2.CInLPN2 <- function(object, newdata, MCnr = 10, ...){
 
 
 
-#' Marginal and subject-specific predictions for CInLPN2 objects
+#' Marginal and subject-specific predictions for DynNet objects
 #'
-#' @param object CInLPN2 object
+#' @param object DynNet object
 #' @param newdata dataset
 #' @param MCnr an integer that gives the number of Monte Carlo iterations
 #' @param ui_hat matrix of bayesian estimates of random effects
@@ -234,15 +231,15 @@ predict2.CInLPN2 <- function(object, newdata, MCnr = 10, ...){
 #'
 #' @return list of marginal and subject-specific predictions
 #' @export
-predict.CInLPN2 <- function(object, newdata, TimeDiscretization=TRUE, MCnr = 10, ui_hat = NULL,...){
-
+predict.DynNet <- function(object, newdata, TimeDiscretization=TRUE, MCnr = 10, ui_hat = NULL,...){
+  
   model <- object
   cl <- match.call()
   if(missing(model)) stop("The argument model should be specified")
-  if(class(model)!="CInLPN2") stop("argument model must be a CInLPN2 object")
+  if(class(model)!="DynNet") stop("argument model must be a DynNet object")
   x <- model$call
   if(missing(newdata)) stop("The argument newdata should be specified")
-
+  
   ### identification of all components and sub-models of the model
   
   ## components of structural model
@@ -268,7 +265,7 @@ predict.CInLPN2 <- function(object, newdata, TimeDiscretization=TRUE, MCnr = 10,
   #knots <- model$linknodes
   if(length(knots)==0)
     knots <- rep(list(NULL),3)
-
+  
   ## subject, Time
   subject <- x$subject
   Time <- x$Time
@@ -336,7 +333,7 @@ predict.CInLPN2 <- function(object, newdata, TimeDiscretization=TRUE, MCnr = 10,
   if(!all(predictors %in% colnames)) stop("All explicative variables must be in the dataset")
   ################### discretization of the data with discretization value given by the user ##########################
   #
-
+  
   if(TimeDiscretization){
     #data <- TimeDiscretization(rdata=newdata, subject = subject, outcomes = outcomes, predictors = predictors, 
     #                           Time = Time, Delta = DeltaT)
@@ -350,7 +347,7 @@ predict.CInLPN2 <- function(object, newdata, TimeDiscretization=TRUE, MCnr = 10,
   }else{
     data <- newdata
   }
-
+  
   ################### created formatted data ##########################
   data_F <- DataFormat(data=data, subject = subject, fixed_X0.models = fixed_X0.models,
                        randoms_X0.models = randoms_X0.models, fixed_DeltaX.models = fixed_DeltaX.models, 
@@ -368,24 +365,22 @@ predict.CInLPN2 <- function(object, newdata, TimeDiscretization=TRUE, MCnr = 10,
     } 
   }
   
-
-  if(requireNamespace("splines2", quietly = TRUE)){
-    # Predict <- pred(K = K, nD = nD, mapping = mapping.to.LP, paras = model$coefficients,
-    #                 m_is= data_F$m_i, Mod_MatrixY = data_F$Mod.MatrixY, df= data_F$df,
-    #                 x = data_F$x, z = data_F$z, q = data_F$q, nb_paraD = data_F$nb_paraD, x0 = data_F$x0, z0 = data_F$z0,
-    #                 q0 = data_F$q0, if_link = if_link, tau = data_F$tau,
-    #                 tau_is=data_F$tau_is, modA_mat = data_F$modA_mat, DeltaT=DeltaT, 
-    #                 MCnr = MCnr, model$minY, model$maxY, data_F$knots, data_F$degree, epsPred = 1.e-9)
-
-    Predict <- pred(K = K, nD = nD, mapping = mapping.to.LP, paras = model$coefficients, cholesky=FALSE,
-                    m_is= data_F$m_i, Mod_MatrixY = data_F$Mod.MatrixY, df= data_F$df,
-                    x = data_F$x, z = data_F$z, q = data_F$q, nb_paraD = data_F$nb_paraD, x0 = data_F$x0, z0 = data_F$z0,
-                    q0 = data_F$q0, if_link = if_link, tau = data_F$tau,
-                    tau_is=data_F$tau_is, modA_mat = data_F$modA_mat, DeltaT=DeltaT, 
-                    MCnr = MCnr, minY = data_F$minY, maxY = data_F$maxY, knots = data_F$knots, degree = data_F$degree, epsPred = 1.e-9, ui_hat = model$ui_hat)
-  }else{
-    stop("Need package MASS to work, Please install it.")
-  }
+  
+  
+  # Predict <- pred(K = K, nD = nD, mapping = mapping.to.LP, paras = model$coefficients,
+  #                 m_is= data_F$m_i, Mod_MatrixY = data_F$Mod.MatrixY, df= data_F$df,
+  #                 x = data_F$x, z = data_F$z, q = data_F$q, nb_paraD = data_F$nb_paraD, x0 = data_F$x0, z0 = data_F$z0,
+  #                 q0 = data_F$q0, if_link = if_link, tau = data_F$tau,
+  #                 tau_is=data_F$tau_is, modA_mat = data_F$modA_mat, DeltaT=DeltaT, 
+  #                 MCnr = MCnr, model$minY, model$maxY, data_F$knots, data_F$degree, epsPred = 1.e-9)
+  
+  Predict <- pred(K = K, nD = nD, mapping = mapping.to.LP, paras = model$coefficients, cholesky=FALSE,
+                  m_is= data_F$m_i, Mod_MatrixY = data_F$Mod.MatrixY, df= data_F$df,
+                  x = data_F$x, z = data_F$z, q = data_F$q, nb_paraD = data_F$nb_paraD, x0 = data_F$x0, z0 = data_F$z0,
+                  q0 = data_F$q0, if_link = if_link, tau = data_F$tau,
+                  tau_is=data_F$tau_is, modA_mat = data_F$modA_mat, DeltaT=DeltaT, 
+                  MCnr = MCnr, minY = data_F$minY, maxY = data_F$maxY, knots = data_F$knots, degree = data_F$degree, epsPred = 1.e-9, ui_hat = model$ui_hat)
+  
   
   # pred.col(ii+1) = pred_MYFull.col(k); //marginal Y prediction E(Y) ***
   # pred.col(ii+2) = Ytild_i.col(k); ////  latent Y observation Ytild
@@ -394,7 +389,7 @@ predict.CInLPN2 <- function(object, newdata, TimeDiscretization=TRUE, MCnr = 10,
   # pred.col(ii+5) = pred_SSYFull_hat.col(k); //SS Y marginal prediction   E(Y|ui) ***
   # pred.col(ii+6) = pred_SSYtildFull_hat.col(k);//SS latent Y prediction E(Ytild|ui) ***
   # pred.col(ii+7) = Respred_SSYtild_hat.col(k);  //  SS latent Y residual Ytild-E(Ytild|ui)
-
+  
   # kk <- 1
   # for(k in 1: K){
   #   cat("k: ", k ," kk: " ,kk," kk+1: " ,kk+1,"\n")
@@ -412,7 +407,7 @@ predict.CInLPN2 <- function(object, newdata, TimeDiscretization=TRUE, MCnr = 10,
   for(k in 1: K){
     Marginal_Predict <- cbind(Marginal_Predict, Predict[,kk+1], Predict[,(kk+3)])
     SS_Predict <- cbind(SS_Predict, Predict[,kk+5], Predict[,(kk+6)])
-
+    
     col <- c(col, paste(outcomes[k], "Pred_m", sep="-"), paste(outcomes[k], "tr.Pred_m", sep="."))
     col.SS <- c(col.SS, paste(outcomes[k], "Pred_ss", sep="-"), paste(outcomes[k], "tr.Pred_ss", sep="."))
     kk <- kk+7
@@ -436,11 +431,11 @@ predict.CInLPN2 <- function(object, newdata, TimeDiscretization=TRUE, MCnr = 10,
 #'
 #' @return list of marginal and subject-specific predictions
 #' @export
-predict0.CInLPN2 <- function(object, newdata, TimeDiscretization=TRUE, MCnr = 10, ...){
+predict0.DynNet <- function(object, newdata, TimeDiscretization=TRUE, MCnr = 10, ...){
   model <- object
   cl <- match.call()
   if(missing(model)) stop("The argument model should be specified")
-  if(class(model)!="CInLPN2"& class(model)!="CInLPN") stop("argument model must be a CInLPN2 or CInLPN object")
+  if(class(model)!="DynNet"& class(model)!="CInLPN") stop("argument model must be a DynNet or CInLPN object")
   x <- model$call
   if(missing(newdata)) stop("The argument newdata should be specified")
   
@@ -545,22 +540,19 @@ predict0.CInLPN2 <- function(object, newdata, TimeDiscretization=TRUE, MCnr = 10
   
   Marginal_Predict <- data_F$id_and_Time
   col <- colnames(Marginal_Predict)
-  if(requireNamespace("splines2", quietly = TRUE)){
-    # Predict <- pred(K = K, nD = nD, mapping = mapping.to.LP, paras = model$coefficients,
-    #                 m_is= data_F$m_i, Mod_MatrixY = data_F$Mod.MatrixY, df= data_F$df,
-    #                 x = data_F$x, z = data_F$z, q = data_F$q, nb_paraD = data_F$nb_paraD, x0 = data_F$x0, z0 = data_F$z0,
-    #                 q0 = data_F$q0, if_link = if_link, tau = data_F$tau,
-    #                 tau_is=data_F$tau_is, modA_mat = data_F$modA_mat, DeltaT=DeltaT, 
-    #                 MCnr = MCnr, model$minY, model$maxY, data_F$knots, data_F$degree, epsPred = 1.e-9)
-    Predict <- pred0(K = K, nD = nD, mapping = mapping.to.LP, paras = model$coefficients,
-                    m_is= data_F$m_i, Mod_MatrixY = data_F$Mod.MatrixY, df= model$df,
-                    x = data_F$x, z = data_F$z, q = data_F$q, nb_paraD = data_F$nb_paraD, x0 = data_F$x0, z0 = data_F$z0,
-                    q0 = data_F$q0, if_link = if_link, tau = data_F$tau,
-                    tau_is=data_F$tau_is, modA_mat = data_F$modA_mat, DeltaT=DeltaT, 
-                    MCnr = MCnr, minY = data_F$minY, maxY = data_F$maxY, knots = data_F$linknodes, degree = data_F$degree, epsPred = 1.e-9)
-  }else{
-    stop("Need package MASS to work, Please install it.")
-  }
+  
+  # Predict <- pred(K = K, nD = nD, mapping = mapping.to.LP, paras = model$coefficients,
+  #                 m_is= data_F$m_i, Mod_MatrixY = data_F$Mod.MatrixY, df= data_F$df,
+  #                 x = data_F$x, z = data_F$z, q = data_F$q, nb_paraD = data_F$nb_paraD, x0 = data_F$x0, z0 = data_F$z0,
+  #                 q0 = data_F$q0, if_link = if_link, tau = data_F$tau,
+  #                 tau_is=data_F$tau_is, modA_mat = data_F$modA_mat, DeltaT=DeltaT, 
+  #                 MCnr = MCnr, model$minY, model$maxY, data_F$knots, data_F$degree, epsPred = 1.e-9)
+  Predict <- pred0(K = K, nD = nD, mapping = mapping.to.LP, paras = model$coefficients,
+                   m_is= data_F$m_i, Mod_MatrixY = data_F$Mod.MatrixY, df= model$df,
+                   x = data_F$x, z = data_F$z, q = data_F$q, nb_paraD = data_F$nb_paraD, x0 = data_F$x0, z0 = data_F$z0,
+                   q0 = data_F$q0, if_link = if_link, tau = data_F$tau,
+                   tau_is=data_F$tau_is, modA_mat = data_F$modA_mat, DeltaT=DeltaT, 
+                   MCnr = MCnr, minY = data_F$minY, maxY = data_F$maxY, knots = data_F$linknodes, degree = data_F$degree, epsPred = 1.e-9)
   
   
   kk <- 1

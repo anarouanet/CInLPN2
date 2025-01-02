@@ -24,154 +24,154 @@ is_na_vec <- function(vec){
 #' @param na.action indicates na.action argument
 #'
 #' @return a list
+#' 
+#' @import splines2
 
 f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
   
   cl <- match.call()
   current.na.action <- options('na.action')
   options(na.action = na.action)
-  if(requireNamespace("splines2", quietly = TRUE)){
-    col <- colnames(Y)
-    K <- length(col)
-    if(is.null(link)) link <- rep("linear",K)
-    if(!is.null(link) && length(gsub("[[:space:]]","",link)) != K){
-      stop("The number of transformation links does not correspond to the number of markers")
-    }else{
-      link <- gsub("[[:space:]]","",link)
-    }
-    degree <- rep(NA,K)
-    if(is.null(knots)) knots <- vector("list", K)
-    linkSpe <-list()
-    Mod.MatrixY <- NULL
-    Mod.MatrixYprim <- NULL
-    minY <- rep(NA,K)
-    maxY <- rep(NA,K)
-    df <- NULL
-    colnamesY <- NULL
-    colnamesYPrim <- NULL
-
-    for(k in 1:K){
-      minY[k] <- min(Y[,col[k]], na.rm = T)
-      maxY[k] <- max(Y[,col[k]], na.rm = T)
-      if(link[k]=="linear"){
-        linkSpe[[k]] <- "-"
-        Imat <- model.matrix(as.formula(paste("~1+",col[k])), data = Y, na.action= na.action)
-        Imat[which(is.na(Imat[,2])),1] <- NA
-        colnamesY <- c(colnamesY, paste(outcomes[k],"linear", seq(1,ncol(Imat)), sep = "."))
-        colnamesYPrim <- c(colnamesYPrim, paste(outcomes[k],"linear", seq(1,(ncol(Imat)-1)), sep = "."))
-        
-        Mod.MatrixY <- cbind(Mod.MatrixY, Imat)
-        Mod.MatrixYprim <- cbind(Mod.MatrixYprim, Imat[,1])
-        
-        df <-c(df, ncol(Imat))
-        degree[k] <- 0 # conventionnellement
-      }else if(link[k]=="thresholds"){
-
-        linkSpe[[k]] <- "t"
-
-        Imat     <- matrix(0, nrow = dim(Y)[1], ncol = length(unique(Y[which(!is.na(Y[,k])),k]))-1)
-        Imat[,1] <- Y[,k]
-        #Imat <- model.matrix(as.formula(paste("~1+",col[k])), data = Y, na.action= na.action)
-        #Imat <- matrix(0, dim(Y)[1], length(unique(Y[,k])-1))
-        #Imat[which(is.na(Imat[,2])),1] <- NA
-        
-        colnamesY <- c(colnamesY, paste(outcomes[k],"thresholds", seq(1,ncol(Imat)), sep = "."))
-        #colnamesYPrim <- "thresholds"#c(colnamesYPrim, paste(outcomes[k],"thresholds", seq(1,(ncol(Imat)-1)), sep = "."))
-        #check!
-        Mod.MatrixY <- cbind(Mod.MatrixY, Imat)
-        #Mod.MatrixYprim <- cbind(Mod.MatrixYprim, Imat[,-1])
-        
-        df <-c(df, ncol(Imat))
-        degree[k] <- 0 # conventionnellement
-      }else{
-
-        linkSpe[[k]] <- strsplit(gsub("[[:space:]]","",link[k]),"[-]")[[1]]
-        temp <- try( linkSpe[[k]][1] <- as.numeric(linkSpe[[k]][1]),silent = FALSE)
-        if(inherits(temp ,'try-error') | temp < 2){
-          stop("for I-splines link function: the first argument must be an integer greater than 1 (number of knots)")
-        }
-        nknots <- as.numeric(linkSpe[[k]][1])
-        
-        temp <- try(linkSpe[[k]][3] <- as.numeric(linkSpe[[k]][3]),silent = FALSE)
-        if(inherits(temp ,'try-error') | temp < 1){
-          stop("for I-splines link function: the second argument  must be a positive integer (degree of splines)")
-        }
-        degree[k] <- as.numeric(linkSpe[[k]][3])
-        
-        if(!(linkSpe[[k]][2] %in% c("quant", "manual", "equi"))){
-          stop("the type of knots must be within: quant, manual or equi")
-        }
-
-        if(linkSpe[[k]][2] == "manual" & (is.null(knots[[k]]) | (length(knots[[k]])!=nknots))){
-          stop("When specified manually, the number of knots must match 
-               the first argument of the link function specification")
-        }
-        if(linkSpe[[k]][2] == "manual" & (length(knots[[k]])== nknots)){
-          min <- min(Y[,col[k]], na.rm = TRUE)
-          max <- max(Y[,col[k]], na.rm = TRUE)
-          if( (min > min(knots[[k]])) & (max < max(knots[[k]])))stop("Knots must be in the range of the outcome")
-        }
-        if(linkSpe[[k]][2] == "equi" & (!is.null(knots[[k]]))){
-          stop("When specified as equidistant, there is no need to specify manually the position of knots")
-        }
-        
-        #
-        if(linkSpe[[k]][2] == "quant" & (!is.null(knots[[k]]))){
-          stop("When specified as placed at quantiles, there is no need to specify manually the position of knots")
-        }
-        if(linkSpe[[k]][2] == "quant" & (is.null(knots[[k]]))){
-          knots[[k]] <- as.vector(quantile(Y[,col[k]], probs = seq(from = 0, to = 1, by = 1/(nknots-1)), na.rm = TRUE))
-        }
-        if(linkSpe[[k]][2] == "equi"){
-          knots[[k]] <- seq(from = minY[k], to = maxY[k], by = (maxY[k]-minY[k])/(nknots-1))
-        }
-
-        ## if two quantiles are equal
-        if(nknots<3) 
-          stop("Splines for the outcome transformation should contain at least 3 knots (including 1 internal knot)")
-        for(nk in 3:nknots){
-          if(knots[[k]][nk]== knots[[k]][nk-1]) knots[[k]][nk-1] <- knots[[k]][nk-1] - (max(Y[,col[k]], na.rm = TRUE)-min(Y[,col[k]], na.rm = TRUE))/5
-        }
-        if(nknots>2){
-          int_knots <- as.vector(as.numeric(knots[[k]][-c(1,nknots)]))
-        }else{
-          int_knots <- NULL
-        }
-
-        modISpline <- paste("~ 1 + splines2::iSpline(",col[k],",knots=","int_knots",",","degree=", degree[k],
-                            ",", "intercept = T,", "derivs= 0,", "Boundary.knots= c(",minY[k],",",maxY[k],"))")
-        
-        modMSpline <- paste("~ -1 + splines2::iSpline(",col[k],",knots=","int_knots",",","degree=", degree[k],
-                            ",", "intercept = T, ", "derivs = 1,", "Boundary.knots= c(",minY[k],",",maxY[k],"))")
-
-        IsMat <- model.matrix(as.formula(modISpline), data = Y, na.action = na.action)
-        MsMat <- model.matrix(as.formula(modMSpline), data = Y, na.action = na.action)
-        colnamesY <- c(colnamesY, paste(outcomes[k],link[k], seq(1,ncol(IsMat)), sep = "."))
-        colnamesYPrim <- c(colnamesYPrim, paste(outcomes[k],link[k], seq(1,ncol(MsMat)), sep = "."))
-        
-        Mod.MatrixY <- cbind(Mod.MatrixY, IsMat)
-        Mod.MatrixYprim <- cbind(Mod.MatrixYprim, MsMat)
-        df <-c(df, ncol(IsMat))
-      }
-    }
-
-    Mod.MatrixY <- as.matrix(Mod.MatrixY)
-
-    if(all(link=="thresholds")){# If only thresholds links, so that Log_jacobien = 0
-      Mod.MatrixYprim<-matrix(1,dim(Mod.MatrixY)[1],1) #only number of rows needed
-      colnamesYPrim <- "thresholds" 
-    } 
-
-    Mod.MatrixYprim <- as.matrix(Mod.MatrixYprim)
-    colnames(Mod.MatrixY) <- colnamesY
-    colnames(Mod.MatrixYprim) <- colnamesYPrim 
-
-    return(list(minY = minY, maxY =maxY, degree = degree, knots=knots, df=df, Mod.MatrixY = Mod.MatrixY, 
-                Mod.MatrixYprim = Mod.MatrixYprim))
-    na.action = current.na.action
+  
+  col <- colnames(Y)
+  K <- length(col)
+  if(is.null(link)) link <- rep("linear",K)
+  if(!is.null(link) && length(gsub("[[:space:]]","",link)) != K){
+    stop("The number of transformation links does not correspond to the number of markers")
   }else{
-    stop("Need package splines2 to work, please install it.")
+    link <- gsub("[[:space:]]","",link)
   }
+  degree <- rep(NA,K)
+  if(is.null(knots)) knots <- vector("list", K)
+  linkSpe <-list()
+  Mod.MatrixY <- NULL
+  Mod.MatrixYprim <- NULL
+  minY <- rep(NA,K)
+  maxY <- rep(NA,K)
+  df <- NULL
+  colnamesY <- NULL
+  colnamesYPrim <- NULL
+  
+  for(k in 1:K){
+    minY[k] <- min(Y[,col[k]], na.rm = T)
+    maxY[k] <- max(Y[,col[k]], na.rm = T)
+    if(link[k]=="linear"){
+      linkSpe[[k]] <- "-"
+      Imat <- model.matrix(as.formula(paste("~1+",col[k])), data = Y, na.action= na.action)
+      Imat[which(is.na(Imat[,2])),1] <- NA
+      colnamesY <- c(colnamesY, paste(outcomes[k],"linear", seq(1,ncol(Imat)), sep = "."))
+      colnamesYPrim <- c(colnamesYPrim, paste(outcomes[k],"linear", seq(1,(ncol(Imat)-1)), sep = "."))
+      
+      Mod.MatrixY <- cbind(Mod.MatrixY, Imat)
+      Mod.MatrixYprim <- cbind(Mod.MatrixYprim, Imat[,1])
+      
+      df <-c(df, ncol(Imat))
+      degree[k] <- 0 # conventionnellement
+    }else if(link[k]=="thresholds"){
+      
+      linkSpe[[k]] <- "t"
+      
+      Imat     <- matrix(0, nrow = dim(Y)[1], ncol = length(unique(Y[which(!is.na(Y[,k])),k]))-1)
+      Imat[,1] <- Y[,k]
+      #Imat <- model.matrix(as.formula(paste("~1+",col[k])), data = Y, na.action= na.action)
+      #Imat <- matrix(0, dim(Y)[1], length(unique(Y[,k])-1))
+      #Imat[which(is.na(Imat[,2])),1] <- NA
+      
+      colnamesY <- c(colnamesY, paste(outcomes[k],"thresholds", seq(1,ncol(Imat)), sep = "."))
+      #colnamesYPrim <- "thresholds"#c(colnamesYPrim, paste(outcomes[k],"thresholds", seq(1,(ncol(Imat)-1)), sep = "."))
+      #check!
+      Mod.MatrixY <- cbind(Mod.MatrixY, Imat)
+      #Mod.MatrixYprim <- cbind(Mod.MatrixYprim, Imat[,-1])
+      
+      df <-c(df, ncol(Imat))
+      degree[k] <- 0 # conventionnellement
+    }else{
+      
+      linkSpe[[k]] <- strsplit(gsub("[[:space:]]","",link[k]),"[-]")[[1]]
+      temp <- try( linkSpe[[k]][1] <- as.numeric(linkSpe[[k]][1]),silent = FALSE)
+      if(inherits(temp ,'try-error') | temp < 2){
+        stop("for I-splines link function: the first argument must be an integer greater than 1 (number of knots)")
+      }
+      nknots <- as.numeric(linkSpe[[k]][1])
+      
+      temp <- try(linkSpe[[k]][3] <- as.numeric(linkSpe[[k]][3]),silent = FALSE)
+      if(inherits(temp ,'try-error') | temp < 1){
+        stop("for I-splines link function: the second argument  must be a positive integer (degree of splines)")
+      }
+      degree[k] <- as.numeric(linkSpe[[k]][3])
+      
+      if(!(linkSpe[[k]][2] %in% c("quant", "manual", "equi"))){
+        stop("the type of knots must be within: quant, manual or equi")
+      }
+      
+      if(linkSpe[[k]][2] == "manual" & (is.null(knots[[k]]) | (length(knots[[k]])!=nknots))){
+        stop("When specified manually, the number of knots must match 
+               the first argument of the link function specification")
+      }
+      if(linkSpe[[k]][2] == "manual" & (length(knots[[k]])== nknots)){
+        min <- min(Y[,col[k]], na.rm = TRUE)
+        max <- max(Y[,col[k]], na.rm = TRUE)
+        if( (min > min(knots[[k]])) & (max < max(knots[[k]])))stop("Knots must be in the range of the outcome")
+      }
+      if(linkSpe[[k]][2] == "equi" & (!is.null(knots[[k]]))){
+        stop("When specified as equidistant, there is no need to specify manually the position of knots")
+      }
+      
+      #
+      if(linkSpe[[k]][2] == "quant" & (!is.null(knots[[k]]))){
+        stop("When specified as placed at quantiles, there is no need to specify manually the position of knots")
+      }
+      if(linkSpe[[k]][2] == "quant" & (is.null(knots[[k]]))){
+        knots[[k]] <- as.vector(quantile(Y[,col[k]], probs = seq(from = 0, to = 1, by = 1/(nknots-1)), na.rm = TRUE))
+      }
+      if(linkSpe[[k]][2] == "equi"){
+        knots[[k]] <- seq(from = minY[k], to = maxY[k], by = (maxY[k]-minY[k])/(nknots-1))
+      }
+      
+      ## if two quantiles are equal
+      if(nknots<3) 
+        stop("Splines for the outcome transformation should contain at least 3 knots (including 1 internal knot)")
+      for(nk in 3:nknots){
+        if(knots[[k]][nk]== knots[[k]][nk-1]) knots[[k]][nk-1] <- knots[[k]][nk-1] - (max(Y[,col[k]], na.rm = TRUE)-min(Y[,col[k]], na.rm = TRUE))/5
+      }
+      if(nknots>2){
+        int_knots <- as.vector(as.numeric(knots[[k]][-c(1,nknots)]))
+      }else{
+        int_knots <- NULL
+      }
+      
+      modISpline <- paste("~ 1 + splines2::iSpline(",col[k],",knots=","int_knots",",","degree=", degree[k],
+                          ",", "intercept = T,", "derivs= 0,", "Boundary.knots= c(",minY[k],",",maxY[k],"))")
+      
+      modMSpline <- paste("~ -1 + splines2::iSpline(",col[k],",knots=","int_knots",",","degree=", degree[k],
+                          ",", "intercept = T, ", "derivs = 1,", "Boundary.knots= c(",minY[k],",",maxY[k],"))")
+      
+      IsMat <- model.matrix(as.formula(modISpline), data = Y, na.action = na.action)
+      MsMat <- model.matrix(as.formula(modMSpline), data = Y, na.action = na.action)
+      colnamesY <- c(colnamesY, paste(outcomes[k],link[k], seq(1,ncol(IsMat)), sep = "."))
+      colnamesYPrim <- c(colnamesYPrim, paste(outcomes[k],link[k], seq(1,ncol(MsMat)), sep = "."))
+      
+      Mod.MatrixY <- cbind(Mod.MatrixY, IsMat)
+      Mod.MatrixYprim <- cbind(Mod.MatrixYprim, MsMat)
+      df <-c(df, ncol(IsMat))
+    }
+  }
+  
+  Mod.MatrixY <- as.matrix(Mod.MatrixY)
+  
+  if(all(link=="thresholds")){# If only thresholds links, so that Log_jacobien = 0
+    Mod.MatrixYprim<-matrix(1,dim(Mod.MatrixY)[1],1) #only number of rows needed
+    colnamesYPrim <- "thresholds" 
+  } 
+  
+  Mod.MatrixYprim <- as.matrix(Mod.MatrixYprim)
+  colnames(Mod.MatrixY) <- colnamesY
+  colnames(Mod.MatrixYprim) <- colnamesYPrim 
+  
+  return(list(minY = minY, maxY =maxY, degree = degree, knots=knots, df=df, Mod.MatrixY = Mod.MatrixY, 
+              Mod.MatrixYprim = Mod.MatrixYprim))
+  na.action = current.na.action
+  
 }
 
 #=====================================================================================
@@ -202,19 +202,19 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
                        randoms_DeltaX.models, mod_trans.model, link = NULL, knots = NULL, zitr = NULL, ide = NULL, 
                        outcomes, nD, Time, Survdata = NULL, basehaz = NULL, fixed.survival.models = NULL, 
                        interactionY.survival.models = NULL, DeltaT, assoc, truncation){
-
+  
   cl <- match.call()
   colnames<-colnames(data)
   id_and_Time <- data[,c(subject,Time)]
   Ni<-unique(data[,subject])
   I <- length(Ni) # number of visit
   K <- length(outcomes)
-
+  
   # Pre-traitement of data : delete lignes with no observation
   d <- as.data.frame(data[,outcomes])
   R <- as.numeric(apply(X = d, MARGIN = 1, FUN = is_na_vec))
   data <-data[which(R==0),]
-
+  
   #all predictor of the model==============================================================
   colnames <- colnames(data)
   all.pred.fixed_X0 <- NULL
@@ -255,15 +255,15 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   all.preds<-all.preds[-which(all.preds %in% c("(Intercept)"))]
   all.preds <- c(all.preds,Time)
   all.preds <- unique(all.preds[which(all.preds %in% colnames)])  
-
+  
   #Case of  unobserved components  at time t
   m_i <-as.data.frame(table(as.factor(data[,subject])))$Freq # matrice of frequencies m_i
   tau_is <- data[,Time]/DeltaT # vector of individuals visits vectors
   tau_is <- as.numeric(as.character(tau_is)) # verify that all integer?
-
-
+  
+  
   Tmax <- max(tau_is,na.rm = TRUE)
-
+  
   if(!is.null(Survdata) && assoc %in%c(3,5))
     Tmax <- max(Tmax, round(max(Survdata$Event,na.rm = TRUE)/DeltaT))#If
   
@@ -272,7 +272,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   IND <- NULL
   indY <- NULL
   data0 <- NULL
-
+  
   ###creation de data0==========
   ## for x and z
   all.Y<-seq(1,K)
@@ -284,7 +284,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
     indY <- c(indY,rep(all.Y[k],nrow(dtemp)))
     data0 <- rbind(data0, dtemp[,c(setdiff(colnames(dtemp),outcomes[k]))])
   }
-
+  
   data0<-cbind(data0,Y,indY)
   data0<-data0[order(data0[,subject]),]
   data0<-na.omit(data0)
@@ -304,7 +304,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   if(dim(qsz)[1] != dim(Times)[1]){
     stop("Covariates (other than time) should be time-independant.")
   }
-
+  
   data_c0 <- cbind(qsz,Times)
   data_xzMatA_cov <-data_c0  
   data_xzMatA_cov <-data_xzMatA_cov[order(data_xzMatA_cov[,subject], data_xzMatA_cov[,Time]),]
@@ -316,7 +316,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
     x_cov <- rbind(x_cov, data_x_cov_i)
   }
   x_cov <- x_cov[order(x_cov[,subject],x_cov[,Time]),]
-
+  
   ##only for x0 #####
   x0 <- NULL
   nb_x0_n <- NULL
@@ -355,7 +355,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   colnames(x0) <- colnames[-c(1)]
   #   x0 <- as.matrix(x0)
   
-
+  
   ##only for x #####
   x <- NULL
   nb_x_n <- NULL
@@ -389,7 +389,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   colnames <- colnames(x)
   x <- as.matrix(x[,-c(1)])
   colnames(x) <- colnames[-c(1)]
-
+  
   #===================================================================
   #     construction  of matrices z0 et z========================
   data_z_cov <- data_xzMatA_cov[, c(subject,Time)]
@@ -423,7 +423,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
     z0<-cbind(z0,z0n)
     q0 <- c(q0,ncol(z0n))
   }
-
+  
   z0 <-cbind(indY_z0,z0)
   ### filling with zeros
   tous_col_z0 <-unlist(col_n)
@@ -442,7 +442,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   col_n<-list()
   q <- NULL
   nb_paraDu <- 0
-
+  
   for(n in 1:nD){
     r<-as.formula(paste(subject,randoms_DeltaX.models[n], sep="~-1+"))
     zn<-model.matrix(r,data=z_cov)
@@ -457,7 +457,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
     z<-cbind(z,zn)
     q <- c(q,ncol(zn))
   }
-
+  
   if(all(randoms_DeltaX.models=="-1"))
     q <- rep(0,nD)
   if(length(which(randoms_DeltaX.models=="-1"))>0 & length(which(randoms_DeltaX.models=="-1"))<length(randoms_DeltaX.models))
@@ -477,7 +477,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   # design matrix for transition model
   f<-as.formula(paste(subject,mod_trans.model, sep="~"))# put subject, just to have a left side for the formula
   modA_mat<-model.matrix(as.formula(paste(subject,mod_trans.model, sep="~")),data=data_xzMatA_cov)
-
+  
   #   dim(modA_mat)
   #   head(modA_mat)
   #============================================================
@@ -491,14 +491,14 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   df <- tr_Y$df
   minY <- tr_Y$minY
   maxY <- tr_Y$maxY
-
+  
   nb_RE <- sum(q0,q)
   nb_paraD <- nb_RE*(nb_RE+1)/2
   
   #If joint model
   Event <- NULL
   StatusEvent <- NULL
-
+  
   if(!is.null(Survdata)){ # Interesting for development to multi-state and interval censoring...
     type=ifelse(length(unique(Survdata[,3]))>2, "mstate", "right")
     surv_obj <- survival::Surv(Survdata[,2], Survdata[,3], type=type)
@@ -506,7 +506,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
     StatusEvent <- surv_obj[,2]
     message("check use of mstate here....")
   }
-
+  
   nE <- length(fixed.survival.models)
   Xsurv1 <- 0
   Xsurv2 <- 0
@@ -544,7 +544,7 @@ DataFormat <- function(data, subject, fixed_X0.models , randoms_X0.models , fixe
   }else{
     np_surv <-0
   }
-
+  
   return(list(nb_subject=I, nb_obs = length(na.omit(as.vector(Y))), K=K, nD = nD, all.preds = all.preds, id_and_Time=id_and_Time,Tmax = Tmax, m_i = m_i, Y = Y, Mod.MatrixY=Mod.MatrixY,  
               Mod.MatrixYprim=Mod.MatrixYprim, minY = minY, maxY = maxY, knots = knots, zitr = zitr, ide = ide, df = df, degree = degree, x = x, x0 = x0, 
               vec_ncol_x0n = nb_x0_n, z = z, z0=z0, q = q, q0 = q0, nb_paraD = nb_paraD, nb_RE=nb_RE, modA_mat = modA_mat,

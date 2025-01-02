@@ -1,11 +1,11 @@
-Package: CInLPN2
+Package: DynNet
 Type: Package
 Title: Causal Inference for Latent Processes Network
-Version: 0.2.0
-Date: 2017-04-26
+Version: 0.3.0
+Date: 2025-01-02
 Author: Rouanet Ana\"is, Bachirou 0. Tadd\'e, C\'ecile Proust-Lima
-Maintainer: C\'ecile Proust-Lima <cecile.proust-lima@u-bordeaux.fr>
-Description: Contains functions to fit a dynamic model for multiple latent processes and estimate 
+Maintainer: Ana\"is Rouanet <anais.rouanet@u-bordeaux.fr>
+Description: Contains functions to fit a joint dynamic model for multiple latent processes and estimate 
              their temporal influences. The methodology is based on the combinaison of  
              linear mixed model for latent processes trajectories and a system of 
              differences equations for assessing their temporal influences. 
@@ -16,7 +16,10 @@ Imports:
     marqLevAlg, 
     MASS,
     splines2 (>= 0.2.8),
-    RcppArmadillo
+    RcppArmadillo,
+    survival, 
+    randtoolbox (=1.31.1),
+    doParallel
 NeedsCompilation: yes
 LinkingTo: 
     Rcpp, 
@@ -25,7 +28,7 @@ Depends:
     R (>= 3.4.3)
 RoxygenNote: 7.1.2
 LazyData: true
-URL: https://github.com/anarouanet/CInLPN2
+URL: https://github.com/anarouanet/DynNet
 Encoding: UTF-8
 Suggests: 
     testthat (>= 3.0.0)

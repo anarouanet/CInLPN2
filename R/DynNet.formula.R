@@ -120,7 +120,7 @@
 #'                1.107, 1.889, 0.881, 1.329)
 #' indexparaFixeUser <- c(1,3, 6+c(1, 2, 4, 5, 6, 9))
 #' paraFixeUser <- c(0, 0, 1, 0, 0, 1, 0, 0)
-#' mod1 <- CInLPN2(structural.model = list(fixed.LP0 = ~ 1 + C2 | 1 + C2,
+#' mod1 <- DynNet(structural.model = list(fixed.LP0 = ~ 1 + C2 | 1 + C2,
 #'                                       fixed.DeltaLP = L2 | L3  ~ 1 | 1 ,
 #'                                       random.DeltaLP = ~ 1|1,
 #'                                       trans.matrix = ~ 1,
@@ -151,7 +151,7 @@
 #'                 1.891,  0.846, 1.345)
 #' indexparaFixeUser <- c(1,3, 8+c(1, 2, 4, 5, 6, 9,10+c(2:4,14:16)))
 #' paraFixeUser <- c(0, 0, 1, 0, 0, 1, 0, 0, rep(0,6))
-#' mod2 <- CInLPN2(structural.model = list(fixed.LP0 = ~ 1 + C2 | 1 + C2,
+#' mod2 <- DynNet(structural.model = list(fixed.LP0 = ~ 1 + C2 | 1 + C2,
 #'                                      fixed.DeltaLP = L1 + L2| L3  ~ 1 + time| 1 + time,
 #'                                      random.DeltaLP = ~ 1|1,
 #'                                      trans.matrix = ~ 1 + bs(x = time, knots =c(2), 
@@ -181,7 +181,7 @@
 #' indexparaFixeUser <- c(1,4,10+c(1,2,4,5,6,9, 10+c(1:4)))
 #' paraFixeUser <- c(0,0,1,0,0,1,0,0, rep(0,4))
 
-#' mod <-  CInLPN2(structural.model = list(fixed.LP0 = ~ 1 + C1 + C2|1 + C1 + C2,
+#' mod <-  DynNet(structural.model = list(fixed.LP0 = ~ 1 + C1 + C2|1 + C1 + C2,
 #'                                    fixed.DeltaLP = L1 + L2 | L3 ~1 + time|1 + time,
 #'                                    random.DeltaLP = ~ 1|1,
 #'                                    trans.matrix = ~ 1,
@@ -206,7 +206,7 @@
 #' paras.ini <- NULL
 #' indexparaFixeUser <- c(1,3, 8+c(1, 2, 4, 5, 6, 9,10+c(2:4,14:16)))
 #' paraFixeUser <- c(0, 0, 1, 0, 0, 1, 0, 0, rep(0,6))
-#' res <- CInLPN2(structural.model = list(fixed.LP0 = ~ 1 + C2 | 1 + C2,
+#' res <- DynNet(structural.model = list(fixed.LP0 = ~ 1 + C2 | 1 + C2,
 #'                                  fixed.DeltaLP = L1 | L2  ~ 1 + time| 1 + time,
 #'                                  random.DeltaLP = ~ 1|1,
 #'                                  trans.matrix = ~ 1 + bs(x = time, knots =c(2), 
@@ -228,13 +228,13 @@
 #'       
 
 
-CInLPN2 <- function(structural.model, measurement.model, parameters, 
+DynNet <- function(structural.model, measurement.model, parameters, 
                    option, Time, Tentry ="Tentry", Event = "Event", StatusEvent = "StatusEvent", basehaz = NULL, subject, data, seed=NULL, 
                    TimeDiscretization = TRUE, cholesky=FALSE,...){
 
   cl <- match.call()
   ptm <- proc.time()  
-  cat("Be patient, CInLPN2 is running ... \n")
+  cat("Be patient, DynNet is running ... \n")
 
   if(!missing(seed))
     set.seed(seed)
@@ -589,8 +589,8 @@ CInLPN2 <- function(structural.model, measurement.model, parameters,
     }
   }
 
-  #### call of CInLPN2.default function to compute estimation and predictions
-  est <- CInLPN2.default(fixed_X0.models = fixed_X0.models, fixed_DeltaX.models = fixed_DeltaX.models, randoms_X0.models = randoms_X0.models, 
+  #### call of DynNet.default function to compute estimation and predictions
+  est <- DynNet.default(fixed_X0.models = fixed_X0.models, fixed_DeltaX.models = fixed_DeltaX.models, randoms_X0.models = randoms_X0.models, 
                         randoms_DeltaX.models = randoms_DeltaX.models, mod_trans.model = mod_trans.model, DeltaT = DeltaT , outcomes = outcomes,
                         nD = nD, mapping.to.LP = mapping.to.LP, link = link, knots = knots, subject = subject, data = data, Time = Time, 
                         Survdata = Survdata, basehaz = basehaz, knots_surv = knots_surv, assoc = assoc, truncation = truncation, 

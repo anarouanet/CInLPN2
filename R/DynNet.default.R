@@ -40,18 +40,21 @@
 #' @param print.info  to print information during the liklihood optimization, default value is FALSE 
 #' @param \dots optional parameters
 #'
-#' @return CInLPN2 object
-CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.models, randoms_DeltaX.models, mod_trans.model, 
-                            DeltaT, outcomes, nD, mapping.to.LP, link, knots=NULL, subject, data, Time, 
-                            Survdata = NULL, basehaz = NULL, knots_surv=NULL, assoc = 0, truncation = FALSE, fixed.survival.models = NULL, 
-                            interactionY.survival.models = NULL,
-                            makepred, MCnr, MCnr2, type_int = NULL, sequence = NULL, ind_seq_i = NULL, nmes = NULL, cholesky= FALSE,
-                            paras.ini= NULL, indexparaFixeUser, paraFixeUser, maxiter, zitr, ide, univarmaxiter, nproc = 1, 
-                            epsa =0.0001, epsb = 0.0001, epsd= 0.001, print.info = FALSE, TimeDiscretization = TRUE, 
-                            Tentry = NULL, Event = NULL, StatusEvent = NULL, ...)
+#' @return DynNet object
+#' 
+#' @import survival splines2
+#' 
+DynNet.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.models, randoms_DeltaX.models, mod_trans.model, 
+                           DeltaT, outcomes, nD, mapping.to.LP, link, knots=NULL, subject, data, Time, 
+                           Survdata = NULL, basehaz = NULL, knots_surv=NULL, assoc = 0, truncation = FALSE, fixed.survival.models = NULL, 
+                           interactionY.survival.models = NULL,
+                           makepred, MCnr, MCnr2, type_int = NULL, sequence = NULL, ind_seq_i = NULL, nmes = NULL, cholesky= FALSE,
+                           paras.ini= NULL, indexparaFixeUser, paraFixeUser, maxiter, zitr, ide, univarmaxiter, nproc = 1, 
+                           epsa =0.0001, epsb = 0.0001, epsd= 0.001, print.info = FALSE, TimeDiscretization = TRUE, 
+                           Tentry = NULL, Event = NULL, StatusEvent = NULL, ...)
 {
   cl <- match.call()
-
+  
   ################### discretization of the data with discretisation value given by the user ##########################
   if(TimeDiscretization){#PB with covariates !
     data <- TimeDiscretization(rdata=data, subject = subject, 
@@ -62,19 +65,16 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
                                Time = Time, Delta = DeltaT)
   }
   ################### created formated data ##########################
-
-  if(requireNamespace("survival", quietly = TRUE)){
-    data_F <- DataFormat(data=data, subject = subject, fixed_X0.models = fixed_X0.models,
-                         randoms_X0.models = randoms_X0.models, fixed_DeltaX.models = fixed_DeltaX.models, 
-                         randoms_DeltaX.models = randoms_DeltaX.models, mod_trans.model = mod_trans.model, 
-                         outcomes = outcomes, nD = nD, link=link, knots = knots, zitr= zitr, ide = ide, 
-                         Time = Time, Survdata = Survdata, basehaz = basehaz, fixed.survival.models =fixed.survival.models, 
-                         interactionY.survival.models = interactionY.survival.models, DeltaT=DeltaT, assoc = assoc, truncation = truncation)
-    
-  }else{
-    stop("Need package survival to work, Please install it.")
-  }
-
+  
+  
+  data_F <- DataFormat(data=data, subject = subject, fixed_X0.models = fixed_X0.models,
+                       randoms_X0.models = randoms_X0.models, fixed_DeltaX.models = fixed_DeltaX.models, 
+                       randoms_DeltaX.models = randoms_DeltaX.models, mod_trans.model = mod_trans.model, 
+                       outcomes = outcomes, nD = nD, link=link, knots = knots, zitr= zitr, ide = ide, 
+                       Time = Time, Survdata = Survdata, basehaz = basehaz, fixed.survival.models =fixed.survival.models, 
+                       interactionY.survival.models = interactionY.survival.models, DeltaT=DeltaT, assoc = assoc, truncation = truncation)
+  
+  
   K <- data_F$K #  number of markers
   vec_ncol_x0n <- data_F$vec_ncol_x0n # number of parameters on initial level of processes
   n_col_x <- ncol(data_F$x) # number of parameters on processes slope
@@ -94,7 +94,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
       sequence  <- randtoolbox::torus(n = MCnr, dim = nb_RE, normal = TRUE, init=T) 
     }
   }
-
+  
   assocT <- NULL
   if(!is.null(assoc)){
     assocT <- ifelse(assoc==0, "r.intercept",ifelse(assoc==1, "r.slope",ifelse(assoc==2, "r.intercept/slope",ifelse(
@@ -114,7 +114,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
                              Tentry = Tentry, Event = Event, StatusEvent = StatusEvent, assocT = assocT, truncation = truncation)
   }
   npara_k <- sapply(outcomes, function(x) length(grep(x, names(data.frame(data_F$Mod.MatrixY)))))
-
+  
   paras <- Parametre(K=K, nD = nD, vec_ncol_x0n, n_col_x, nb_RE, indexparaFixeUser = indexparaFixeUser, 
                      paraFixeUser = paraFixeUser, L = L, ncolMod.MatrixY = ncolMod.MatrixY, paras.ini=paras.ini, 
                      link = link, npara_k = npara_k, 
@@ -130,7 +130,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
     } 
   }
   paras$npara_k <- npara_k
-
+  
   #add zitr, ide  dans estim(). What about knots? What in dataF
   if(any(link=="thresholds")|| !is.null(Survdata) || !is.null(type_int) || !is.null(MCnr)){
     #  nmes <- c()
@@ -172,12 +172,12 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
   }
   
   # estimation
-  est <- CInLPN2.estim(K = K, nD = nD, mapping.to.LP = mapping.to.LP, data = data_F, if_link = if_link, cholesky = cholesky,
-                       DeltaT = DeltaT, MCnr = MCnr, MCnr2 = MCnr2, nmes = nmes, data_surv = Survdata,
-                       paras = paras, maxiter = maxiter, nproc = nproc, epsa = epsa, epsb = epsb,
-                       epsd = epsd, print.info = print.info)
+  est <- DynNet.estim(K = K, nD = nD, mapping.to.LP = mapping.to.LP, data = data_F, if_link = if_link, cholesky = cholesky,
+                      DeltaT = DeltaT, MCnr = MCnr, MCnr2 = MCnr2, nmes = nmes, data_surv = Survdata,
+                      paras = paras, maxiter = maxiter, nproc = nproc, epsa = epsa, epsb = epsb,
+                      epsd = epsd, print.info = print.info)
   
-
+  
   res <- list(conv = est$istop, v = est$v, best = est$b, ca = est$ca, cb = est$cb, rdm = est$rdm, 
               #niter = est$iter, 
               niter = est$ni, coefficients = est$coefficients, posfix = est$posfix, LouisV = est$LouisV,
@@ -186,7 +186,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
   #   # fitted value and correlation matrix
   #   m <- length(data$tau)
   res$fitted.values <- NULL
-
+  
   if(makepred & res$conv==1){
     ptm2 <- proc.time() 
     cat("Computation of the predictions for the observed marker(s) \n")
@@ -202,16 +202,14 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
     res$SubjectSpecific_Predict <- data_F$id_and_Time
     col <- colnames(res$Marginal_Predict)
     # colSS <- colnames(res$SubjectSpecific_Predict)
-    if(requireNamespace("splines2", quietly = TRUE)){
-      Predict <- pred(K = K, nD = nD, mapping = mapping.to.LP, paras = res$coefficients,
-                      m_is= data_F$m_i, Mod_MatrixY = data_F$Mod.MatrixY, df= data_F$df,
-                      x = data_F$x, z = data_F$z, q = data_F$q, cholesky = cholesky, nb_paraD = data_F$nb_paraD, x0 = data_F$x0, z0 = data_F$z0,
-                      q0 = data_F$q0, if_link = if_link, tau = data_F$tau,
-                      tau_is=data_F$tau_is, modA_mat = data_F$modA_mat, DeltaT=DeltaT, 
-                      MCnr = MCnr, minY=data_F$minY, maxY=data_F$maxY, knots=data_F$knots, data_F$degree, epsPred = 1.e-9)
-    }else{
-      stop("Need package MASS to work, Please install it.")
-    }
+    
+    Predict <- pred(K = K, nD = nD, mapping = mapping.to.LP, paras = res$coefficients,
+                    m_is= data_F$m_i, Mod_MatrixY = data_F$Mod.MatrixY, df= data_F$df,
+                    x = data_F$x, z = data_F$z, q = data_F$q, cholesky = cholesky, nb_paraD = data_F$nb_paraD, x0 = data_F$x0, z0 = data_F$z0,
+                    q0 = data_F$q0, if_link = if_link, tau = data_F$tau,
+                    tau_is=data_F$tau_is, modA_mat = data_F$modA_mat, DeltaT=DeltaT, 
+                    MCnr = MCnr, minY=data_F$minY, maxY=data_F$maxY, knots=data_F$knots, data_F$degree, epsPred = 1.e-9)
+    
     kk <- 1
     for(k in 1: K){
       res$Marginal_Predict <- cbind(res$Marginal_Predict,data_F$Y[,k],Predict[,kk], 
@@ -312,7 +310,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
             param_survie <- c(param_survie, paste(names(Xsurv)[ip],ij,sep="."))
           }   
         }
-
+        
         
         if(assoc==0){
           name_assoc0 <- "r.inter"
@@ -373,7 +371,7 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
     covea <- sweep(covea,2,sea,"*")
     res$varcov <- covea
   }
-
+  
   res$coefficients <- as.matrix(res$coefficients)
   rownames(res$coefficients) <- res$colnames
   colnames(res$coefficients) <- "Coef."
@@ -398,6 +396,6 @@ CInLPN2.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mod
   res$modA_mat = data_F$modA_mat
   res$cholesky <- cholesky
   res$call <- match.call()
-  class(res) <- 'CInLPN2'
+  class(res) <- 'DynNet'
   res
 }

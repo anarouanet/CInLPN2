@@ -1,4 +1,4 @@
-#' Function to initialize parameters k in multivariate CInLPN2 model
+#' Function to initialize parameters k in multivariate DynNet model
 #'
 #' @param K number of the markers
 #' @param nD number of the latent processes
@@ -385,7 +385,7 @@ f_paras.ini <- function(data, outcomes, mapped.to.LP, fixed_X0.models, fixed_Del
     option = list(nproc = nproc, print.info = print.info, maxiter = maxiter, MCnr = MCnr, type_int = type_int,
                   basehaz = basehaz, assocT = assocT, truncation = truncation)
 
-    mod <- CInLPN2:::CInLPN2(structural.model = structural.model, measurement.model = measurement.model, parameters = parameters,
+    mod <- DynNet:::DynNet(structural.model = structural.model, measurement.model = measurement.model, parameters = parameters,
                                option = option, Time = Time, subject = subject, data = data, links = links[k], 
                                Tentry = Tentry, Event = Event, StatusEvent = StatusEvent, TimeDiscretization = TimeDiscretization)
 

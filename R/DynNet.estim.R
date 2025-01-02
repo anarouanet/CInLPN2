@@ -16,9 +16,11 @@
 #' @param epsd threshold for the convergence criterion on the derivatives, default value is 1.e-3
 #' @param print.info to print information during the liklihood optimization, default value is FALSE
 #'
-#' @return CInLPN2 object
+#' @return DynNet object
+#' 
+#' @import marqLevAlg randtoolbox doParallel
 
-CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesky = FALSE, DeltaT=1.0, MCnr = NULL, MCnr2=NULL, nmes = NULL, data_surv = NULL, paras, 
+DynNet.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesky = FALSE, DeltaT=1.0, MCnr = NULL, MCnr2=NULL, nmes = NULL, data_surv = NULL, paras, 
                           maxiter = 500, nproc = 1, epsa =0.0001, epsb = 0.0001,epsd= 0.001, print.info = FALSE){
   cl <- match.call()
   #  non parall Optimisation 
@@ -81,9 +83,7 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
     # 
     #source("/Users/anais/Documents/2019 Postdoc Bordeaux/code/CInLPN/simulations_CInLPN/Thresholds/simulations/marqLevAlg_AR.R")
     #source("/Users/anais/Documents/2019 Postdoc Bordeaux/code/R/MLM/deriva_AR.R")
-    
-    if(requireNamespace("marqLevAlg", quietly = TRUE)){#marqLevAlg::marqLevAlg
-      
+
       ptm<-proc.time()#marqLevAlg::marqLevAlg
 
       temp <- try(marqLevAlg::marqLevAlg(b = paras$paraOpt, fn = Loglik, nproc = nproc, .packages = NULL, epsa=epsa, epsb=epsb, epsd=epsd,
@@ -112,10 +112,6 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
       }else{
         est <- temp
       }
-    }else{
-      stop("Package marqLevAlg required for the optimization process")
-      
-    }
   }
 
   if(MCnr2>0){
@@ -149,11 +145,11 @@ CInLPN2.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesk
     
     
     if(paras$type_int == 2){
-      sequence  <- randtoolbox::sobol(n = MCnr2, dim = sum(data$q)+nD, scrambling = 1, normal = TRUE, init=T)
+      sequence  <- sobol(n = MCnr2, dim = sum(data$q)+nD, scrambling = 1, normal = TRUE, init=T)
     }else if(paras$type_int == 1){
-      sequence  <- randtoolbox::halton(n = MCnr2, dim = sum(data$q)+nD, normal = TRUE, init=T) 
+      sequence  <- halton(n = MCnr2, dim = sum(data$q)+nD, normal = TRUE, init=T) 
     }else if(paras$type_int == 3){
-      sequence  <- randtoolbox::torus(n = MCnr2, dim = sum(data$q)+nD, normal = TRUE, init=T) 
+      sequence  <- torus(n = MCnr2, dim = sum(data$q)+nD, normal = TRUE, init=T) 
     }
     
     I1 <- matrix(0,length(paras$paraOpt),length(paras$paraOpt))

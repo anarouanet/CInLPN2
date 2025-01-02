@@ -10,7 +10,6 @@
 #' @return a matrix
 
 f_trSpline <- function(y, minY, maxY, knots, degree, paras){
-  if(requireNamespace("splines2", quietly = TRUE)){
     ni <- length(y)
     y <- data.frame(y=y)
     nk <- length(knots)
@@ -31,7 +30,4 @@ f_trSpline <- function(y, minY, maxY, knots, degree, paras){
     tr[,2] <- 1/(MsMat%*%paras[-1])
     colnames(tr) <- c("Y.tr","invJ.Y.tr")
     return(tr)
-  }else{
-    stop("Need package splines2 to work, please install it.")
-  }
 }

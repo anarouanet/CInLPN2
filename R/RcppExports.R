@@ -52,11 +52,11 @@ NULL
 #' @export
 #' 
 Loglik <- function(K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, cholesky, data_surv, data_surv_intY, nYsurv, basehaz, knots_surv, np_surv, survival, assoc, truncation, nE, Xsurv1, Xsurv2, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT, ii) {
-    .Call(`_CInLPN2_Loglik`, K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, cholesky, data_surv, data_surv_intY, nYsurv, basehaz, knots_surv, np_surv, survival, assoc, truncation, nE, Xsurv1, Xsurv2, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT, ii)
+    .Call(`_DynNet_Loglik`, K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, cholesky, data_surv, data_surv_intY, nYsurv, basehaz, knots_surv, np_surv, survival, assoc, truncation, nE, Xsurv1, Xsurv2, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT, ii)
 }
 
 Loglik2 <- function(K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, cholesky, data_surv, data_surv_intY, nYsurv, basehaz, knots_surv, np_surv, survival, assoc, truncation, nE, Xsurv1, Xsurv2, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT, ii, ui) {
-    .Call(`_CInLPN2_Loglik2`, K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, cholesky, data_surv, data_surv_intY, nYsurv, basehaz, knots_surv, np_surv, survival, assoc, truncation, nE, Xsurv1, Xsurv2, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT, ii, ui)
+    .Call(`_DynNet_Loglik2`, K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence, type_int, ind_seq_i, MCnr, nmes, m_is, Mod_MatrixY, Mod_MatrixYprim, df, x, z, q, nb_paraD, x0, z0, q0, cholesky, data_surv, data_surv_intY, nYsurv, basehaz, knots_surv, np_surv, survival, assoc, truncation, nE, Xsurv1, Xsurv2, if_link, zitr, ide, tau, tau_is, modA_mat, DeltaT, ii, ui)
 }
 
 #' Function that computes the predictions (marginal and subject-specific) for individuals
@@ -94,11 +94,11 @@ NULL
 #' @export
 #' 
 pred <- function(K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, cholesky, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred, ui_hat, nE = 0L) {
-    .Call(`_CInLPN2_pred`, K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, cholesky, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred, ui_hat, nE)
+    .Call(`_DynNet_pred`, K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, cholesky, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred, ui_hat, nE)
 }
 
 pred0 <- function(K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred) {
-    .Call(`_CInLPN2_pred0`, K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred)
+    .Call(`_DynNet_pred0`, K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred)
 }
 
 #'  Function that constructs the matrix matYtild_ui (Lambda_i|ui), the expectation of the processes at time t_j given ui
@@ -138,7 +138,7 @@ NULL
 #' @param M a matrix
 #' @export
 vectorise <- function(M) {
-    .Call(`_CInLPN2_vectorise`, M)
+    .Call(`_DynNet_vectorise`, M)
 }
 
 #' Function that creates a K-block diagonal matrix with non diagonal element fixed to 0
@@ -149,7 +149,7 @@ vectorise <- function(M) {
 #' @export
 #' 
 KmatDiag <- function(Kvector) {
-    .Call(`_CInLPN2_KmatDiag`, Kvector)
+    .Call(`_DynNet_KmatDiag`, Kvector)
 }
 
 #'  Function that computes a symetric D matric from it Cholesky L
@@ -161,7 +161,7 @@ KmatDiag <- function(Kvector) {
 #' @export
 #' 
 DparChol <- function(q, qvector) {
-    .Call(`_CInLPN2_DparChol`, q, qvector)
+    .Call(`_DynNet_DparChol`, q, qvector)
 }
 
 #'  Function that computes all coefficients of the transition matrix at time t
@@ -176,7 +176,7 @@ DparChol <- function(q, qvector) {
 #' @export
 #' 
 vecaijt <- function(K, t, vec_alpha_ij, modA_mat) {
-    .Call(`_CInLPN2_vecaijt`, K, t, vec_alpha_ij, modA_mat)
+    .Call(`_DynNet_vecaijt`, K, t, vec_alpha_ij, modA_mat)
 }
 
 #'  Function that  constructs the transition matrix at time t
@@ -192,7 +192,7 @@ vecaijt <- function(K, t, vec_alpha_ij, modA_mat) {
 #' @export
 #' 
 ConstrA <- function(K, t, DeltaT, vec_alpha_ij, modA_mat) {
-    .Call(`_CInLPN2_ConstrA`, K, t, DeltaT, vec_alpha_ij, modA_mat)
+    .Call(`_DynNet_ConstrA`, K, t, DeltaT, vec_alpha_ij, modA_mat)
 }
 
 #'  Function that  creates a matrix K,K*(max(tau_i)-1) containing  sub-matrices {(A_t)}_{t=0,tau_i-1}
@@ -208,7 +208,7 @@ ConstrA <- function(K, t, DeltaT, vec_alpha_ij, modA_mat) {
 #' @export
 #' 
 GmatA0totaui <- function(K, vec_alpha_ij, tau_i, DeltaT, modA_mat) {
-    .Call(`_CInLPN2_GmatA0totaui`, K, vec_alpha_ij, tau_i, DeltaT, modA_mat)
+    .Call(`_DynNet_GmatA0totaui`, K, vec_alpha_ij, tau_i, DeltaT, modA_mat)
 }
 
 #'  Function that  computes the product of A(t) for t1 to t2
@@ -225,7 +225,7 @@ GmatA0totaui <- function(K, vec_alpha_ij, tau_i, DeltaT, modA_mat) {
 #' @export
 #' 
 ProdA <- function(K, t2, t1, DeltaT, vec_alpha_ij, modA_mat) {
-    .Call(`_CInLPN2_ProdA`, K, t2, t1, DeltaT, vec_alpha_ij, modA_mat)
+    .Call(`_DynNet_ProdA`, K, t2, t1, DeltaT, vec_alpha_ij, modA_mat)
 }
 
 #'  Function that  creates a big matrix containing  Prod(A_t)t=t_ini,tau.
@@ -242,7 +242,7 @@ ProdA <- function(K, t2, t1, DeltaT, vec_alpha_ij, modA_mat) {
 #' @export
 #' 
 GmatprodAstotau <- function(K, vec_alpha_ij, tau, t_ini, DeltaT, modA_mat) {
-    .Call(`_CInLPN2_GmatprodAstotau`, K, vec_alpha_ij, tau, t_ini, DeltaT, modA_mat)
+    .Call(`_DynNet_GmatprodAstotau`, K, vec_alpha_ij, tau, t_ini, DeltaT, modA_mat)
 }
 
 #'  Function that  creates a big matrix ts_G_mat_prod_A_0_to_tau containing  Prod(A_t)t=0,tau.
@@ -258,7 +258,7 @@ GmatprodAstotau <- function(K, vec_alpha_ij, tau, t_ini, DeltaT, modA_mat) {
 #' @export
 #' 
 tsGmatprodA0totau <- function(K, vec_alpha_ij, tau, DeltaT, modA_mat) {
-    .Call(`_CInLPN2_tsGmatprodA0totau`, K, vec_alpha_ij, tau, DeltaT, modA_mat)
+    .Call(`_DynNet_tsGmatprodA0totau`, K, vec_alpha_ij, tau, DeltaT, modA_mat)
 }
 
 #' After vectorising the vzector Yi, this function returns
@@ -270,7 +270,7 @@ tsGmatprodA0totau <- function(K, vec_alpha_ij, tau, DeltaT, modA_mat) {
 #' @export
 #' 
 compoYiNA <- function(Yi) {
-    .Call(`_CInLPN2_compoYiNA`, Yi)
+    .Call(`_DynNet_compoYiNA`, Yi)
 }
 
 #' Function that returns Yi (a vector) without NAs values
@@ -281,7 +281,7 @@ compoYiNA <- function(Yi) {
 #' @export
 #' 
 YiwoNA <- function(Yi) {
-    .Call(`_CInLPN2_YiwoNA`, Yi)
+    .Call(`_DynNet_YiwoNA`, Yi)
 }
 
 #'  Function that constructs the matrix nu_t_j, the expectation of the processes at time t_j
@@ -300,11 +300,11 @@ YiwoNA <- function(Yi) {
 #' @export
 #' 
 matNui <- function(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i) {
-    .Call(`_CInLPN2_matNui`, nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i)
+    .Call(`_DynNet_matNui`, nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i)
 }
 
 matYtild_ui <- function(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, ui, vi) {
-    .Call(`_CInLPN2_matYtild_ui`, nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, ui, vi)
+    .Call(`_DynNet_matYtild_ui`, nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, ui, vi)
 }
 
 #' Function that replaces NAs by 0.0 just for computatinal need
@@ -315,7 +315,7 @@ matYtild_ui <- function(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A
 #' @export
 #' 
 f_Yi_r_NA_by0 <- function(Yi) {
-    .Call(`_CInLPN2_f_Yi_r_NA_by0`, Yi)
+    .Call(`_DynNet_f_Yi_r_NA_by0`, Yi)
 }
 
 #' Function that computes the difference (mat_Yi - mat_Nu_i), deletes missing values (NAs) and 
@@ -338,7 +338,7 @@ f_Yi_r_NA_by0 <- function(Yi) {
 #' @export
 #' 
 YiNui <- function(nD, matrixP, tau, tau_i, DeltaT, Yi, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i) {
-    .Call(`_CInLPN2_YiNui`, nD, matrixP, tau, tau_i, DeltaT, Yi, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i)
+    .Call(`_DynNet_YiNui`, nD, matrixP, tau, tau_i, DeltaT, Yi, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i)
 }
 
 #' Function that computes the difference (mat_Yi - mat_Nu_i), delates missing values (NAs) and 
@@ -369,7 +369,7 @@ YiNui <- function(nD, matrixP, tau, tau_i, DeltaT, Yi, x0i, alpha_mu0, xi, alpha
 #' @export
 #' 
 f_marker <- function(Lambdai, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, paraEtha2, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda) {
-    .Call(`_CInLPN2_f_marker`, Lambdai, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, paraEtha2, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda)
+    .Call(`_DynNet_f_marker`, Lambdai, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, paraEtha2, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda)
 }
 
 #'  Function that constructs the matrix lambda_t_j, the value of the processes at time t_j, given the random effects
@@ -391,7 +391,7 @@ f_marker <- function(Lambdai, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrim
 #' @export
 #' 
 matNui_ui <- function(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, randomeffects, zi, ordered) {
-    .Call(`_CInLPN2_matNui_ui`, nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, randomeffects, zi, ordered)
+    .Call(`_DynNet_matNui_ui`, nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, randomeffects, zi, ordered)
 }
 
 #' Function that transforms a vector to a matrix
@@ -404,6 +404,6 @@ matNui_ui <- function(nD, tau_i, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0
 #' @export
 #' 
 VecToMat <- function(y, K, m_i) {
-    .Call(`_CInLPN2_VecToMat`, y, K, m_i)
+    .Call(`_DynNet_VecToMat`, y, K, m_i)
 }
 

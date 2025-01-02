@@ -14,6 +14,9 @@
 #'
 #' @return a list
 #' 
+#' @importFrom stats qunif median
+#' @importFrom mstate trans.comprisk
+#' 
 #' 
 Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, indexparaFixeUser =NULL,
                       paraFixeUser=NULL, L = 1, paras.ini, ncolMod.MatrixY, link, npara_k, 

@@ -20,7 +20,8 @@ Imports:
     survival, 
     randtoolbox,
     doParallel,
-    foreach
+    foreach,
+    mstate
 NeedsCompilation: yes
 LinkingTo: 
     Rcpp, 

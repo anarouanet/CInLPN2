@@ -10,8 +10,7 @@
 #' @importFrom stats as.formula model.matrix na.action na.omit pchisq pnorm printCoefmat quantile terms var
 #' @importFrom Rcpp evalCpp 
 #' @name DynNet-package
-#' @docType package
 #' 
 #' @keywords "Causality", "Dynamic model"," Latent processes"," multivariate longitudinal data"
 #' @useDynLib DynNet, .registration = TRUE
-NULL
+"_PACKAGE"

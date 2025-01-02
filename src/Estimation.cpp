@@ -1,5 +1,6 @@
 #define ARMA_DONT_PRINT_ERRORS
 #include <RcppArmadillo.h>
+//' @import RcppArmadillo
 #include <Rcpp.h>
 //#include <eigen3/Eigen/Dense>
 #include <stdexcept>

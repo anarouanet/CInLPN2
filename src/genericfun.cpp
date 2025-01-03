@@ -1121,12 +1121,12 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
   //           << " DeltaT "<<DeltaT<<endl;
   
   if(assoc == 4 || assoc == 5){
-    cout << " to develop !"<<endl;
+    std::cout << " to develop !"<<endl;
   }
   
   // Computation of the survival/risk function
   if(survfunc){ // survival function, never used so far
-    cout << " verif use of fct_pred_curlev_slope for survival computation!! ";
+    std::cout << " verif use of fct_pred_curlev_slope for survival computation!! ";
     mat cumrisq(ptGK_delta.size(), nE);
     
     for(int j=0; j<nE; j++){
@@ -1140,7 +1140,7 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
         double temp = alpha(j)*curlev(i);
 
         if(param_surv_intY.size()>0){
-          cout << " ajout interactions  ";
+          std::cout << " ajout interactions  ";
           if(j==0){
             for(int jj=0; jj<xti1_intY.size(); jj++){
               //temp += param_surv_intY(jj)*curlev(i)*xti1_intY(jj);

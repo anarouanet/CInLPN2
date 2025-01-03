@@ -434,7 +434,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
       ui = uii.t();
     }else if(type_int==0){ // AMC
       
-      std::cout << " to develop !"<<endl;
+      Rcout << " to develop !"<<endl;
     }else {//QMC
       ui = seq_i * chol_var_RE.t();
       //ui = chol_var_RE * seq_i.t() ;
@@ -452,7 +452,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
     std::chrono::duration<double> elapsed_Ktot2 = steady_clock::duration::zero();
     std::chrono::duration<double> elapsed_Ktot3 = steady_clock::duration::zero();
     if(chrono)
-      std::cout << "init: " << elapsed_L.count() << "s"  << std::endl;
+      Rcout << "init: " << elapsed_L.count() << "s"  << std::endl;
 
     if(aMC){
       double out2;
@@ -545,8 +545,8 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
             if(tau_i(jj)==tau_ik(j)){
               Lambda_nrk(j)=Lambda_nr(jj*nD + K2_lambda[k]);
             }else{
-              std::cout  << " problem definition tau_ik"<<endl;
-              std::cout << " k "<<k<<" j "<<j<< " tau_i "<<tau_i.t()
+              Rcout  << " problem definition tau_ik"<<endl;
+              Rcout << " k "<<k<<" j "<<j<< " tau_i "<<tau_i.t()
                    <<" jj "<<jj<< " tau_ik "<<tau_ik.t()<<endl;
             }
           }
@@ -556,7 +556,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
           }
           
           if(type_int == -1){ //-1 MC 0 AMC 
-            std::cout << " develop likelihood computation with integral ui for MC or AMC "<<endl;
+            Rcout << " develop likelihood computation with integral ui for MC or AMC "<<endl;
             
             
             
@@ -575,11 +575,11 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
               vec Ytildi_nu_i_uik = Ytildik-Lambda_nrk;
               out2 = -0.5*(nik*log(2*M_PI) + log(det(Sig_k)) + as_scalar(Ytildi_nu_i_uik.t()*inv_sympd(Sig_k)*Ytildi_nu_i_uik));
               if(printa==1&& nr<0){
-                std::cout <<" k :"<<k<< " nr "<<nr<< endl<<endl<<"lvraisr" << lvraisr<<" out2 "<<out2<< " nik "<<nik <<  " log(det(Sig_k)) "<<log(det(Sig_k))<< " scalar "<< as_scalar(Ytildi_nu_i_uik.t()*inv_sympd(Sig_k)*Ytildi_nu_i_uik) << " log_Jac_Phi "<<log_Jac_Phi<<endl;
-                std::cout <<  " ui_r " <<ui_r.t();
-                std::cout <<  " Ytildik " <<Ytildik.t();
-                std::cout <<  " Lambda_nrk " <<Lambda_nrk.t();
-                std::cout <<  " Ytildi_nu_i_uik " <<Ytildi_nu_i_uik.t()<<endl<<endl;
+                Rcout <<" k :"<<k<< " nr "<<nr<< endl<<endl<<"lvraisr" << lvraisr<<" out2 "<<out2<< " nik "<<nik <<  " log(det(Sig_k)) "<<log(det(Sig_k))<< " scalar "<< as_scalar(Ytildi_nu_i_uik.t()*inv_sympd(Sig_k)*Ytildi_nu_i_uik) << " log_Jac_Phi "<<log_Jac_Phi<<endl;
+                Rcout <<  " ui_r " <<ui_r.t();
+                Rcout <<  " Ytildik " <<Ytildik.t();
+                Rcout <<  " Lambda_nrk " <<Lambda_nrk.t();
+                Rcout <<  " Ytildi_nu_i_uik " <<Ytildi_nu_i_uik.t()<<endl<<endl;
                 //   << " matVY_i "<<matVY_i;
               }
               // if(nr==0){
@@ -620,7 +620,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
                     phi2 = 0;
 
                     if(printa)
-                      std::cout << nr  << " j "<< j<< " m "<<zitr(2*k_t) << " value "<<value << " ui_r "<<ui_r.t()
+                      Rcout << nr  << " j "<< j<< " m "<<zitr(2*k_t) << " value "<<value << " ui_r "<<ui_r.t()
                            << "PT "<<ParaTransformYk(0)<< " Lambda_nrk(j) "<<Lambda_nrk(j)<< " phi1 "<<phi1<<" phi "<<phi1-phi2<<endl;
                   }else{
                     
@@ -641,7 +641,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
                         
                         
                         if(printa)
-                          std::cout << nr << " j "<< j<< " m "<<zitr(2*k_t) + m+1 << " inf "<< inf << " sup "<<sup<< " ui_r "<<ui_r.t()<<" value1 "<< (sup-Lambda_nrk(j))/abs(pow(Sig(k,k),0.5))
+                          Rcout << nr << " j "<< j<< " m "<<zitr(2*k_t) + m+1 << " inf "<< inf << " sup "<<sup<< " ui_r "<<ui_r.t()<<" value1 "<< (sup-Lambda_nrk(j))/abs(pow(Sig(k,k),0.5))
                                << "value2 "<<(inf-Lambda_nrk(j))/abs(pow(Sig(k,k),0.5))
                                << " phi1 "<<phi1<< " phi2 "<<phi2<<" phi "<<phi1-phi2<<endl;
                       }
@@ -653,26 +653,26 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
                       phi2 = normalCDF(value);
                     
                       if(printa)
-                        std::cout << nr << " j "<< j<< " m "<<zitr(2*k_t+1)<< " inf "<< inf 
+                        Rcout << nr << " j "<< j<< " m "<<zitr(2*k_t+1)<< " inf "<< inf 
                              << "value "<<value<< " ui_r "<<ui_r.t()
                              << " phi2 "<<phi2<< " phi "<<phi1-phi2<<endl;
                     }
                   }
                   
                   if(phi1< phi2){
-                    std::cout << " phi1< phi2: j "<< j //<< " PT "<< ParaTransformYk.t()<<endl
+                    Rcout << " phi1< phi2: j "<< j //<< " PT "<< ParaTransformYk.t()<<endl
                          << " exp " <<(exp(phi1) - exp(phi2))
                          << " phi1 "<< phi1
                          << " phi2 "<< phi2 
                          << " j "<< j << " k "<< k
                         << " Ytildi "<<Ytildik(j)<< " zitr "<<zitr.t(); 
-                    std::cout << " Ytildi "<<Ytildi.t();
+                    Rcout << " Ytildi "<<Ytildi.t();
                   }
                   
                   vraisk *= (phi1-phi2);
 
                   if(phi1==phi2 && printa==1)
-                    std::cout << nr << " j "<<j<<" Ytildik(j) "<<Ytildik(j)<< " phi "<<(phi1-phi2)<< " vraisk " <<vraisk<<endl;
+                    Rcout << nr << " j "<<j<<" Ytildik(j) "<<Ytildik(j)<< " phi "<<(phi1-phi2)<< " vraisk " <<vraisk<<endl;
                   
                   // if(phi1==phi2 || isinf(lvraisk) )
                   //   cout << " nr "<< nr <<" k " << k <<"j"<<j<<" Ytildik(j) "<<Ytildik(j)<< " k_i "<<k_i.t()
@@ -778,7 +778,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
           lambdat = param_basehaz(2)/param_basehaz(3)*pow(t_i/param_basehaz(3),param_basehaz(2)-1);
         double s0=exp(-pow(t_0i/param_basehaz(1),param_basehaz(0))-pow(t_0i/param_basehaz(3),param_basehaz(2)));
         vrais_surv_check=s1/s0*lambdat;
-        std::cout<< " vrais_surv_check "<<vrais_surv_check<< " s1 "<<s1 << " s0 "<<s0 << " lambdat "<< lambdat << " t_i "<<t_i<<endl
+        Rcout<< " vrais_surv_check "<<vrais_surv_check<< " s1 "<<s1 << " s0 "<<s0 << " lambdat "<< lambdat << " t_i "<<t_i<<endl
             << " log(vrais_survtot/MCnr) "<<log(vrais_survtot/MCnr)
             << " param_basehaz "<<param_basehaz.t() ;
       }
@@ -790,7 +790,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
       lvrais = -log(MCnr) + expotrick + log(vrais) + log_Jac_Phi - log(surv0); 
 
        if(printa==1 && check==1){
-         std::cout << " diffY "<<loglik_i- lvrais<< " loglik_i "<< loglik_i << " lvrais "<<lvrais<< " log(surv0) "<<log(surv0) <<endl;
+         Rcout << " diffY "<<loglik_i- lvrais<< " loglik_i "<< loglik_i << " lvrais "<<lvrais<< " log(surv0) "<<log(surv0) <<endl;
         //<< " MCnr "<<MCnr<< " minY "<< minY << " vrais / MCnr "<<vrais / MCnr;
         //cout << " loglik_i "<< loglik_i-log_Jac_Phi<< " loglik_i2 "<<loglik_i2<<" log(vraisY_tot/MCnr) "<< log(vraisY_tot/MCnr)<< " log_Jac_Phi "<<log_Jac_Phi << " vrais "<<vrais<<endl<<endl<<endl;
       }
@@ -799,13 +799,13 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
          auto END = std::chrono::system_clock::now();
          std::chrono::duration<double> elapsed_seconds = END-start;
          
-         std::cout << "elapsed time Lambda: " << elapsed_L.count() << "s"  << std::endl;
-         std::cout << "elapsed time marker rech: " << elapsed_Krech.count() << "s"  << std::endl;
-         std::cout << "elapsed time marker 1: " << elapsed_Ktot1.count() << "s"  << std::endl;
-         std::cout << "elapsed time marker 2: " << elapsed_Ktot2.count() << "s"  << std::endl;
-         std::cout << "elapsed time marker 3: " << elapsed_Ktot3.count() << "s"  << std::endl;
-         std::cout << "elapsed time Survival: " << elapsed_S.count() << "s"  << std::endl;
-         std::cout << "elapsed time total: " << elapsed_seconds.count() << "s"  << std::endl;
+         Rcout << "elapsed time Lambda: " << elapsed_L.count() << "s"  << std::endl;
+         Rcout << "elapsed time marker rech: " << elapsed_Krech.count() << "s"  << std::endl;
+         Rcout << "elapsed time marker 1: " << elapsed_Ktot1.count() << "s"  << std::endl;
+         Rcout << "elapsed time marker 2: " << elapsed_Ktot2.count() << "s"  << std::endl;
+         Rcout << "elapsed time marker 3: " << elapsed_Ktot3.count() << "s"  << std::endl;
+         Rcout << "elapsed time Survival: " << elapsed_S.count() << "s"  << std::endl;
+         Rcout << "elapsed time total: " << elapsed_seconds.count() << "s"  << std::endl;
        }
     }
   }
@@ -1098,7 +1098,7 @@ double Loglikei_GLM2(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int 
     std::chrono::duration<double> elapsed_Ktot2 = steady_clock::duration::zero();
     std::chrono::duration<double> elapsed_Ktot3 = steady_clock::duration::zero();
     if(chrono)
-      std::cout << "init: " << elapsed_L.count() << "s"  << std::endl;
+      Rcout << "init: " << elapsed_L.count() << "s"  << std::endl;
     
     if(aMC){
       double out2;
@@ -1184,8 +1184,8 @@ double Loglikei_GLM2(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int 
             if(tau_i(jj)==tau_ik(j)){
               Lambda_nrk(j)=Lambda_nr(jj*nD + K2_lambda[k]);
             }else{
-              std::cout  << " problem definition tau_ik"<<endl;
-              std::cout << " k "<<k<<" j "<<j<< " tau_i "<<tau_i.t()
+              Rcout  << " problem definition tau_ik"<<endl;
+              Rcout << " k "<<k<<" j "<<j<< " tau_i "<<tau_i.t()
                    <<" jj "<<jj<< " tau_ik "<<tau_ik.t()<<endl;
             }
           }
@@ -1195,7 +1195,7 @@ double Loglikei_GLM2(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int 
           }
           
           if(type_int == -1){ //-1 MC 0 AMC 
-            std::cout << " develop likelihood computation with integral ui for MC or AMC "<<endl;
+            Rcout << " develop likelihood computation with integral ui for MC or AMC "<<endl;
             
             
             
@@ -1214,11 +1214,11 @@ double Loglikei_GLM2(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int 
               vec Ytildi_nu_i_uik = Ytildik-Lambda_nrk;
               out2 = -0.5*(nik*log(2*M_PI) + log(det(Sig_k)) + as_scalar(Ytildi_nu_i_uik.t()*inv_sympd(Sig_k)*Ytildi_nu_i_uik));
               if(printa==1&& nr<0){
-                std::cout <<" k :"<<k<< " nr "<<nr<< endl<<endl<<"lvraisr" << lvraisr<<" out2 "<<out2<< " nik "<<nik <<  " log(det(Sig_k)) "<<log(det(Sig_k))<< " scalar "<< as_scalar(Ytildi_nu_i_uik.t()*inv_sympd(Sig_k)*Ytildi_nu_i_uik) << " log_Jac_Phi "<<log_Jac_Phi<<endl;
-                std::cout <<  " ui_r " <<ui_r.t();
-                std::cout <<  " Ytildik " <<Ytildik.t();
-                std::cout <<  " Lambda_nrk " <<Lambda_nrk.t();
-                std::cout <<  " Ytildi_nu_i_uik " <<Ytildi_nu_i_uik.t()<<endl<<endl;
+                Rcout <<" k :"<<k<< " nr "<<nr<< endl<<endl<<"lvraisr" << lvraisr<<" out2 "<<out2<< " nik "<<nik <<  " log(det(Sig_k)) "<<log(det(Sig_k))<< " scalar "<< as_scalar(Ytildi_nu_i_uik.t()*inv_sympd(Sig_k)*Ytildi_nu_i_uik) << " log_Jac_Phi "<<log_Jac_Phi<<endl;
+                Rcout <<  " ui_r " <<ui_r.t();
+                Rcout <<  " Ytildik " <<Ytildik.t();
+                Rcout <<  " Lambda_nrk " <<Lambda_nrk.t();
+                Rcout <<  " Ytildi_nu_i_uik " <<Ytildi_nu_i_uik.t()<<endl<<endl;
                 //   << " matVY_i "<<matVY_i;
               }
               // if(nr==0){
@@ -1259,7 +1259,7 @@ double Loglikei_GLM2(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int 
                     phi2 = 0;
                     
                     if(printa)
-                      std::cout << nr  << " j "<< j<< " m "<<zitr(2*k_t) << " value "<<value << " ui_r "<<ui_r.t()
+                      Rcout << nr  << " j "<< j<< " m "<<zitr(2*k_t) << " value "<<value << " ui_r "<<ui_r.t()
                            << "PT "<<ParaTransformYk(0)<< " Lambda_nrk(j) "<<Lambda_nrk(j)<< " phi1 "<<phi1<<" phi "<<phi1-phi2<<endl;
                   }else{
                     
@@ -1280,7 +1280,7 @@ double Loglikei_GLM2(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int 
                         
                         
                         if(printa)
-                          std::cout << nr << " j "<< j<< " m "<<zitr(2*k_t) + m+1 << " inf "<< inf << " sup "<<sup<< " ui_r "<<ui_r.t()<<" value1 "<< (sup-Lambda_nrk(j))/abs(pow(Sig(k,k),0.5))
+                          Rcout << nr << " j "<< j<< " m "<<zitr(2*k_t) + m+1 << " inf "<< inf << " sup "<<sup<< " ui_r "<<ui_r.t()<<" value1 "<< (sup-Lambda_nrk(j))/abs(pow(Sig(k,k),0.5))
                                << "value2 "<<(inf-Lambda_nrk(j))/abs(pow(Sig(k,k),0.5))
                                << " phi1 "<<phi1<< " phi2 "<<phi2<<" phi "<<phi1-phi2<<endl;
                       }
@@ -1292,26 +1292,26 @@ double Loglikei_GLM2(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int 
                       phi2 = normalCDF(value);
                       
                       if(printa)
-                        std::cout << nr << " j "<< j<< " m "<<zitr(2*k_t+1)<< " inf "<< inf 
+                        Rcout << nr << " j "<< j<< " m "<<zitr(2*k_t+1)<< " inf "<< inf 
                              << "value "<<value<< " ui_r "<<ui_r.t()
                              << " phi2 "<<phi2<< " phi "<<phi1-phi2<<endl;
                     }
                   }
                   
                   if(phi1< phi2){
-                    std::cout << " phi1< phi2: j "<< j //<< " PT "<< ParaTransformYk.t()<<endl
+                    Rcout << " phi1< phi2: j "<< j //<< " PT "<< ParaTransformYk.t()<<endl
                          << " exp " <<(exp(phi1) - exp(phi2))
                          << " phi1 "<< phi1
                          << " phi2 "<< phi2 
                          << " j "<< j << " k "<< k
                          << " Ytildi "<<Ytildik(j)<< " zitr "<<zitr.t(); 
-                    std::cout << " Ytildi "<<Ytildi.t();
+                    Rcout << " Ytildi "<<Ytildi.t();
                   }
                   
                   vraisk *= (phi1-phi2);
                   
                   if(phi1==phi2 && printa==1)
-                    std::cout << nr << " j "<<j<<" Ytildik(j) "<<Ytildik(j)<< " phi "<<(phi1-phi2)<< " vraisk " <<vraisk<<endl;
+                    Rcout << nr << " j "<<j<<" Ytildik(j) "<<Ytildik(j)<< " phi "<<(phi1-phi2)<< " vraisk " <<vraisk<<endl;
                   
                   // if(phi1==phi2 || isinf(lvraisk) )
                   //   cout << " nr "<< nr <<" k " << k <<"j"<<j<<" Ytildik(j) "<<Ytildik(j)<< " k_i "<<k_i.t()
@@ -1417,7 +1417,7 @@ double Loglikei_GLM2(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int 
           lambdat = param_basehaz(2)/param_basehaz(3)*pow(t_i/param_basehaz(3),param_basehaz(2)-1);
         double s0=exp(-pow(t_0i/param_basehaz(1),param_basehaz(0))-pow(t_0i/param_basehaz(3),param_basehaz(2)));
         vrais_surv_check=s1/s0*lambdat;
-        std::cout<< " vrais_surv_check "<<vrais_surv_check<< " s1 "<<s1 << " s0 "<<s0 << " lambdat "<< lambdat << " t_i "<<t_i<<endl
+        Rcout<< " vrais_surv_check "<<vrais_surv_check<< " s1 "<<s1 << " s0 "<<s0 << " lambdat "<< lambdat << " t_i "<<t_i<<endl
             << " log(vrais_survtot/MCnr) "<<log(vrais_survtot/MCnr)
             << " param_basehaz "<<param_basehaz.t() ;
       }
@@ -1432,7 +1432,7 @@ double Loglikei_GLM2(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int 
       lvrais = -log(MCnr) + expotrick + log(vrais) + log_Jac_Phi - log(surv0) + lvrais_ui; 
       
       if(printa==1 && check==1){
-        std::cout << " diffY "<<loglik_i- lvrais<< " loglik_i "<< loglik_i << " lvrais "<<lvrais<< " log(surv0) "<<log(surv0) <<endl;
+        Rcout << " diffY "<<loglik_i- lvrais<< " loglik_i "<< loglik_i << " lvrais "<<lvrais<< " log(surv0) "<<log(surv0) <<endl;
         //<< " MCnr "<<MCnr<< " minY "<< minY << " vrais / MCnr "<<vrais / MCnr;
         //cout << " loglik_i "<< loglik_i-log_Jac_Phi<< " loglik_i2 "<<loglik_i2<<" log(vraisY_tot/MCnr) "<< log(vraisY_tot/MCnr)<< " log_Jac_Phi "<<log_Jac_Phi << " vrais "<<vrais<<endl<<endl<<endl;
       }
@@ -1441,13 +1441,13 @@ double Loglikei_GLM2(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int 
         auto END = std::chrono::system_clock::now();
         std::chrono::duration<double> elapsed_seconds = END-start;
         
-        std::cout << "elapsed time Lambda: " << elapsed_L.count() << "s"  << std::endl;
-        std::cout << "elapsed time marker rech: " << elapsed_Krech.count() << "s"  << std::endl;
-        std::cout << "elapsed time marker 1: " << elapsed_Ktot1.count() << "s"  << std::endl;
-        std::cout << "elapsed time marker 2: " << elapsed_Ktot2.count() << "s"  << std::endl;
-        std::cout << "elapsed time marker 3: " << elapsed_Ktot3.count() << "s"  << std::endl;
-        std::cout << "elapsed time Survival: " << elapsed_S.count() << "s"  << std::endl;
-        std::cout << "elapsed time total: " << elapsed_seconds.count() << "s"  << std::endl;
+        Rcout << "elapsed time Lambda: " << elapsed_L.count() << "s"  << std::endl;
+        Rcout << "elapsed time marker rech: " << elapsed_Krech.count() << "s"  << std::endl;
+        Rcout << "elapsed time marker 1: " << elapsed_Ktot1.count() << "s"  << std::endl;
+        Rcout << "elapsed time marker 2: " << elapsed_Ktot2.count() << "s"  << std::endl;
+        Rcout << "elapsed time marker 3: " << elapsed_Ktot3.count() << "s"  << std::endl;
+        Rcout << "elapsed time Survival: " << elapsed_S.count() << "s"  << std::endl;
+        Rcout << "elapsed time total: " << elapsed_seconds.count() << "s"  << std::endl;
       }
     }
   }
@@ -1742,7 +1742,7 @@ double f_uiYi(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m_i, ar
       ui = uii.t();
     }else if(type_int==0){ // AMC
       
-      std::cout << " to develop !"<<endl;
+      Rcout << " to develop !"<<endl;
     }else {//QMC
       ui = seq_i * chol_var_RE.t();
       //ui = chol_var_RE * seq_i.t() ;
@@ -1760,7 +1760,7 @@ double f_uiYi(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m_i, ar
     std::chrono::duration<double> elapsed_Ktot2 = steady_clock::duration::zero();
     std::chrono::duration<double> elapsed_Ktot3 = steady_clock::duration::zero();
     if(chrono)
-      std::cout << "init: " << elapsed_L.count() << "s"  << std::endl;
+      Rcout << "init: " << elapsed_L.count() << "s"  << std::endl;
     
     if(aMC){
       double out2;
@@ -1853,8 +1853,8 @@ double f_uiYi(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m_i, ar
             if(tau_i(jj)==tau_ik(j)){
               Lambda_nrk(j)=Lambda_nr(jj*nD + K2_lambda[k]);
             }else{
-              std::cout  << " problem definition tau_ik"<<endl;
-              std::cout << " k "<<k<<" j "<<j<< " tau_i "<<tau_i.t()
+              Rcout  << " problem definition tau_ik"<<endl;
+              Rcout << " k "<<k<<" j "<<j<< " tau_i "<<tau_i.t()
                    <<" jj "<<jj<< " tau_ik "<<tau_ik.t()<<endl;
             }
           }
@@ -1864,7 +1864,7 @@ double f_uiYi(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m_i, ar
           }
           
           if(type_int == -1){ //-1 MC 0 AMC 
-            std::cout << " develop likelihood computation with integral ui for MC or AMC "<<endl;
+            Rcout << " develop likelihood computation with integral ui for MC or AMC "<<endl;
             
             
             
@@ -1920,7 +1920,7 @@ double f_uiYi(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m_i, ar
                     phi2 = 0;
                     
                     if(printa)
-                      std::cout << nr  << " j "<< j<< " m "<<zitr(2*k_t) << " value "<<value << " ui_r "<<ui_r.t()
+                      Rcout << nr  << " j "<< j<< " m "<<zitr(2*k_t) << " value "<<value << " ui_r "<<ui_r.t()
                            << "PT "<<ParaTransformYk(0)<< " Lambda_nrk(j) "<<Lambda_nrk(j)<< " phi1 "<<phi1<<" phi "<<phi1-phi2<<endl;
                   }else{
                     
@@ -1941,7 +1941,7 @@ double f_uiYi(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m_i, ar
                         
                         
                         if(printa)
-                          std::cout << nr << " j "<< j<< " m "<<zitr(2*k_t) + m+1 << " inf "<< inf << " sup "<<sup<< " ui_r "<<ui_r.t()<<" value1 "<< (sup-Lambda_nrk(j))/abs(pow(Sig(k,k),0.5))
+                          Rcout << nr << " j "<< j<< " m "<<zitr(2*k_t) + m+1 << " inf "<< inf << " sup "<<sup<< " ui_r "<<ui_r.t()<<" value1 "<< (sup-Lambda_nrk(j))/abs(pow(Sig(k,k),0.5))
                                << "value2 "<<(inf-Lambda_nrk(j))/abs(pow(Sig(k,k),0.5))
                                << " phi1 "<<phi1<< " phi2 "<<phi2<<" phi "<<phi1-phi2<<endl;
                       }
@@ -1953,26 +1953,26 @@ double f_uiYi(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m_i, ar
                       phi2 = normalCDF(value);
                       
                       if(printa)
-                        std::cout << nr << " j "<< j<< " m "<<zitr(2*k_t+1)<< " inf "<< inf 
+                        Rcout << nr << " j "<< j<< " m "<<zitr(2*k_t+1)<< " inf "<< inf 
                              << "value "<<value<< " ui_r "<<ui_r.t()
                              << " phi2 "<<phi2<< " phi "<<phi1-phi2<<endl;
                     }
                   }
                   
                   if(phi1< phi2){
-                    std::cout << " phi1< phi2: j "<< j //<< " PT "<< ParaTransformYk.t()<<endl
+                    Rcout << " phi1< phi2: j "<< j //<< " PT "<< ParaTransformYk.t()<<endl
                          << " exp " <<(exp(phi1) - exp(phi2))
                          << " phi1 "<< phi1
                          << " phi2 "<< phi2 
                          << " j "<< j << " k "<< k
                          << " Ytildi "<<Ytildik(j)<< " zitr "<<zitr.t(); 
-                    std::cout << " Ytildi "<<Ytildi.t();
+                    Rcout << " Ytildi "<<Ytildi.t();
                   }
                   
                   vraisk *= (phi1-phi2);
                   
                   if(phi1==phi2 && printa==1)
-                    std::cout << nr << " j "<<j<<" Ytildik(j) "<<Ytildik(j)<< " phi "<<(phi1-phi2)<< " vraisk " <<vraisk<<endl;
+                    Rcout << nr << " j "<<j<<" Ytildik(j) "<<Ytildik(j)<< " phi "<<(phi1-phi2)<< " vraisk " <<vraisk<<endl;
                   
                   // if(phi1==phi2 || isinf(lvraisk) )
                   //   cout << " nr "<< nr <<" k " << k <<"j"<<j<<" Ytildik(j) "<<Ytildik(j)<< " k_i "<<k_i.t()
@@ -2078,7 +2078,7 @@ double f_uiYi(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m_i, ar
           lambdat = param_basehaz(2)/param_basehaz(3)*pow(t_i/param_basehaz(3),param_basehaz(2)-1);
         double s0=exp(-pow(t_0i/param_basehaz(1),param_basehaz(0))-pow(t_0i/param_basehaz(3),param_basehaz(2)));
         vrais_surv_check=s1/s0*lambdat;
-        std::cout<< " vrais_surv_check "<<vrais_surv_check<< " s1 "<<s1 << " s0 "<<s0 << " lambdat "<< lambdat << " t_i "<<t_i<<endl
+        Rcout<< " vrais_surv_check "<<vrais_surv_check<< " s1 "<<s1 << " s0 "<<s0 << " lambdat "<< lambdat << " t_i "<<t_i<<endl
             << " log(vrais_survtot/MCnr) "<<log(vrais_survtot/MCnr)
             << " param_basehaz "<<param_basehaz.t() ;
       }
@@ -2090,7 +2090,7 @@ double f_uiYi(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m_i, ar
       lvrais = -log(MCnr) + expotrick + log(vrais) + log_Jac_Phi - log(surv0); 
       
       if(printa==1 && check==1){
-        std::cout << " diffY "<<loglik_i- lvrais<< " loglik_i "<< loglik_i << " lvrais "<<lvrais<< " log(surv0) "<<log(surv0) <<endl;
+        Rcout << " diffY "<<loglik_i- lvrais<< " loglik_i "<< loglik_i << " lvrais "<<lvrais<< " log(surv0) "<<log(surv0) <<endl;
         //<< " MCnr "<<MCnr<< " minY "<< minY << " vrais / MCnr "<<vrais / MCnr;
         //cout << " loglik_i "<< loglik_i-log_Jac_Phi<< " loglik_i2 "<<loglik_i2<<" log(vraisY_tot/MCnr) "<< log(vraisY_tot/MCnr)<< " log_Jac_Phi "<<log_Jac_Phi << " vrais "<<vrais<<endl<<endl<<endl;
       }
@@ -2099,13 +2099,13 @@ double f_uiYi(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m_i, ar
         auto END = std::chrono::system_clock::now();
         std::chrono::duration<double> elapsed_seconds = END-start;
         
-        std::cout << "elapsed time Lambda: " << elapsed_L.count() << "s"  << std::endl;
-        std::cout << "elapsed time marker rech: " << elapsed_Krech.count() << "s"  << std::endl;
-        std::cout << "elapsed time marker 1: " << elapsed_Ktot1.count() << "s"  << std::endl;
-        std::cout << "elapsed time marker 2: " << elapsed_Ktot2.count() << "s"  << std::endl;
-        std::cout << "elapsed time marker 3: " << elapsed_Ktot3.count() << "s"  << std::endl;
-        std::cout << "elapsed time Survival: " << elapsed_S.count() << "s"  << std::endl;
-        std::cout << "elapsed time total: " << elapsed_seconds.count() << "s"  << std::endl;
+        Rcout << "elapsed time Lambda: " << elapsed_L.count() << "s"  << std::endl;
+        Rcout << "elapsed time marker rech: " << elapsed_Krech.count() << "s"  << std::endl;
+        Rcout << "elapsed time marker 1: " << elapsed_Ktot1.count() << "s"  << std::endl;
+        Rcout << "elapsed time marker 2: " << elapsed_Ktot2.count() << "s"  << std::endl;
+        Rcout << "elapsed time marker 3: " << elapsed_Ktot3.count() << "s"  << std::endl;
+        Rcout << "elapsed time Survival: " << elapsed_S.count() << "s"  << std::endl;
+        Rcout << "elapsed time total: " << elapsed_seconds.count() << "s"  << std::endl;
       }
     }
   }
@@ -2393,9 +2393,9 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
     // Add something on the diagonal if varcov matrix is not positive definite
     if(det_var_RE<0){
       
-      std::cout << " var_RE \n"<<matD;
-      std::cout << " prmea \n"<<prmea;
-      std::cout << " alpha_D "<<alpha_D.t();
+      Rcout << " var_RE \n"<<matD;
+      Rcout << " prmea \n"<<prmea;
+      Rcout << " alpha_D "<<alpha_D.t();
       
       int p=4;
       while(det_var_RE<0 && p > 0){
@@ -2407,7 +2407,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
         if(det_var_RE<0)
           p-=1;
       }
-      std::cout <<" proposed varcov not positive definite: "<<pow(10,-p)<< " added on diagonal"<<endl;
+      Rcout <<" proposed varcov not positive definite: "<<pow(10,-p)<< " added on diagonal"<<endl;
       add_diag_varcov = p;
       //  matDw       matDw_u
       //  matDw_u.t() matDu
@@ -2531,7 +2531,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
     //loglik0 += out0;
     //}
     // }else if( std::all_of(if_link.begin(), if_link.end(), compFun1) ){
-    //  std::cout << "All the elements are equal to 2.\n";
+    //  Rcout << "All the elements are equal to 2.\n";
 
     double out1 = 0;
     if(ii>N || n==(ii-1)){
@@ -2545,7 +2545,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
                            sequence, type_int, ind_seq_i, MCnr, n, nE, add_diag_varcov, q);   
       
       loglik += out1;
-      //std::cout << " n" <<n<< " logliki "<< out1<<endl;
+      //Rcout << " n" <<n<< " logliki "<< out1<<endl;
       
     }
 
@@ -2561,7 +2561,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
     p += m_is[n];
   }
   if(loglik <= -pow(10,9)){
-    std::cout << "   loglik "<< loglik<<endl;
+    Rcout << "   loglik "<< loglik<<endl;
     loglik=-pow(10,9);
   }
   
@@ -2821,9 +2821,9 @@ double Loglik2(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec&
     // Add something on the diagonal if varcov matrix is not positive definite
     if(det_var_RE<0){
       
-      std::cout << " var_RE \n"<<matD;
-      std::cout << " prmea \n"<<prmea;
-      std::cout << " alpha_D "<<alpha_D.t();
+      Rcout << " var_RE \n"<<matD;
+      Rcout << " prmea \n"<<prmea;
+      Rcout << " alpha_D "<<alpha_D.t();
       
       int p=4;
       while(det_var_RE<0 && p > 0){
@@ -2835,7 +2835,7 @@ double Loglik2(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec&
         if(det_var_RE<0)
           p-=1;
       }
-      std::cout <<" proposed varcov not positive definite: "<<pow(10,-p)<< " added on diagonal"<<endl;
+      Rcout <<" proposed varcov not positive definite: "<<pow(10,-p)<< " added on diagonal"<<endl;
       add_diag_varcov = p;
       //  matDw       matDw_u
       //  matDw_u.t() matDu
@@ -2959,7 +2959,7 @@ double Loglik2(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec&
     //loglik0 += out0;
     //}
     // }else if( std::all_of(if_link.begin(), if_link.end(), compFun1) ){
-    //  std::cout << "All the elements are equal to 2.\n";
+    //  Rcout << "All the elements are equal to 2.\n";
     
     double out1 = 0;
     if(ii>N || n==(ii-1)){
@@ -2974,7 +2974,7 @@ double Loglik2(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec&
       
       
       loglik += out1;
-      //std::cout << " n" <<n<< " logliki "<< out1<<endl;
+      //Rcout << " n" <<n<< " logliki "<< out1<<endl;
       
     }
     
@@ -2990,7 +2990,7 @@ double Loglik2(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec&
     p += m_is[n];
   }
   if(loglik <= -pow(10,9)){
-    std::cout << "   loglik "<< loglik<<endl;
+    Rcout << "   loglik "<< loglik<<endl;
     loglik=-pow(10,9);
   }
   

@@ -840,12 +840,12 @@ arma::vec matNui_ui(int nD, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arm
     }else{
       if(randomeffects.size()>nD){
         if(1>2&t==(T-1)) {
-          std::cout << " mattRE "<<t << " "<<T<<endl;
-          //std::cout << " xi "<< xi <<endl;
-          std::cout << " xi "<<xi.n_rows<< " "<<n_cols_xi<<endl;
-          std::cout << " t*nD "<<t*nD << " (t+1)*nD-1 "<<(t+1)*nD-1<<endl;
-          std::cout << " n_cols_xi-1 "<<n_cols_xi-1<<endl;
-          std::cout << " tau_i-1 "<<tau_i.t()<<endl;
+          Rcout << " mattRE "<<t << " "<<T<<endl;
+          //Rcout << " xi "<< xi <<endl;
+          Rcout << " xi "<<xi.n_rows<< " "<<n_cols_xi<<endl;
+          Rcout << " t*nD "<<t*nD << " (t+1)*nD-1 "<<(t+1)*nD-1<<endl;
+          Rcout << " n_cols_xi-1 "<<n_cols_xi-1<<endl;
+          Rcout << " tau_i-1 "<<tau_i.t()<<endl;
           
         }
         Mu_t = DeltaT*(xi(span(t*nD,(t+1)*nD-1), span(0,n_cols_xi-1))*alpha_mu +
@@ -1114,19 +1114,19 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
     curlev = matNui_ui(nD, ptGK_delta, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, ui_r, zi, false);
   }
 
-  // std::cout << " ptGK_delta "<< ptGK_delta.t()
+  // Rcout << " ptGK_delta "<< ptGK_delta.t()
   //           << " alpha "<<alpha.t()
   //           << " curlev "<<curlev.t()
   //           << " ui_r "<<ui_r.t()
   //           << " DeltaT "<<DeltaT<<endl;
   
   if(assoc == 4 || assoc == 5){
-    std::cout << " to develop !"<<endl;
+    Rcout << " to develop !"<<endl;
   }
   
   // Computation of the survival/risk function
   if(survfunc){ // survival function, never used so far
-    std::cout << " verif use of fct_pred_curlev_slope for survival computation!! ";
+    Rcout << " verif use of fct_pred_curlev_slope for survival computation!! ";
     mat cumrisq(ptGK_delta.size(), nE);
     
     for(int j=0; j<nE; j++){
@@ -1140,7 +1140,7 @@ vec fct_pred_curlev_slope(arma::vec& ptGK_delta, arma::vec& ptGK, arma::colvec& 
         double temp = alpha(j)*curlev(i);
 
         if(param_surv_intY.size()>0){
-          std::cout << " ajout interactions  ";
+          Rcout << " ajout interactions  ";
           if(j==0){
             for(int jj=0; jj<xti1_intY.size(); jj++){
               //temp += param_surv_intY(jj)*curlev(i)*xti1_intY(jj);
@@ -1443,7 +1443,7 @@ arma::vec f_survival_ui(arma::vec& ui_r, double t_0i, double t_i,int delta_i, ar
                            nD, DeltaT, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i, zi, nE, gamma_X);
     fti(1) = surv0;
 
-    // std::cout << " gamma_X "<<gamma_X<<endl
+    // Rcout << " gamma_X "<<gamma_X<<endl
     //           << " event(0) "<<event(0)<<endl
     //           << " deltaT_ptGK_ti(0) "<<deltaT_ptGK_ti(0)<<endl
     //           << " delta_i "<<delta_i<<endl

@@ -65,7 +65,7 @@
 #' \item{\code{Fixed.para.values}}{ indicates the values associated to the index of parameters to be constrained. }
 #' }
 #' 
-#' @param option a list of 4 arguments for the optimization procedure: \describe{
+#' @param option a list of 7 arguments for the optimization procedure: \describe{
 #' 
 #' \item{\code{epsa}}{ threshold for the convergence criterion on the parameters}
 #' 
@@ -279,7 +279,7 @@ DynNet <- function(structural.model, measurement.model, parameters,
   if(is.null(parameters$Fixed.para.values))stop("The argument parameters$Fixed.para.values cannot be NULL")
   
   if(is.null(option$makepred)){
-    option$makepred <- TRUE
+    option$makepred <- F
   }
 
   survival= FALSE

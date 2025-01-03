@@ -239,7 +239,7 @@ arma::mat predi(int K, int nD, arma::mat matrixP, int m_i, arma::vec tau, arma::
           int lSS = 0;
           while((as_scalar(mat_ytildSS_i(j,k)) > as_scalar(GrilleYtild(lSS,k))) && (lSS< (m_i-1))){
             lSS += 1;
-            //printf("l and k : %d, \t %d \n", l,k);
+            //Rprintf("l and k : %d, \t %d \n", l,k);
           }
           mat_ySSn0(j,k) = GrilleY(lSS,k);
         }
@@ -292,7 +292,7 @@ arma::mat predi(int K, int nD, arma::mat matrixP, int m_i, arma::vec tau, arma::
     }
     predMyi = predMyi+yMn0;
     predSSyi = predSSyi+ySSn0;
-    if(itr ==10000){ printf("Warnings!!! \n Maximun of iterations (10000) reached without convergence during inverse computing with Newton Raphson algorithm \n");}
+    if(itr ==10000){ Rprintf("Warnings!!! \n Maximun of iterations (10000) reached without convergence during inverse computing with Newton Raphson algorithm \n");}
   }
   predMyi = predMyi/MCnr;
   predSSyi = predSSyi/MCnr;//============= end invertion by NR======================================================
@@ -615,7 +615,7 @@ arma::mat predi_GLM(int K, int nD, arma::mat matrixP, int m_i, arma::vec tau, ar
           int lSS = 0;
           while((as_scalar(mat_ytildSS_i(j,k)) > as_scalar(GrilleYtild(lSS,k))) && (lSS< (m_i-1))){
             lSS += 1;
-            //printf("l and k : %d, \t %d \n", l,k);
+            //Rprintf("l and k : %d, \t %d \n", l,k);
           }
           mat_ySSn0(j,k) = GrilleY(lSS,k);
         }
@@ -638,7 +638,7 @@ arma::mat predi_GLM(int K, int nD, arma::mat matrixP, int m_i, arma::vec tau, ar
           int lSS = 0;
           while((as_scalar(mat_ytildSS_i_hat(j,k)) > as_scalar(GrilleYtild(lSS,k))) && (lSS< (m_i-1))){
             lSS += 1;
-            //printf("l and k : %d, \t %d \n", l,k);
+            //Rprintf("l and k : %d, \t %d \n", l,k);
           }
           mat_ySSn0_hat(j,k) = GrilleY(lSS,k);
         }
@@ -708,7 +708,7 @@ arma::mat predi_GLM(int K, int nD, arma::mat matrixP, int m_i, arma::vec tau, ar
     predMyi = predMyi+yMn0;
     predSSyi = predSSyi+ySSn0;
     predSSyi_hat = predSSyi_hat+ySSn0_hat;
-    if(itr ==10000){ printf("Warnings!!! \n Maximum of iterations (10000) reached without convergence during inverse computing with Newton Raphson algorithm \n");}
+    if(itr ==10000){ Rprintf("Warnings!!! \n Maximum of iterations (10000) reached without convergence during inverse computing with Newton Raphson algorithm \n");}
   }
   predMyi = predMyi/MCnr;
   predSSyi = predSSyi/MCnr;
@@ -808,7 +808,7 @@ arma::mat pred(int K, int nD, arma::vec& mapping, arma::vec& paras, arma::vec& m
   Rcpp::Environment base("package:DynNet");
   Rcpp::Function f = base["f_trSpline"];
 
-  //printf("Begining of predictions n \n");
+  //Rprintf("Begining of predictions n \n");
   mat pred_Y = zeros(sum(m_is),7*K);
   arma::mat matrixP = zeros(K,nD);
   for(int k = 0; k<K; k++){
@@ -1143,7 +1143,7 @@ arma::mat predi0(int K, int nD, arma::mat matrixP, int m_i, arma::vec tau, arma:
     } // end while loop: end of inverse computation:= one prediction in real scale! 
     
     predMyi = predMyi+yMn0; // sum of predictions 
-    if(itr ==10000){ printf("Warnings!!! \n Maximun of iterations (10000) reached without convergence during inverse computing with Newton Raphson algorithm \n");}
+    if(itr ==10000){ Rprintf("Warnings!!! \n Maximun of iterations (10000) reached without convergence during inverse computing with Newton Raphson algorithm \n");}
   }
   predMyi = predMyi/MCnr;//sum of predictions divided by the number of iterations.
   
@@ -1214,7 +1214,7 @@ arma::mat predi0(int K, int nD, arma::mat matrixP, int m_i, arma::vec tau, arma:
    Rcpp::Function f = base["f_trSpline"];
    
    
-   //printf("Begining of predictions n \n");
+   //Rprintf("Begining of predictions n \n");
    mat pred_Y = zeros(sum(m_is),2*K);//predictions in natural and transformed scale for K markers 
    arma::mat matrixP = zeros(K,nD); // link matrix
    for(int k = 0; k<K; k++){

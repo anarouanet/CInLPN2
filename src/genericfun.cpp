@@ -839,15 +839,6 @@ arma::vec matNui_ui(int nD, arma::vec& tau_i, double DeltaT, arma::mat& x0i, arm
       Mu_t = x0i*alpha_mu0+ ui;
     }else{
       if(randomeffects.size()>nD){
-        if(1>2&t==(T-1)) {
-          Rcout << " mattRE "<<t << " "<<T<<endl;
-          //Rcout << " xi "<< xi <<endl;
-          Rcout << " xi "<<xi.n_rows<< " "<<n_cols_xi<<endl;
-          Rcout << " t*nD "<<t*nD << " (t+1)*nD-1 "<<(t+1)*nD-1<<endl;
-          Rcout << " n_cols_xi-1 "<<n_cols_xi-1<<endl;
-          Rcout << " tau_i-1 "<<tau_i.t()<<endl;
-          
-        }
         Mu_t = DeltaT*(xi(span(t*nD,(t+1)*nD-1), span(0,n_cols_xi-1))*alpha_mu +
           zi(span(t*nD,(t+1)*nD-1), span(0,n_cols_zi-1))*vi) +
           G_mat_A_0_to_tau_i(span(0,nD-1),span(nD*(t-1),nD*(t-1)+nD-1))*Mu_t;

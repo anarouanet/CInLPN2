@@ -144,6 +144,7 @@
 #'                             univarmaxiter = 7, epsa = 1e-5, epsb = 1e-4, epsd = 1e-2),
 #'               TimeDiscretization=FALSE,
 #'               Time = "time",
+#'               cholesky=TRUE,
 #'               subject = "id",
 #'               data = data
 #' )
@@ -174,6 +175,7 @@
 #'                            univarmaxiter = 7, epsa = 1e-5, epsb = 1e-4, epsd = 1e-2),
 #'              TimeDiscretization=FALSE,
 #'              Time = "time",
+#'              cholesky=TRUE,
 #'              subject = "id",
 #'              data = data
 #' )
@@ -202,6 +204,7 @@
 #'                          univarmaxiter = 7, epsa = 1e-5, epsb = 1e-5, epsd = 1e-5),
 #'            TimeDiscretization=FALSE,
 #'            Time = "time",
+#'            cholesky=TRUE,
 #'            subject = "id",
 #'            data = data
 #'          )
@@ -226,6 +229,7 @@
 #'                        univarmaxiter = 7, epsa = 1e-5, epsb = 1e-4, epsd = 1e-2),
 #'          TimeDiscretization=FALSE,
 #'          Time = "time",
+#'          cholesky=TRUE,
 #'          subject = "id",
 #'          data = data
 #'   )

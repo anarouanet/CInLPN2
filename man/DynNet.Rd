@@ -24,60 +24,83 @@ DynNet(
 )
 }
 \arguments{
-\item{structural.model}{a list of 5 arguments used to specify the structural model: 
+\item{structural.model}{a list of 7 arguments used to specify the structural model: \describe{
+   \item{\code{fixed.LP0}}{a one-sided linear formula object for specifying the 
+   fixed effects in the submodel for the baseline level of processes. Note that 
+   there is no need to specify a random effect model for the baseline level of 
+   processes as we systematically set a process-specific random intercept (with 
+   variance fixed to 1 for identifiability purpose). For identifiability purposes, 
+   the mean intercepts are fixed to 0 (not estimated).}
 
-\code{structural.model$fixed.LP0}{ a one-sided linear formula object for specifying the fixed effects in the submodel for the baseline level of processes. Note that there is no need to specify a random effect model for the baseline level of processes as we systematically set a process-specific random intercept (with variance fixed to 1 for identifiability purpose). 
-For identifiability purposes, the mean intercepts are fixed to 0 (not estimated).}
+   \item{\code{fixed.DeltaLP}}{a two-sided linear formula object for 
+   specifying the response outcomes (one the left part of ~ symbol) 
+   and the covariates with fixed-effects (on the right part of ~ symbol) 
+   in the submodel for change over time of latent processes.}
 
-\code{structural.model$fixed.DeltaLP}{ a two-sided linear formula object for specifying the response outcomes (one the left part of ~ symbol) and the covariates with fixed-effects (on the right part of ~ symbol) in the submodel for change over time of latent processes.}
+   \item{\code{random.DeltaLP}}{a one-sided linear formula object 
+   for specifying the random effects in the submodel for change 
+   over time of latent processes.}
 
-\code{structural.model$random.DeltaLP}{ a one-sided linear formula object for specifying the random effects in the submodel for change over time of latent processes.}
+   \item{\code{trans.matrix}}{a one-sided linear formula object 
+   for specifying a model for elements of the transition matrix, 
+   which captures the temporal influences between latent processes.}
 
-\code{structural.model$trans.matrix}{ a one-sided linear formula object for specifying a model for elements of the transition matrix, which captures the temporal influences between latent processes.}
+   \item{\code{fixed.survival}}{a one-sided linear formula object 
+   for specifying the covariates in the survival sub-model. In competing 
+   risks model, the specification for the two events should be separated 
+   by the "|" symbol.}
 
-\code{structural.model$fixed.survival}{ a one-sided linear formula object for specifying the covariates in the survival sub-model. In competing risks model, the specification for the two events should be separated by the "|" symbol.}
+   \item{\code{interactionY.survival}}{a one-sided linear formula 
+   object for specifying the covariates in interaction with the 
+   dynamics of the latent processes, in the survival sub-model. 
+   In competing risks model, the specification for the two events 
+   should be separated by the "|" symbol. Only additional terms 
+   should be included (No "*" symbol). Covariates in 
+   \code{interactionY.survival} should also be included in \code{fixed.survival.}}
 
-\code{structural.model$interactionY.survival}{ a one-sided linear formula object for specifying the covariates in interaction with the dynamics of the latent processes, in the survival sub-model. In competing risks model, the specification for the two events should be separated by the "|" symbol. Only additional terms should be included (No "*" symbol). Covariates in interactionY.survival should also be included in fixed.survival.}
+   \item{\code{delta.time}}{indicates the discretisation step to be used for latent processes}
+   }}
 
-\code{structural.model$delta.time}{ indicates the discretisation step to be used for latent processes}}
+\item{measurement.model}{is a list of arguments detailed below used to specify the measurement model: \describe{
 
-\item{measurement.model}{is a list of arguments detailed below used to specify the measurement model: 
+\item{\code{link}}{ indicates the link functions to be used to transform the outcomes. It takes values in "linear" for a linear transformation and "n-type-d" for a I-splines transformation where "n" indicates the number of nodes, "type" (which takes values in "quant", "manual", "equi") indicates where the nodes are placed, and "d" indicates the degree of the I-splines.}
 
-\code{measurement.model$link}{ indicates the link functions to be used to transform the outcomes. It takes values in "linear" for a linear transformation and "n-type-d" for a I-splines transformation where "n" indicates the number of nodes, "type" (which takes values in "quant", "manual", "equi") indicates where the nodes are placed, and "d" indicates the degree of the I-splines.}
+\item{\code{knots}}{ argument indicates if necessary the place of knots (when placed manually with "manual"), default value is NULL}
+}}
 
-\code{measurement.model$knots}{ argument indicates if necessary the place of knots (when placed manually with "manual"), default value is NULL}}
+\item{parameters}{a list of 3 arguments about parameters of the models (e.g., initial parameters, parameters one would like to fix, etc.): \describe{
+\item{\code{paras.ini}}{ indicates initial values for parameters, default values is NULL.}
+\item{\code{Fixed.para.indix}}{ indicates the positions of parameters to be constrained.}
 
-\item{parameters}{a list of 3 arguments about parameters of the models (e.g., initial parameters, parameters one would like to fix, etc.): 
-\code{parameters$paras.ini}{ indicates initial values for parameters, default values is NULL.}
-\code{parameters$Fixed.para.indix}{ indicates the positions of parameters to be constrained.}
+\item{\code{Fixed.para.values}}{ indicates the values associated to the index of parameters to be constrained. }
+}}
 
-\code{parameters$Fixed.para.values}{ indicates the values associated to the index of parameters to be constrained. }}
+\item{option}{a list of 4 arguments for the optimization procedure: \describe{
 
-\item{option}{a list of 4 arguments for the optimization procedure:
+\item{\code{epsa}}{ threshold for the convergence criterion on the parameters}
 
-\code{option$epsa}{ threshold for the convergence criterion on the parameters}
+\item{\code{epsb}}{ threshold for the convergence criterion on the likelihood}
 
-\code{option$epsb}{ threshold for the convergence criterion on the likelihood}
+\item{\code{epsc}}{ threshold for the convergence criterion on the derivatives}
 
-\code{option$epsc}{ threshold for the convergence criterion on the derivatives}
+\item{\code{MCnr}}{ number Quasi-Monte Carlo replicates for the integration over random effects}
 
-\code{option$MCnr}{ number Quasi-Monte Carlo replicates for the integration over random effects}
+\item{\code{MCnr2}}{ number Quasi-Monte Carlo replicates for the integration over random effects when computing the variances at the optimum, using Louis' principle (1982)}
 
-\code{option$MCnr2}{ number Quasi-Monte Carlo replicates for the integration over random effects when computing the variances at the optimum, using Louis' principle (1982)}
+\item{\code{type_int}}{ type of Monte Carlo integration method to use. Options are \describe{
 
-\code{option$type_int}{ type of Monte Carlo integration method to use. Options are \describe{
+  \item{\code{'montecarlo'}}{Vanilla Monte Carlo sampling.}
 
-  \item{\code{type_int='montecarlo'}}{Vanilla Monte Carlo sampling.}
+  \item{\code{'antithetic'}}{Variance reduction method using antithetic simulation. This is the default option.}
 
-  \item{\code{type_int='antithetic'}}{Variance reduction method using antithetic simulation. This is the default option.}
+  \item{\code{'sobol'}}{Quasi-Monte Carlo with a low deterministic Sobol sequence with Owen-type scrambling.}
 
-  \item{\code{type_int='sobol'}}{Quasi-Monte Carlo with a low deterministic Sobol sequence with Owen-type scrambling.}
-
-  \item{\code{type_int='halton'}}{Quasi-Monte Carlo with a low deterministic Halton sequence. See "randtoolbox" R package for more details about the last two sequences.}
+  \item{\code{'halton'}}{Quasi-Monte Carlo with a low deterministic Halton sequence. See "randtoolbox" R package for more details about the last two sequences.}
   }
   }
   
-  \code{option$assocT}{ Specifies the type of association between the time-to-event(s) and the latent process(es). Values include "r.intercept" for random intercept, "r.slope" for random slope, "r.intercept/slope" for both random intercept and slope, "c.value" for current value. }}
+  \item{\code{assocT}}{ Specifies the type of association between the time-to-event(s) and the latent process(es). Values include "r.intercept" for random intercept, "r.slope" for random slope, "r.intercept/slope" for both random intercept and slope, "c.value" for current value. }
+}}
 
 \item{Time}{indicates the name of the covariate representing the time}
 
@@ -140,7 +163,6 @@ the interaction parameters in the survival model between covariates and the dyna
 \examples{
         
 ### example 1
-library(marqLevAlg)
 Delta <- 1
 paras.ini <- c(0.000, 0.059, 0.000, 0.163, -0.050, -0.153, 1.000, 0.000, 0.322, 0.000, 1.000, 
                0.000, 0.077, 0.139, 0.000, 0.177, -0.354, 0.114, 0.116, -0.090, 0.287, 0.554,
@@ -168,8 +190,6 @@ mod1 <- DynNet(structural.model = list(fixed.LP0 = ~ 1 + C2 | 1 + C2,
 summary(mod1)
 
  ### example 2
- library(splines)
-library(marqLevAlg)
  Delta <- 0.5
  paras.ini <- c(0.000,0.065, 0.000, 0.168, -0.054, 0.000, -0.119, -0.009, 1.000, 0.000,
                 0.473, 0.000, 1.000, 0.000, 0.057, -0.182, 0.000, 0.174, -0.523, 0.000,
@@ -202,7 +222,6 @@ summary(mod2)
 #' 
 \dontrun{
 ### example 3
-library(marqLevAlg)
 Delta <- 1
 paras.ini <- NULL
 indexparaFixeUser <- c(1,4,10+c(1,2,4,5,6,9, 10+c(1:4)))
@@ -226,8 +245,6 @@ mod <-  DynNet(structural.model = list(fixed.LP0 = ~ 1 + C1 + C2|1 + C1 + C2,
          )
          
 ### example 4
-library(splines)
-library(marqLevAlg)
 Delta <- 0.5
 paras.ini <- NULL
 indexparaFixeUser <- c(1,3, 8+c(1, 2, 4, 5, 6, 9,10+c(2:4,14:16)))

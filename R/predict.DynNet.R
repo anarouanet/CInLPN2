@@ -14,7 +14,7 @@ predict.DynNet <- function(object, newdata, TimeDiscretization=TRUE, MCnr = 10, 
   model <- object
   cl <- match.call()
   if(missing(model)) stop("The argument model should be specified")
-  if(inherits(model)!="DynNet") stop("argument model must be a DynNet object")
+  if(!inherits(model,"DynNet")) stop("argument model must be a DynNet object")
   x <- model$call
   if(missing(newdata)) stop("The argument newdata should be specified")
   
@@ -212,7 +212,7 @@ predict0.DynNet <- function(object, newdata, TimeDiscretization=TRUE, MCnr = 10,
   model <- object
   cl <- match.call()
   if(missing(model)) stop("The argument model should be specified")
-  if(inherits(model)!="DynNet"& inherits(model)!="CInLPN") stop("argument model must be a DynNet or CInLPN object")
+  if(!inherits(model,"DynNet")& !inherits(model,"CInLPN")) stop("argument model must be a DynNet or CInLPN object")
   x <- model$call
   if(missing(newdata)) stop("The argument newdata should be specified")
   

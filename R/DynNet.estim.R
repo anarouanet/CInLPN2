@@ -167,7 +167,7 @@ DynNet.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesky
       ll <- foreach(ii=1:N,
                     .combine=cbind) %dopar%
         {
-          test <- deriva(b = paras$paraOpt, funcpa = Loglik, nproc = 1, .packages = NULL, #epsa=epsa, epsb=epsb, epsd=epsd,
+          test <- marqLevAlg::deriva(b = paras$paraOpt, funcpa = Loglik, nproc = 1, .packages = NULL, #epsa=epsa, epsb=epsb, epsd=epsd,
                          #maxiter=maxiter, print.info = print.info,  minimize = FALSE,
                          DeltaT=DeltaT, paraFixe = paras$paraFixe, posfix = paras$posfix,
                          paras_k = paras$npara_k, 

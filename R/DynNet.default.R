@@ -216,12 +216,13 @@ DynNet.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mode
     col <- colnames(res$Marginal_Predict)
     # colSS <- colnames(res$SubjectSpecific_Predict)
     
-    Predict <- pred0(K = K, nD = nD, mapping = mapping.to.LP, paras = res$coefficients,
+    ui_hat = matrix(0,length(data_F$m_i),sum(data_F$q0)+sum(data_F$q))
+    Predict <- pred(K = K, nD = nD, mapping = mapping.to.LP, paras = res$coefficients,
                     m_is= data_F$m_i, Mod_MatrixY = data_F$Mod.MatrixY, df= data_F$df,
                     x = data_F$x, z = data_F$z, q = data_F$q, cholesky = cholesky, nb_paraD = data_F$nb_paraD, x0 = data_F$x0, z0 = data_F$z0,
                     q0 = data_F$q0, if_link = if_link, tau = data_F$tau,
                     tau_is=data_F$tau_is, modA_mat = data_F$modA_mat, DeltaT=DeltaT, 
-                    MCnr = MCnr, minY=data_F$minY, maxY=data_F$maxY, knots=data_F$knots, data_F$degree, epsPred = 1.e-9)
+                    MCnr = MCnr, minY=data_F$minY, maxY=data_F$maxY, knots=data_F$knots, data_F$degree, epsPred = 1.e-9, ui_hat = ui_hat)
     
     kk <- 1
     for(k in 1: K){

@@ -2,15 +2,14 @@
 % Please edit documentation in R/RcppExports.R
 \name{GmatA0totaui}
 \alias{GmatA0totaui}
-\title{Function that  creates a matrix K,K*(max(tau_i)-1) containing  sub-matrices {(A_t)}_{t=0,tau_i-1}}
+\title{Function that  creates a matrix K,K*(max(tau_i)-1) containing  sub-matrices (A_t)_(t=0,tau_i-1)}
 \usage{
 GmatA0totaui(K, vec_alpha_ij, tau_i, DeltaT, modA_mat)
 }
 \arguments{
 \item{K}{an integer representing the size of K*K matrix}
 
-\item{vec_alpha_ij}{a vector of overall parameters associated to the
-model.matrix for elements of the transistion matrix}
+\item{vec_alpha_ij}{a vector of overall parameters associated to the model.matrix for elements of the transistion matrix}
 
 \item{tau_i}{vector of integers indicating times at which coefficients are computed}
 
@@ -22,5 +21,5 @@ model.matrix for elements of the transistion matrix}
 a matrix containing matrix of form Id + DeltaT*A
 }
 \description{
-Function that  creates a matrix K,K*(max(tau_i)-1) containing  sub-matrices {(A_t)}_{t=0,tau_i-1}
+Function that  creates a matrix K,K*(max(tau_i)-1) containing  sub-matrices (A_t)_(t=0,tau_i-1)
 }

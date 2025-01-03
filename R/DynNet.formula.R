@@ -16,21 +16,16 @@
 #' 
 #' @param structural.model a list of 5 arguments used to specify the structural model: 
 #' 
-#' \code{structural.model$fixed.LP0}{ a one-sided linear formula object for specifying the fixed effects in the submodel for the baseline level of processes.
-#' Note that there is no need to specify a random effect model for the baseline level of processes as we
-#' systematically set a process-specific random intercept (with variance fixed to 1 for identifiability purpose). 
+#' \code{structural.model$fixed.LP0}{ a one-sided linear formula object for specifying the fixed effects in the submodel for the baseline level of processes. Note that there is no need to specify a random effect model for the baseline level of processes as we systematically set a process-specific random intercept (with variance fixed to 1 for identifiability purpose). 
 #' For identifiability purposes, the mean intercepts are fixed to 0 (not estimated).}
 #' 
-#' \code{structural.model$fixed.DeltaLP}{ a two-sided linear formula object for specifying the response outcomes (one the left part of ~ symbol) 
-#' and the covariates with fixed-effects (on the right part of ~ symbol) 
-#' in the submodel for change over time of latent processes.}
+#' \code{structural.model$fixed.DeltaLP}{ a two-sided linear formula object for specifying the response outcomes (one the left part of ~ symbol) and the covariates with fixed-effects (on the right part of ~ symbol) in the submodel for change over time of latent processes.}
 #' 
 #' \code{structural.model$random.DeltaLP}{ a one-sided linear formula object for specifying the random effects in the submodel for change over time of latent processes.}
 #' 
-#' \code{structural.model$trans.matrix}{ a one-sided linear formula object for specifying a model for elements of the transition matrix, which captures 
-#' the temporal influences between latent processes.}
+#' \code{structural.model$trans.matrix}{ a one-sided linear formula object for specifying a model for elements of the transition matrix, which captures the temporal influences between latent processes.}
 #' 
-#'\code{structural.model$fixed.survival}{ a one-sided linear formula object for specifying the covariates in the survival sub-model. In competing risks model, the specification for the two events should be separated by the "|" symbol.}
+#' \code{structural.model$fixed.survival}{ a one-sided linear formula object for specifying the covariates in the survival sub-model. In competing risks model, the specification for the two events should be separated by the "|" symbol.}
 #' 
 #' \code{structural.model$interactionY.survival}{ a one-sided linear formula object for specifying the covariates in interaction with the dynamics of the latent processes, in the survival sub-model. In competing risks model, the specification for the two events should be separated by the "|" symbol. Only additional terms should be included (No "*" symbol). Covariates in interactionY.survival should also be included in fixed.survival.}
 #' 
@@ -38,16 +33,11 @@
 #' 
 #' @param measurement.model is a list of arguments detailed below used to specify the measurement model: 
 #' 
-#' \code{measurement.model$link}{ indicates the link functions to be used to transform the outcomes. 
-#' It takes values in "linear" for a linear transformation and "n-type-d" for a I-splines transformation 
-#' where "n" indicates the number of nodes, "type" (which takes values in "quant", "manual", "equi") indicates 
-#' where the nodes are placed, and "d" indicates the degree of the I-splines.}
+#' \code{measurement.model$link}{ indicates the link functions to be used to transform the outcomes. It takes values in "linear" for a linear transformation and "n-type-d" for a I-splines transformation where "n" indicates the number of nodes, "type" (which takes values in "quant", "manual", "equi") indicates where the nodes are placed, and "d" indicates the degree of the I-splines.}
 #' 
-#' \code{measurement.model$knots}{ argument indicates if necessary the place of knots (when placed manually with "manual"), 
-#' default value is NULL}
+#' \code{measurement.model$knots}{ argument indicates if necessary the place of knots (when placed manually with "manual"), default value is NULL}
 #' 
-#' @param parameters a list of 3 arguments about parameters of the models 
-#' (e.g., initial parameters, parameters one would like to fix, etc.): 
+#' @param parameters a list of 3 arguments about parameters of the models (e.g., initial parameters, parameters one would like to fix, etc.): 
 #' \code{parameters$paras.ini}{ indicates initial values for parameters, default values is NULL.}
 #' \code{parameters$Fixed.para.indix}{ indicates the positions of parameters to be constrained.}
 #' 
@@ -65,25 +55,19 @@
 #' 
 #' \code{option$MCnr2}{ number Quasi-Monte Carlo replicates for the integration over random effects when computing the variances at the optimum, using Louis' principle (1982)}
 #' 
-#' \code{option$type_int}{ type of Monte Carlo integration method to
-#'   use. Options are \describe{
+#' \code{option$type_int}{ type of Monte Carlo integration method to use. Options are \describe{
 #'
 #'   \item{\code{type_int='montecarlo'}}{Vanilla Monte Carlo sampling.}
 #'
-#'   \item{\code{type_int='antithetic'}}{Variance reduction method using antithetic
-#'   simulation. This is the default option.}
+#'   \item{\code{type_int='antithetic'}}{Variance reduction method using antithetic simulation. This is the default option.}
 #'
-#'   \item{\code{type_int='sobol'}}{Quasi-Monte Carlo with a low
-#'   deterministic Sobol sequence with Owen-type scrambling.}
+#'   \item{\code{type_int='sobol'}}{Quasi-Monte Carlo with a low deterministic Sobol sequence with Owen-type scrambling.}
 #'
-#'   \item{\code{type_int='halton'}}{Quasi-Monte Carlo with a low deterministic
-#'   Halton sequence. See "randtoolbox" R package for more details about the last two sequences.}
+#'   \item{\code{type_int='halton'}}{Quasi-Monte Carlo with a low deterministic Halton sequence. See "randtoolbox" R package for more details about the last two sequences.}
 #'   }
 #'   }
 #'   
-#'   \code{option$assocT}{ Specifies the type of association between the time-to-event(s) and the latent process(es). V
-#'   alues include "r.intercept" for random intercept, "r.slope" for random slope, 
-#'   "r.intercept/slope" for both random intercept and slope, "c.value" for current value. }
+#'   \code{option$assocT}{ Specifies the type of association between the time-to-event(s) and the latent process(es). Values include "r.intercept" for random intercept, "r.slope" for random slope, "r.intercept/slope" for both random intercept and slope, "c.value" for current value. }
 #' 
 #' @param Time indicates the name of the covariate representing the time 
 #' @param subject indicates the name of the covariate representing the grouping structure

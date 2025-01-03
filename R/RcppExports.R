@@ -236,14 +236,13 @@ ConstrA <- function(K, t, DeltaT, vec_alpha_ij, modA_mat) {
     .Call(`_DynNet_ConstrA`, K, t, DeltaT, vec_alpha_ij, modA_mat)
 }
 
-#'  Function that  creates a matrix K,K*(max(tau_i)-1) containing  sub-matrices {(A_t)}_{t=0,tau_i-1}
+#'  Function that  creates a matrix K,K*(max(tau_i)-1) containing  sub-matrices (A_t)_(t=0,tau_i-1)
 #'  
 #' @param K an integer representing the size of K*K matrix
 #' @param tau_i vector of integers indicating times at which coefficients are computed 
 #' @param DeltaT double that indicates the discretization step
 #' @param modA_mat model.matrix for elements of the transition matrix  
-#' @param vec_alpha_ij a vector of overall parameters associated to the
-#' model.matrix for elements of the transistion matrix 
+#' @param vec_alpha_ij a vector of overall parameters associated to the model.matrix for elements of the transistion matrix 
 #' 
 #' @return a matrix containing matrix of form Id + DeltaT*A
 #' @export

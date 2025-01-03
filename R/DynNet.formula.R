@@ -119,6 +119,7 @@
 #' the interaction parameters in the survival model between covariates and the dynamics of the latent process(es), or transition 2.
 #' @return ---
 #' @export
+#' @importFrom splines bs
 #'
 #' @examples
 #'         

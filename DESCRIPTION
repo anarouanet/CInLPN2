@@ -15,6 +15,7 @@ Imports:
     Rcpp (>= 0.11.0),
     marqLevAlg, 
     MASS,
+    splines,
     splines2 (>= 0.2.8),
     RcppArmadillo,
     survival, 

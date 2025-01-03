@@ -216,7 +216,7 @@ DynNet.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mode
     col <- colnames(res$Marginal_Predict)
     # colSS <- colnames(res$SubjectSpecific_Predict)
     
-    Predict <- pred(K = K, nD = nD, mapping = mapping.to.LP, paras = res$coefficients,
+    Predict <- pred0(K = K, nD = nD, mapping = mapping.to.LP, paras = res$coefficients,
                     m_is= data_F$m_i, Mod_MatrixY = data_F$Mod.MatrixY, df= data_F$df,
                     x = data_F$x, z = data_F$z, q = data_F$q, cholesky = cholesky, nb_paraD = data_F$nb_paraD, x0 = data_F$x0, z0 = data_F$z0,
                     q0 = data_F$q0, if_link = if_link, tau = data_F$tau,

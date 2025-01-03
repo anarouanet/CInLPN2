@@ -230,14 +230,14 @@ arma::mat predi(int K, int nD, arma::mat matrixP, int m_i, arma::vec tau, arma::
         for(int j=0; j< m_i;j++){
           // for marginal pred
           int lM = 0;
-          while((mat_ytildSS_i(j,k) > GrilleYtild(lM,k)) & (lM< (m_i-1))){
+          while((mat_ytildSS_i(j,k) > GrilleYtild(lM,k)) && (lM< (m_i-1))){
             lM += 1;
           }
           mat_yMn0(j,k) = GrilleY(lM,k);
 
           // for subject-specific pred
           int lSS = 0;
-          while((as_scalar(mat_ytildSS_i(j,k)) > as_scalar(GrilleYtild(lSS,k))) & (lSS< (m_i-1))){
+          while((as_scalar(mat_ytildSS_i(j,k)) > as_scalar(GrilleYtild(lSS,k))) && (lSS< (m_i-1))){
             lSS += 1;
             //printf("l and k : %d, \t %d \n", l,k);
           }
@@ -253,7 +253,7 @@ arma::mat predi(int K, int nD, arma::mat matrixP, int m_i, arma::vec tau, arma::
     double eps_nSS =1.0; //convergence criteria for computering inverse by NR
 
     int itr =0;
-    while((eps_nM>eps) & (eps_nSS>eps) & (itr < 10000)){
+    while((eps_nM>eps) && (eps_nSS>eps) && (itr < 10000)){
       // computering of H(yn) and HPrim(yn)
       // from vectoriel form to matrix form of yn
 
@@ -553,7 +553,7 @@ arma::mat predi_GLM(int K, int nD, arma::mat matrixP, int m_i, arma::vec tau, ar
         for(int jytild=0; jytild<mat_ytildM_i.n_rows; jytild++){
           int ind=0;
           double pm =ParamTransformYk(0) ;
-          while(mat_ytildM_i(jytild,k)>pm & ind < ParamTransformYk.size()){
+          while(mat_ytildM_i(jytild,k)>pm && ind < ParamTransformYk.size()){
             ind += 1;
             if(ind < ParamTransformYk.size())
               pm += pow(ParamTransformYk(ind),2); 
@@ -565,7 +565,7 @@ arma::mat predi_GLM(int K, int nD, arma::mat matrixP, int m_i, arma::vec tau, ar
 
           int ind=0;
           double pm =ParamTransformYk(0) ;
-          while(mat_ytildSS_i(jytild,k)>pm & ind < ParamTransformYk.size()){
+          while(mat_ytildSS_i(jytild,k)>pm && ind < ParamTransformYk.size()){
             ind += 1;
             if(ind < ParamTransformYk.size())
               pm += pow(ParamTransformYk(ind),2); 
@@ -577,7 +577,7 @@ arma::mat predi_GLM(int K, int nD, arma::mat matrixP, int m_i, arma::vec tau, ar
         for(int jytild=0; jytild<mat_ytildSS_i_hat.n_rows; jytild++){
           int ind=0;
           double pm =ParamTransformYk(0) ;
-            while(mat_ytildSS_i_hat(jytild,k)>pm & ind < ParamTransformYk.size()){
+            while(mat_ytildSS_i_hat(jytild,k)>pm && ind < ParamTransformYk.size()){
               ind += 1;
               if(ind < ParamTransformYk.size())
                 pm += pow(ParamTransformYk(ind),2); 
@@ -606,14 +606,14 @@ arma::mat predi_GLM(int K, int nD, arma::mat matrixP, int m_i, arma::vec tau, ar
         for(int j=0; j< m_i;j++){
           // for marginal pred
           int lM = 0;
-          while((mat_ytildSS_i(j,k) > GrilleYtild(lM,k)) & (lM< (m_i-1))){
+          while((mat_ytildSS_i(j,k) > GrilleYtild(lM,k)) && (lM< (m_i-1))){
             lM += 1;
           }
           mat_yMn0(j,k) = GrilleY(lM,k);
           
           // for subject-specific pred
           int lSS = 0;
-          while((as_scalar(mat_ytildSS_i(j,k)) > as_scalar(GrilleYtild(lSS,k))) & (lSS< (m_i-1))){
+          while((as_scalar(mat_ytildSS_i(j,k)) > as_scalar(GrilleYtild(lSS,k))) && (lSS< (m_i-1))){
             lSS += 1;
             //printf("l and k : %d, \t %d \n", l,k);
           }
@@ -629,14 +629,14 @@ arma::mat predi_GLM(int K, int nD, arma::mat matrixP, int m_i, arma::vec tau, ar
         for(int j=0; j< m_i;j++){
           // for marginal pred
           int lM = 0;
-          while((mat_ytildSS_i_hat(j,k) > GrilleYtild(lM,k)) & (lM< (m_i-1))){
+          while((mat_ytildSS_i_hat(j,k) > GrilleYtild(lM,k)) && (lM< (m_i-1))){
             lM += 1;
           }
           mat_yMn0(j,k) = GrilleY(lM,k);
           
           // for subject-specific pred
           int lSS = 0;
-          while((as_scalar(mat_ytildSS_i_hat(j,k)) > as_scalar(GrilleYtild(lSS,k))) & (lSS< (m_i-1))){
+          while((as_scalar(mat_ytildSS_i_hat(j,k)) > as_scalar(GrilleYtild(lSS,k))) && (lSS< (m_i-1))){
             lSS += 1;
             //printf("l and k : %d, \t %d \n", l,k);
           }
@@ -653,7 +653,7 @@ arma::mat predi_GLM(int K, int nD, arma::mat matrixP, int m_i, arma::vec tau, ar
     double eps_nSS_hat =1.0;
     
     int itr =0;
-    while((eps_nM>eps) & (eps_nSS>eps) & (eps_nSS_hat>eps) & (itr < 10000)){
+    while((eps_nM>eps) && (eps_nSS>eps) && (eps_nSS_hat>eps) && (itr < 10000)){
       // computering of H(yn) and HPrim(yn)
       // from vectoriel form to matrix form of yn
       
@@ -926,7 +926,7 @@ arma::mat pred(int K, int nD, arma::vec& mapping, arma::vec& paras, arma::vec& m
     mat G_mat_prod_A_0_to_tau = GmatprodAstotau(nD, vec_alpha_ij, tau, 0, DeltaT, modA_mat(span(n*m,((n+1)*m-1)), span(0,(L-1))));
     mat G_mat_A_0_to_tau_i = GmatA0totaui(nD, vec_alpha_ij, tau, DeltaT, modA_mat(span(n*m,((n+1)*m-1)), span(0,(L-1))));
 
-    if(max(if_link)<2 & nE==0){
+    if(max(if_link)<2 && nE==0){
       pred_Y.rows(p,(p+m_is[n]-1)) = predi(K, nD, matrixP, m_is(n), tau, tau_is(span(p,(p+m_is(n)-1))), Ytild(span(p,(p+m_is(n)-1)), span(0,(K-1))),
                   x0(span(n*nD,(n+1)*nD-1), span(0,(ncol_x0-1))), z0(span(n*nD,(n+1)*nD-1), span(0,(ncol_z0-1))),
                   x(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_x-1))), z(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_z-1))),
@@ -1113,7 +1113,7 @@ arma::mat predi0(int K, int nD, arma::mat matrixP, int m_i, arma::vec tau, arma:
     double eps_nM =1.0;
     int itr =0;
     
-    while((eps_nM>eps) & (itr < 15000)){
+    while((eps_nM>eps) && (itr < 15000)){
       // computering of H(yn) and HPrim(yn)
       // from vectoriel form to matrix form of yn
       

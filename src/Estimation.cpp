@@ -81,7 +81,7 @@ double Loglikei(int K, int nD, arma::mat matrixP, int m_i, arma::vec tau, arma::
       }
       
       // ###########################################################
-      if( (k_i(j) != 0) & (k_i(k) != 0)){
+      if( (k_i(j) != 0) && (k_i(k) != 0)){
         //
         // ###### Computering of the componante relate to the RE ########
         // start: computering of phi_0_j_0 et de phi_0_k_0###############
@@ -175,7 +175,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
     expotrick=0;
   
   int check=2;
-  if(max(if_link) < 2 & MCnr>0)
+  if(max(if_link) < 2 && MCnr>0)
     check=1;
       // check = 1 both QMC and closed likelihood for comparison of individual likelihood (type_int, MCnr must be defined!) 
       // check =  2 close likelihood if links = linear/splines, QMC if links = thresholds or if survival = T
@@ -257,7 +257,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
         }
         
         // ###########################################################
-        if( (k_i(j) != 0) & (k_i(k) != 0)){
+        if( (k_i(j) != 0) && (k_i(k) != 0)){
           
           //
           // ###### Computering of the componant relating to the RE ########
@@ -407,16 +407,16 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
 
     for(int j =0 ; j < nq; j++){
       for(int jj =0 ; jj < nq; jj++){
-        if(j < matDw.n_cols & jj < matDw.n_cols){
+        if(j < matDw.n_cols && jj < matDw.n_cols){
           var_RE(j, jj) = matDw(j, jj);
           
-        }else if(j >= matDw.n_cols & jj < matDw.n_cols){
+        }else if(j >= matDw.n_cols && jj < matDw.n_cols){
           var_RE(j, jj) = matDw_u(jj, j-matDw.n_cols);
           
-        }else if(j < matDw.n_cols & jj >= matDw.n_cols){
+        }else if(j < matDw.n_cols && jj >= matDw.n_cols){
           var_RE(j, jj) = matDw_u(j, jj-matDw.n_cols);
           
-        }else if(j >= matDw.n_cols & jj >= matDw.n_cols){
+        }else if(j >= matDw.n_cols && jj >= matDw.n_cols){
           var_RE(j, jj) = matDu(j-matDw.n_cols, jj-matDw.n_cols);
         }
       }
@@ -747,7 +747,7 @@ double Loglikei_GLM(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m
           nullp++;
       }//nr
 
-      if(1>2 & vrais<0){ //Correction with log-exponential trick
+      if(1>2 && vrais<0){ //Correction with log-exponential trick
         double vrais_expo = 0;
         expotrick = max_nr;
         for(int nr=0; nr < MCnr; nr++){
@@ -835,7 +835,7 @@ double Loglikei_GLM2(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int 
     expotrick=0;
   
   int check=2;
-  if(max(if_link) < 2 & MCnr>0)
+  if(max(if_link) < 2 && MCnr>0)
     check=1;
   // check = 1 both QMC and closed likelihood for comparison of individual likelihood (type_int, MCnr must be defined!) 
   // check =  2 close likelihood if links = linear/splines, QMC if links = thresholds or if survival = T
@@ -917,7 +917,7 @@ double Loglikei_GLM2(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int 
         }
         
         // ###########################################################
-        if( (k_i(j) != 0) & (k_i(k) != 0)){
+        if( (k_i(j) != 0) && (k_i(k) != 0)){
           
           //
           // ###### Computering of the componant relating to the RE ########
@@ -1066,16 +1066,16 @@ double Loglikei_GLM2(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int 
     
     for(int j =0 ; j < nq; j++){
       for(int jj =0 ; jj < nq; jj++){
-        if(j < matDw.n_cols & jj < matDw.n_cols){
+        if(j < matDw.n_cols && jj < matDw.n_cols){
           var_RE(j, jj) = matDw(j, jj);
           
-        }else if(j >= matDw.n_cols & jj < matDw.n_cols){
+        }else if(j >= matDw.n_cols && jj < matDw.n_cols){
           var_RE(j, jj) = matDw_u(jj, j-matDw.n_cols);
           
-        }else if(j < matDw.n_cols & jj >= matDw.n_cols){
+        }else if(j < matDw.n_cols && jj >= matDw.n_cols){
           var_RE(j, jj) = matDw_u(j, jj-matDw.n_cols);
           
-        }else if(j >= matDw.n_cols & jj >= matDw.n_cols){
+        }else if(j >= matDw.n_cols && jj >= matDw.n_cols){
           var_RE(j, jj) = matDu(j-matDw.n_cols, jj-matDw.n_cols);
         }
       }
@@ -1386,7 +1386,7 @@ double Loglikei_GLM2(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int 
           nullp++;
       }//nr
       
-      if(1>2 & vrais<0){ //Correction with log-exponential trick
+      if(1>2 && vrais<0){ //Correction with log-exponential trick
         double vrais_expo = 0;
         expotrick = max_nr;
         for(int nr=0; nr < MCnr; nr++){
@@ -1483,7 +1483,7 @@ double f_uiYi(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m_i, ar
     expotrick=0;
   
   int check=2;
-  if(max(if_link) < 2 & MCnr>0)
+  if(max(if_link) < 2 && MCnr>0)
     check=1;
   // check = 1 both QMC and closed likelihood for comparison of individual likelihood (type_int, MCnr must be defined!) 
   // check =  2 close likelihood if links = linear/splines, QMC if links = thresholds or if survival = T
@@ -1565,7 +1565,7 @@ double f_uiYi(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m_i, ar
         }
         
         // ###########################################################
-        if( (k_i(j) != 0) & (k_i(k) != 0)){
+        if( (k_i(j) != 0) && (k_i(k) != 0)){
           
           //
           // ###### Computering of the componant relating to the RE ########
@@ -1715,16 +1715,16 @@ double f_uiYi(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m_i, ar
     
     for(int j =0 ; j < nq; j++){
       for(int jj =0 ; jj < nq; jj++){
-        if(j < matDw.n_cols & jj < matDw.n_cols){
+        if(j < matDw.n_cols && jj < matDw.n_cols){
           var_RE(j, jj) = matDw(j, jj);
           
-        }else if(j >= matDw.n_cols & jj < matDw.n_cols){
+        }else if(j >= matDw.n_cols && jj < matDw.n_cols){
           var_RE(j, jj) = matDw_u(jj, j-matDw.n_cols);
           
-        }else if(j < matDw.n_cols & jj >= matDw.n_cols){
+        }else if(j < matDw.n_cols && jj >= matDw.n_cols){
           var_RE(j, jj) = matDw_u(j, jj-matDw.n_cols);
           
-        }else if(j >= matDw.n_cols & jj >= matDw.n_cols){
+        }else if(j >= matDw.n_cols && jj >= matDw.n_cols){
           var_RE(j, jj) = matDu(j-matDw.n_cols, jj-matDw.n_cols);
         }
       }
@@ -2055,7 +2055,7 @@ double f_uiYi(int K, int nD, arma::mat& matrixP, arma::vec& mapping, int m_i, ar
           nullp++;
       }//nr
       
-      if(1>2 & vrais<0){ //Correction with log-exponential trick
+      if(1>2 && vrais<0){ //Correction with log-exponential trick
         double vrais_expo = 0;
         expotrick = max_nr;
         for(int nr=0; nr < MCnr; nr++){
@@ -2406,7 +2406,7 @@ double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& 
       cout << " alpha_D "<<alpha_D.t();
       
       int p=4;
-      while(det_var_RE<0 & p > 0){
+      while(det_var_RE<0 && p > 0){
         double add = pow(10,-p);
         for(int i=0; i < nq; i++){
           matD(i,i) += add;
@@ -2834,7 +2834,7 @@ double Loglik2(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec&
       cout << " alpha_D "<<alpha_D.t();
       
       int p=4;
-      while(det_var_RE<0 & p > 0){
+      while(det_var_RE<0 && p > 0){
         double add = pow(10,-p);
         for(int i=0; i < nq; i++){
           matD(i,i) += add;

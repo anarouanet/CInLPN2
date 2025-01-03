@@ -279,7 +279,7 @@ DynNet <- function(structural.model, measurement.model, parameters,
   if(is.null(parameters$Fixed.para.values))stop("The argument parameters$Fixed.para.values cannot be NULL")
   
   if(is.null(option$makepred)){
-    option$makepred <- F
+    option$makepred <- T
   }
 
   survival= FALSE

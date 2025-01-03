@@ -140,7 +140,7 @@
 #'               
 #'               parameters = list(paras.ini = paras.ini, Fixed.para.index = indexparaFixeUser, 
 #'                                 Fixed.para.values = paraFixeUser),
-#'               option = list(nproc = 1, print.info = TRUE, mekepred = TRUE, MCnr = 10, 
+#'               option = list(nproc = 1, print.info = TRUE,  MCnr = 10, 
 #'                             univarmaxiter = 7, epsa = 1e-5, epsb = 1e-4, epsd = 1e-2),
 #'               TimeDiscretization=FALSE,
 #'               Time = "time",
@@ -171,7 +171,7 @@
 #'              
 #'              parameters = list(paras.ini = paras.ini, Fixed.para.index = indexparaFixeUser, 
 #'                                Fixed.para.values = paraFixeUser),
-#'              option = list(nproc = 2, print.info = TRUE, mekepred = TRUE, MCnr = 10, 
+#'              option = list(nproc = 2, print.info = TRUE, MCnr = 10, 
 #'                            univarmaxiter = 7, epsa = 1e-5, epsb = 1e-4, epsd = 1e-2),
 #'              TimeDiscretization=FALSE,
 #'              Time = "time",
@@ -200,7 +200,7 @@
 #'                                                           knots = list(NULL, NULL, NULL))),
 #'            parameters = list(paras.ini = paras.ini, Fixed.para.index = indexparaFixeUser, 
 #'                              Fixed.para.values = paraFixeUser),
-#'            option = list(nproc = 1, print.info = FALSE, mekepred = TRUE, MCnr = 10, 
+#'            option = list(nproc = 1, print.info = FALSE,  MCnr = 10, 
 #'                          univarmaxiter = 7, epsa = 1e-5, epsb = 1e-5, epsd = 1e-5),
 #'            TimeDiscretization=FALSE,
 #'            Time = "time",
@@ -225,7 +225,7 @@
 #'          
 #'          parameters = list(paras.ini = paras.ini, Fixed.para.index = indexparaFixeUser, 
 #'                            Fixed.para.values = paraFixeUser),
-#'          option = list(nproc = 2, print.info = TRUE, mekepred = TRUE, MCnr = 10, 
+#'          option = list(nproc = 2, print.info = TRUE,  MCnr = 10, 
 #'                        univarmaxiter = 7, epsa = 1e-5, epsb = 1e-4, epsd = 1e-2),
 #'          TimeDiscretization=FALSE,
 #'          Time = "time",

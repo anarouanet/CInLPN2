@@ -29,7 +29,8 @@
 #' @return a list
 #' 
 #' @importFrom stats qunif median
-#' @importFrom mstate trans.comprisk
+#' @importFrom mstate trans.comprisk msprep expand.covs
+#' @importFrom survival coxph survreg
 #' 
 #' 
 Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, indexparaFixeUser =NULL,
@@ -416,7 +417,7 @@ f_paras.ini <- function(data, outcomes, mapped.to.LP, fixed_X0.models, fixed_Del
                   basehaz = basehaz, assocT = assocT, truncation = truncation)
     
     mod <- DynNet(structural.model = structural.model, measurement.model = measurement.model, parameters = parameters,
-                  option = option, Time = Time, subject = subject, data = data, links = links[k], 
+                  option = option, Time = Time, subject = subject, data = data, links = link[k], 
                   Tentry = Tentry, Event = Event, StatusEvent = StatusEvent, TimeDiscretization = TimeDiscretization)
     
     L <- ncol(mod$modA_mat) 
@@ -461,8 +462,8 @@ f_paras.ini <- function(data, outcomes, mapped.to.LP, fixed_X0.models, fixed_Del
   #Survival sub model
   if(!is.null(Survdata)){
     if(basehaz == "Weibull"){
-      browser()
-      mod_S <- coxph(Surv(Event, StatusEvent) ~ 1, data=lung)
+      #browser()
+      #mod_S <- coxph(Surv(Event, StatusEvent) ~ 1, data=lung)
       mod_S <- survreg(Surv(Event, StatusEvent, type='left') ~ 1,
                        data=Survdata, dist='weibull')
       cat("check: type= left is left truncation? add type_surv + X_surv.")

@@ -195,6 +195,14 @@ f.link <- function(outcomes, Y,link=NULL, knots = NULL, na.action = 'na.pass'){
 #' @param nD number of latent processes
 #' @param Time indicates the name of the covariate representing the time
 #' @param DeltaT indicates the discretization step
+#' @param zitr min and max of ordinal outcomes
+#' @param ide vector of observed values for ordinal outcomes
+#' @param Survdata dataset for survival model
+#' @param basehaz type of baseline hazard function
+#' @param fixed.survival.models specification of fixed effects for survival model (without interactions)
+#' @param interactionY.survival.models specification of interactions in survival models
+#' @param assoc specification of association between longitudinal and survival models
+#' @param truncation boolean for delayed entry
 #'
 #' @return a list
 

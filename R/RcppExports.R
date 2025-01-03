@@ -47,10 +47,14 @@ NULL
 #' @param Xsurv2 design matrix for second event
 #' @param zitr min and max of ordinal outcomes
 #' @param ide vector of observed values for ordinal outcomes
-#' @param modA_mat_predGK_t design matrix for computing predictions of Y on [0;ti] in Gauss Konrod for all subject
-#' @param modA_mat_predGK_t0 design matrix for computing predictions of Y on [0;t0i] in Gauss Konrod for all subject
-#' @param pt_GK_t Gauss-Konrod nodes for integration on [0;ti] for all subject
-#' @param pt_GK_t0 Gauss-Konrod nodes for integration on [0;t0i] for all subject
+#' @param paras_k marker-specific number of transformation parameters
+#' @param sequence quasi-random sequence of QMC
+#' @param type_int type of QMC
+#' @param ind_seq_i QMC
+#' @param MCnr number of QMC replicates to compute the integral over random effects
+#' @param nmes number of repeated measurements
+#' @param ii individual considered
+#' 
 #' @return double 
 #' @export
 #' 
@@ -82,6 +86,7 @@ NULL
 #' @param z model.matrix for change's random effects submodel
 #' @param q0 a vector of number of random effects on each initial latent process level
 #' @param q a vector of number of random effects on each change latent process over time
+#' @param cholesky logical indicating if the variance covariance matrix is parameterized using the cholesky (TRUE) or the correlation (FALSE, by default)
 #' @param if_link indicates if non linear link is used to transform an outcome
 #' @param tau a vector of integers indicating times (including maximum time)
 #' @param tau_is a vector of integers indicating times for individuals
@@ -93,6 +98,8 @@ NULL
 #' @param knots indicates position of knots used to transform outcomes
 #' @param degree indicates degree of the basis of splines
 #' @param epsPred convergence criteria for prediction using MC method//' 
+#' @param ui_hat matrix of bayesian estimates of random effects
+#' @param nE number of survival events
 #' @return a matrix
 #' @export
 #' 
@@ -105,6 +112,37 @@ pred0 <- function(K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, nb_para
 }
 
 #'  Function that constructs the matrix matYtild_ui (Lambda_i|ui), the expectation of the processes at time t_j given ui
+NULL
+
+#' Function that computes the difference (mat_Yi - mat_Nu_i), delates missing values (NAs) and 
+#' returns a vector. mat_Yi is the outcomes and mat_Nu_i is the expectation
+#'  
+#' @param Lambdai a matrix of dimension nT x nD containing the sampled lambda_i
+#' @param nD an integer indicating the number of processes
+#' @param matrixP a matrix that matches markers to latent processes
+#' @param tau a vector of integers indicating times 
+#' @param tau_i a vector of integers indicating times for individual i
+#' @param DeltaT double that indicates the discretization step
+#' @param Ytildi vector of individual transformed outcomes
+#' @param YtildPrimi vector of individual transformed derivatives
+#' @param x0i model.matrix for baseline's submodel
+#' @param xi model.matrix for change's submodel
+#' @param paraSig variances of marker-specific measurement errors
+#' @param alpha_mu0 a vector of parameters associated to the model.matrix for the baseline's submodel
+#' @param alpha_mu a vector of parameters associated to the model.matrix for the change's submodel
+#' @param G_mat_A_0_to_tau_i matrix containing  Prod(A_t)t=0,tau_i where A_t is the transition
+#' matric containing at time t
+#' @param paraEtha2 transformation parameters
+#' @param if_link: link function indicator, 0 if linear, 1 if splines, 2 if thresholds
+#' @param zitr: minY and maxY of observed ordinal Y
+#' @param ide indicator if the values between zitr(0) and zitr(1) are observed in Y 
+#' @param paras_k: number of parameters for link function for each marker k
+#' @param K2_lambda_t: vector indicating to which latent process corresponds each value of Lambdai
+#' @param K2_lambda: vector indicating to which latent process corresponds each marker
+#' 
+#' @return a double
+#' @export
+#' 
 NULL
 
 #' gammaX vector of linear predictors for 1 and 2 transitions (including association on random effects if assoc <=2)
@@ -344,33 +382,6 @@ YiNui <- function(nD, matrixP, tau, tau_i, DeltaT, Yi, x0i, alpha_mu0, xi, alpha
     .Call(`_DynNet_YiNui`, nD, matrixP, tau, tau_i, DeltaT, Yi, x0i, alpha_mu0, xi, alpha_mu, G_mat_A_0_to_tau_i)
 }
 
-#' Function that computes the difference (mat_Yi - mat_Nu_i), delates missing values (NAs) and 
-#' returns a vector. mat_Yi is the outcomes and mat_Nu_i is the expectation
-#'  
-#' @param Lambdai a matrix of dimension nT x nD containing the sampled lambda_i
-#' @param nD an integer indicating the number of processes
-#' @param matrixP a matrix that matches markers to latent processes
-#' @param tau a vector of integers indicating times 
-#' @param tau_i a vector of integers indicating times for individual i
-#' @param DeltaT double that indicates the discretization step
-#' @param Yi a matrix of the outcomes
-#' @param x0i model.matrix for baseline's submodel
-#' @param xi model.matrix for change's submodel
-#' @param alpha_mu0 a vector of parameters associated to the model.matrix for the baseline's submodel
-#' @param alpha_mu a vector of parameters associated to the model.matrix for the change's submodel
-#' @param G_mat_A_0_to_tau_i matrix containing  Prod(A_t)t=0,tau_i where A_t is the transition
-#' matric containing at time t
-#'  @param paraEtha2 transformation parameters
-#'  @param if_link: link function indicator, 0 if linear, 1 if splines, 2 if thresholds
-#'  @param zitr: minY and maxY of observed ordinal Y
-#'  @param ide indicator if the values between zitr(0) and zitr(1) are observed in Y 
-#'  @param paras_k: number of parameters for link function for each marker k
-#'  @param K2_lambda_t: vector indicating to which latent process corresponds each value of Lambdai
-#'  @param K2_lambda: vector indicating to which latent process corresponds each marker
-#' 
-#' @return a double
-#' @export
-#' 
 f_marker <- function(Lambdai, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, paraEtha2, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda) {
     .Call(`_DynNet_f_marker`, Lambdai, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrimi, x0i, alpha_mu0, xi, paraSig, alpha_mu, G_mat_A_0_to_tau_i, paraEtha2, if_link, zitr, ide, paras_k, K2_lambda_t, K2_lambda)
 }
@@ -385,8 +396,8 @@ f_marker <- function(Lambdai, nD, matrixP, tau, tau_i, DeltaT, Ytildi, YtildPrim
 #' @param alpha_mu0 a vector of parameters associated to the model.matrix for the baseline's submodel (beta)
 #' @param alpha_mu a vector of parameters associated to the model.matrix for the change's submodel (gamma)
 #' @param G_mat_A_0_to_tau_i matrix containing  Prod(A_t)t=0,tau_i where A_t is the transition
-#' matric containing at time t
-#' @param ui random effects (baseline and slope) dimension: nD*(1+nq_v) x 1 [ui1, ..., uinD, vi1, ..., vinD]
+#' matrix containing at time t
+#' @param randomeffects vector of individual random effects
 #' @param zi model.matrix for random change's submodel
 #' @param ordered indicator if tau_i is ordered or not (usually ordered, except for GK nodes)
 #' 

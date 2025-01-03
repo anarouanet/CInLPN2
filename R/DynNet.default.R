@@ -25,8 +25,9 @@
 #' @param truncation boolean indicating if left truncation or not
 #' @param fixed.survival.models fixed effects in the submodel for the event hazards
 #' @param interactionY.survival.models interactions with Y in the survival models
+#' @param predict_ui boolean indicating if bayesian estimates of random effects should be computed (FALSE by default)
 #' @param makepred indicates if predictions in the real scales of outcomes have to be done
-#' @param MCnr number of replicates  to compute the predictions in the real scales of the outcomes
+#' @param MCnr number of QMC replicates to compute the integral over random effects
 #' @param type_int type of Monte Carlo integration method to use
 #' @param paras.ini initial values for parameters, default values is NULL
 #' @param indexparaFixeUser position of parameters to be constrained
@@ -38,6 +39,17 @@
 #' @param epsb threshold for the convergence criterion on the likelihood, default value is 1.e-4
 #' @param epsd threshold for the convergence criterion on the derivatives, default value is 1.e-3
 #' @param print.info  to print information during the liklihood optimization, default value is FALSE 
+#' @param MCnr2 number of QMC replicates to compute the integral over random effects for Louis's variance
+#' @param sequence quasi-random of QMC
+#' @param ind_seq_i QMC
+#' @param nmes number of repeated measurements
+#' @param cholesky logical indicating if the variance covariance matrix is parameterized using the cholesky (TRUE, by default) or the correlation (FALSE)
+#' @param zitr min and max of ordinal outcomes
+#' @param ide vector of observed values for ordinal outcomes
+#' @param TimeDiscretization a boolean indicating if the initial time has to be discretized (TRUE by default). When setting to FALSE, it allows to avoid discretization when running univariate model during parameter initialization.
+#' @param Tentry name of the variable of entry time
+#' @param Event name of the variable of event time
+#' @param StatusEvent name of the variable of event status
 #' @param \dots optional parameters
 #'
 #' @return DynNet object
@@ -48,7 +60,7 @@
 DynNet.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.models, randoms_DeltaX.models, mod_trans.model, 
                            DeltaT, outcomes, nD, mapping.to.LP, link, knots=NULL, subject, data, Time, 
                            Survdata = NULL, basehaz = NULL, knots_surv=NULL, assoc = 0, truncation = FALSE, fixed.survival.models = NULL, 
-                           interactionY.survival.models = NULL,
+                           interactionY.survival.models = NULL, predict_ui = NULL, 
                            makepred, MCnr, MCnr2, type_int = NULL, sequence = NULL, ind_seq_i = NULL, nmes = NULL, cholesky= FALSE,
                            paras.ini= NULL, indexparaFixeUser, paraFixeUser, maxiter, zitr, ide, univarmaxiter, nproc = 1, 
                            epsa =0.0001, epsb = 0.0001, epsd= 0.001, print.info = FALSE, TimeDiscretization = TRUE, 
@@ -176,7 +188,7 @@ DynNet.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mode
   est <- DynNet.estim(K = K, nD = nD, mapping.to.LP = mapping.to.LP, data = data_F, if_link = if_link, cholesky = cholesky,
                       DeltaT = DeltaT, MCnr = MCnr, MCnr2 = MCnr2, nmes = nmes, data_surv = Survdata,
                       paras = paras, maxiter = maxiter, nproc = nproc, epsa = epsa, epsb = epsb,
-                      epsd = epsd, print.info = print.info)
+                      epsd = epsd, print.info = print.info, predict_ui = predict_ui)
   
   
   res <- list(conv = est$istop, v = est$v, best = est$b, ca = est$ca, cb = est$cb, rdm = est$rdm, 

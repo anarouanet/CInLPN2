@@ -18,6 +18,8 @@
 
 \item{newdata}{dataset}
 
+\item{TimeDiscretization}{a boolean indicating if the initial time has to be discretized (TRUE by default). When setting to FALSE, it allows to avoid discretization when running univariate model during parameter initialization.}
+
 \item{MCnr}{an integer that gives the number of Monte Carlo iterations}
 
 \item{ui_hat}{matrix of bayesian estimates of random effects}

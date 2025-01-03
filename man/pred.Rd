@@ -57,6 +57,8 @@ outcomes and latents processes}
 
 \item{q}{a vector of number of random effects on each change latent process over time}
 
+\item{cholesky}{logical indicating if the variance covariance matrix is parameterized using the cholesky (TRUE) or the correlation (FALSE, by default)}
+
 \item{nb_paraD}{number of paramerters of the variance-covariance matrix of random effects}
 
 \item{x0}{model.matrix for baseline's fixed submodel}
@@ -86,6 +88,10 @@ outcomes and latents processes}
 \item{degree}{indicates degree of the basis of splines}
 
 \item{epsPred}{convergence criteria for prediction using MC method//'}
+
+\item{ui_hat}{matrix of bayesian estimates of random effects}
+
+\item{nE}{number of survival events}
 }
 \value{
 a matrix

@@ -64,15 +64,27 @@ the temporal influences between latent processes}
 
 \item{subject}{indicates the name of the covariate representing the grouping structure}
 
+\item{MCnr}{number Quasi-Monte Carlo replicates for the integration over random effects}
+
+\item{type_int}{type of Monte Carlo integration method to use}
+
+\item{Survdata}{database for survival sub-model}
+
+\item{basehaz}{type of baseline hazard}
+
 \item{Time}{indicates the name of the covariate representing the time}
 
 \item{link}{indicates link used to transform outcome}
 
 \item{knots}{indicates position of knots used to transform outcomes}
 
+\item{zitr}{min and max of ordinal outcomes}
+
+\item{ide}{vector of observed values for ordinal outcomes}
+
 \item{DeltaT}{indicates the discretization step}
 
-\item{maxiter}{maximum iteration}
+\item{maxiter}{maximum iterations}
 
 \item{epsa}{threshold for the convergence criterion on the parameters, default value is 1.e-4}
 
@@ -83,6 +95,20 @@ the temporal influences between latent processes}
 \item{nproc}{number of processor to be used for running this package}
 
 \item{print.info}{to print information during the liklihood optimization, default value is FALSE}
+
+\item{TimeDiscretization}{a boolean indicating if the initial time has to be discretized (TRUE by default). When setting to FALSE, it allows to avoid discretization when running univariate model during parameter initialization.}
+
+\item{fixed.survival.models}{specification of survival models}
+
+\item{Tentry}{name of the variable of entry time}
+
+\item{Event}{name of the variable of event time}
+
+\item{StatusEvent}{name of the variable of event status}
+
+\item{assocT}{specification of association between longitudinal and survival models}
+
+\item{truncation}{boolean for delayed entry}
 }
 \value{
 a list

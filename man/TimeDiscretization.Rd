@@ -23,6 +23,16 @@ TimeDiscretization(
 
 \item{subject}{subject identifiant}
 
+\item{fixed_X0.models}{specification of fixed effects for baseline level in longitudinal models}
+
+\item{randoms_X0.models}{specification of random effects for baseline level in longitudinal models}
+
+\item{fixed_DeltaX.models}{specification of fixed effects for slope in longitudinal models}
+
+\item{randoms_DeltaX.models}{specification of random effects for slope in longitudinal models}
+
+\item{mod_trans.model}{specification of transition matrix between latent processes}
+
 \item{outcomes}{a vector of outcomes names}
 
 \item{predictors}{independent variables  to be be included in the modeling}

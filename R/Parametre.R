@@ -11,7 +11,21 @@
 #' @param L number of columns of model.matrix for temporal infuences model
 #' @param paras.ini initial values for parameters, default values is NULL
 #' @param ncolMod.MatrixY vector of number of columns of model.matrix for transformation submodel
-#'
+#' @param link indicates link used to transform outcome
+#' @param npara_k marker-specific number of transformation parameters
+#' @param Survdata dataset for survival model
+#' @param basehaz type of baseline hazard function
+#' @param knots_surv knots for splines in baseline hazard (to develop)
+#' @param assoc specification of association between longitudinal and survival models
+#' @param truncation boolean for delayed entry
+#' @param data dataset for longitudinal model
+#' @param outcomes names of the outcomes
+#' @param df degree of freedom for link==splines
+#' @param nE number of survival events
+#' @param np_surv cause-specific number of fixed effects in survival models
+#' @param fixed.survival.models specification of survival models (without interactions)
+#' @param interactionY.survival.models specification of interactions in survival models
+#' @param nYsurv number of fixed effects in survival model
 #' @return a list
 #' 
 #' @importFrom stats qunif median
@@ -319,16 +333,29 @@ Parametre <- function(K, nD, vec_ncol_x0n, n_col_x, nb_RE, stochErr=FALSE, index
 #' @param mod_trans.model model for elements of the temporal transition matrix, which captures 
 #' the temporal influences between latent processes
 #' @param subject indicates the name of the covariate representing the grouping structure
+#' @param MCnr number Quasi-Monte Carlo replicates for the integration over random effects
+#' @param type_int type of Monte Carlo integration method to use
+#' @param Survdata database for survival sub-model
+#' @param basehaz type of baseline hazard
 #' @param Time indicates the name of the covariate representing the time
 #' @param link indicates link used to transform outcome
 #' @param knots indicates position of knots used to transform outcomes 
+#' @param zitr min and max of ordinal outcomes
+#' @param ide vector of observed values for ordinal outcomes
 #' @param DeltaT indicates the discretization step
-#' @param maxiter maximum iteration
+#' @param maxiter maximum iterations
 #' @param epsa threshold for the convergence criterion on the parameters, default value is 1.e-4
 #' @param epsb threshold for the convergence criterion on the likelihood, default value is 1.e-4
 #' @param epsd threshold for the convergence criterion on the derivatives, default value is 1.e-3
 #' @param nproc number of processor to be used for running this package
 #' @param print.info  to print information during the liklihood optimization, default value is FALSE
+#' @param TimeDiscretization a boolean indicating if the initial time has to be discretized (TRUE by default). When setting to FALSE, it allows to avoid discretization when running univariate model during parameter initialization.
+#' @param fixed.survival.models specification of survival models
+#' @param Tentry name of the variable of entry time
+#' @param Event name of the variable of event time
+#' @param StatusEvent name of the variable of event status
+#' @param assocT specification of association between longitudinal and survival models
+#' @param truncation boolean for delayed entry
 #'
 #' @return a list
 

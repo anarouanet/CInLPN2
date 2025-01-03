@@ -34,13 +34,13 @@ matNui_ui(
 \item{alpha_mu}{a vector of parameters associated to the model.matrix for the change's submodel (gamma)}
 
 \item{G_mat_A_0_to_tau_i}{matrix containing  Prod(A_t)t=0,tau_i where A_t is the transition
-matric containing at time t}
+matrix containing at time t}
+
+\item{randomeffects}{vector of individual random effects}
 
 \item{zi}{model.matrix for random change's submodel}
 
 \item{ordered}{indicator if tau_i is ordered or not (usually ordered, except for GK nodes)}
-
-\item{ui}{random effects (baseline and slope) dimension: nD*(1+nq_v) x 1 [ui1, ..., uinD, vi1, ..., vinD]}
 }
 \value{
 a vector

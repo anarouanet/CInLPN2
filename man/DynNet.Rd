@@ -19,6 +19,7 @@ DynNet(
   seed = NULL,
   TimeDiscretization = TRUE,
   cholesky = FALSE,
+  predict_ui = FALSE,
   ...
 )
 }
@@ -102,11 +103,19 @@ default value is NULL}}
 
 \item{StatusEvent}{name of the variable of event status}
 
+\item{basehaz}{type of baseline hazard function}
+
 \item{subject}{indicates the name of the covariate representing the grouping structure}
 
 \item{data}{indicates the data frame containing all the variables for estimating the model.}
 
+\item{seed}{seed for random generator}
+
+\item{TimeDiscretization}{a boolean indicating if the initial time has to be discretized (TRUE by default). When setting to FALSE, it allows to avoid discretization when running univariate model during parameter initialization.}
+
 \item{cholesky}{logical indicating if the variance covariance matrix is parameterized using the cholesky (TRUE) or the correlation (FALSE, by default)}
+
+\item{predict_ui}{boolean indicating if bayesian estimates of random effects should be computed (FALSE by default)}
 
 \item{\dots}{other optional arguments}
 }

@@ -6,13 +6,12 @@
 #' @param \dots optional parameters
 #'
 #' @return list of marginal and subject-specific predictions
-#' @export
 predict2.DynNet <- function(object, newdata, MCnr = 10, ...){
   
   model <- object
   cl <- match.call()
   if(missing(model)) stop("The argument model should be specified")
-  if(class(model)!="DynNet" & class(model)!="CInLPN" ) stop("argument model must be a DynNet or CInLPN object")
+  if(inherits(model)!="DynNet" & inherits(model)!="CInLPN" ) stop("argument model must be a DynNet or CInLPN object")
   x <- model$call
   if(missing(newdata)) stop("The argument newdata should be specified")
   
@@ -226,6 +225,7 @@ predict2.DynNet <- function(object, newdata, MCnr = 10, ...){
 #' @param object DynNet object
 #' @param newdata dataset
 #' @param MCnr an integer that gives the number of Monte Carlo iterations
+#' @param TimeDiscretization a boolean indicating if the initial time has to be discretized (TRUE by default). When setting to FALSE, it allows to avoid discretization when running univariate model during parameter initialization.
 #' @param ui_hat matrix of bayesian estimates of random effects
 #' @param \dots optional parameters
 #'
@@ -236,7 +236,7 @@ predict.DynNet <- function(object, newdata, TimeDiscretization=TRUE, MCnr = 10, 
   model <- object
   cl <- match.call()
   if(missing(model)) stop("The argument model should be specified")
-  if(class(model)!="DynNet") stop("argument model must be a DynNet object")
+  if(inherits(model)!="DynNet") stop("argument model must be a DynNet object")
   x <- model$call
   if(missing(newdata)) stop("The argument newdata should be specified")
   
@@ -426,16 +426,15 @@ predict.DynNet <- function(object, newdata, TimeDiscretization=TRUE, MCnr = 10, 
 #' @param object CInLPN object
 #' @param newdata dataset
 #' @param MCnr an integer that gives the number of Monte Carlo iterations
-#' @param TimeDiscretization a boolean indicating if the inital time have to be discretized. When setting to FALSE, It allows to avoid discretization when running univarite model during parameter initialization.
+#' @param TimeDiscretization a boolean indicating if the initial time has to be discretized (TRUE by default). When setting to FALSE, it allows to avoid discretization when running univariate model during parameter initialization.
 #' @param \dots optional parameters
 #'
 #' @return list of marginal and subject-specific predictions
-#' @export
 predict0.DynNet <- function(object, newdata, TimeDiscretization=TRUE, MCnr = 10, ...){
   model <- object
   cl <- match.call()
   if(missing(model)) stop("The argument model should be specified")
-  if(class(model)!="DynNet"& class(model)!="CInLPN") stop("argument model must be a DynNet or CInLPN object")
+  if(inherits(model)!="DynNet"& inherits(model)!="CInLPN") stop("argument model must be a DynNet or CInLPN object")
   x <- model$call
   if(missing(newdata)) stop("The argument newdata should be specified")
   

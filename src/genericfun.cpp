@@ -633,24 +633,27 @@ bool Isnotnan(double i) {
 //' @param tau a vector of integers indicating times 
 //' @param tau_i a vector of integers indicating times for individual i
 //' @param DeltaT double that indicates the discretization step
-//' @param Yi a matrix of the outcomes
+//' @param Ytildi vector of individual transformed outcomes
+//' @param YtildPrimi vector of individual transformed derivatives
 //' @param x0i model.matrix for baseline's submodel
 //' @param xi model.matrix for change's submodel
+//' @param paraSig variances of marker-specific measurement errors
 //' @param alpha_mu0 a vector of parameters associated to the model.matrix for the baseline's submodel
 //' @param alpha_mu a vector of parameters associated to the model.matrix for the change's submodel
 //' @param G_mat_A_0_to_tau_i matrix containing  Prod(A_t)t=0,tau_i where A_t is the transition
 //' matric containing at time t
-//'  @param paraEtha2 transformation parameters
-//'  @param if_link: link function indicator, 0 if linear, 1 if splines, 2 if thresholds
-//'  @param zitr: minY and maxY of observed ordinal Y
-//'  @param ide indicator if the values between zitr(0) and zitr(1) are observed in Y 
-//'  @param paras_k: number of parameters for link function for each marker k
-//'  @param K2_lambda_t: vector indicating to which latent process corresponds each value of Lambdai
-//'  @param K2_lambda: vector indicating to which latent process corresponds each marker
+//' @param paraEtha2 transformation parameters
+//' @param if_link: link function indicator, 0 if linear, 1 if splines, 2 if thresholds
+//' @param zitr: minY and maxY of observed ordinal Y
+//' @param ide indicator if the values between zitr(0) and zitr(1) are observed in Y 
+//' @param paras_k: number of parameters for link function for each marker k
+//' @param K2_lambda_t: vector indicating to which latent process corresponds each value of Lambdai
+//' @param K2_lambda: vector indicating to which latent process corresponds each marker
 //' 
 //' @return a double
 //' @export
 //' 
+
 // [[Rcpp::export]]
 double f_marker(arma::mat& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, arma::vec& tau_i, double DeltaT, arma::mat& Ytildi, arma::mat& YtildPrimi, arma::mat& x0i, arma::colvec& alpha_mu0,
                 arma::mat& xi, arma::vec& paraSig, arma::colvec& alpha_mu, arma::mat& G_mat_A_0_to_tau_i, arma::colvec& paraEtha2, arma::vec& if_link, arma::colvec& zitr, 
@@ -801,8 +804,8 @@ double f_marker(arma::mat& Lambdai, int nD, arma::mat matrixP, arma::vec& tau, a
 //' @param alpha_mu0 a vector of parameters associated to the model.matrix for the baseline's submodel (beta)
 //' @param alpha_mu a vector of parameters associated to the model.matrix for the change's submodel (gamma)
 //' @param G_mat_A_0_to_tau_i matrix containing  Prod(A_t)t=0,tau_i where A_t is the transition
-//' matric containing at time t
-//' @param ui random effects (baseline and slope) dimension: nD*(1+nq_v) x 1 [ui1, ..., uinD, vi1, ..., vinD]
+//' matrix containing at time t
+//' @param randomeffects vector of individual random effects
 //' @param zi model.matrix for random change's submodel
 //' @param ordered indicator if tau_i is ordered or not (usually ordered, except for GK nodes)
 //' 

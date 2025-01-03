@@ -55,6 +55,36 @@ Parametre(
 \item{paras.ini}{initial values for parameters, default values is NULL}
 
 \item{ncolMod.MatrixY}{vector of number of columns of model.matrix for transformation submodel}
+
+\item{link}{indicates link used to transform outcome}
+
+\item{npara_k}{marker-specific number of transformation parameters}
+
+\item{Survdata}{dataset for survival model}
+
+\item{basehaz}{type of baseline hazard function}
+
+\item{knots_surv}{knots for splines in baseline hazard (to develop)}
+
+\item{assoc}{specification of association between longitudinal and survival models}
+
+\item{truncation}{boolean for delayed entry}
+
+\item{data}{dataset for longitudinal model}
+
+\item{outcomes}{names of the outcomes}
+
+\item{df}{degree of freedom for link==splines}
+
+\item{nE}{number of survival events}
+
+\item{np_surv}{cause-specific number of fixed effects in survival models}
+
+\item{fixed.survival.models}{specification of survival models (without interactions)}
+
+\item{interactionY.survival.models}{specification of interactions in survival models}
+
+\item{nYsurv}{number of fixed effects in survival model}
 }
 \value{
 a list

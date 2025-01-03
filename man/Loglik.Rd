@@ -65,6 +65,18 @@ outcomes and latents processes}
 
 \item{posfix}{position of parameters to be constrained}
 
+\item{paras_k}{marker-specific number of transformation parameters}
+
+\item{sequence}{quasi-random sequence of QMC}
+
+\item{type_int}{type of QMC}
+
+\item{ind_seq_i}{QMC}
+
+\item{MCnr}{number of QMC replicates to compute the integral over random effects}
+
+\item{nmes}{number of repeated measurements}
+
 \item{m_is}{vector of numbers of visit occasions for individuals}
 
 \item{Mod_MatrixY}{model.matrix from markers transformation submodels}
@@ -127,13 +139,7 @@ outcomes and latents processes}
 
 \item{DeltaT}{double that indicates the discretization step}
 
-\item{modA_mat_predGK_t}{design matrix for computing predictions of Y on [0;ti] in Gauss Konrod for all subject}
-
-\item{modA_mat_predGK_t0}{design matrix for computing predictions of Y on [0;t0i] in Gauss Konrod for all subject}
-
-\item{pt_GK_t}{Gauss-Konrod nodes for integration on [0;ti] for all subject}
-
-\item{pt_GK_t0}{Gauss-Konrod nodes for integration on [0;t0i] for all subject}
+\item{ii}{individual considered}
 }
 \value{
 double

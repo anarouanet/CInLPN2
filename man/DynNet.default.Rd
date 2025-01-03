@@ -26,6 +26,7 @@ DynNet.default(
   truncation = FALSE,
   fixed.survival.models = NULL,
   interactionY.survival.models = NULL,
+  predict_ui = NULL,
   makepred,
   MCnr,
   MCnr2,
@@ -100,11 +101,23 @@ outcomes and latents processes}
 
 \item{interactionY.survival.models}{interactions with Y in the survival models}
 
+\item{predict_ui}{boolean indicating if bayesian estimates of random effects should be computed (FALSE by default)}
+
 \item{makepred}{indicates if predictions in the real scales of outcomes have to be done}
 
-\item{MCnr}{number of replicates  to compute the predictions in the real scales of the outcomes}
+\item{MCnr}{number of QMC replicates to compute the integral over random effects}
+
+\item{MCnr2}{number of QMC replicates to compute the integral over random effects for Louis's variance}
 
 \item{type_int}{type of Monte Carlo integration method to use}
+
+\item{sequence}{quasi-random of QMC}
+
+\item{ind_seq_i}{QMC}
+
+\item{nmes}{number of repeated measurements}
+
+\item{cholesky}{logical indicating if the variance covariance matrix is parameterized using the cholesky (TRUE, by default) or the correlation (FALSE)}
 
 \item{paras.ini}{initial values for parameters, default values is NULL}
 
@@ -113,6 +126,10 @@ outcomes and latents processes}
 \item{paraFixeUser}{values associated to the index of parameters to be constrained}
 
 \item{maxiter}{maximum iteration}
+
+\item{zitr}{min and max of ordinal outcomes}
+
+\item{ide}{vector of observed values for ordinal outcomes}
 
 \item{univarmaxiter}{maximum iteration for estimating univariate model}
 
@@ -125,6 +142,14 @@ outcomes and latents processes}
 \item{epsd}{threshold for the convergence criterion on the derivatives, default value is 1.e-3}
 
 \item{print.info}{to print information during the liklihood optimization, default value is FALSE}
+
+\item{TimeDiscretization}{a boolean indicating if the initial time has to be discretized (TRUE by default). When setting to FALSE, it allows to avoid discretization when running univariate model during parameter initialization.}
+
+\item{Tentry}{name of the variable of entry time}
+
+\item{Event}{name of the variable of event time}
+
+\item{StatusEvent}{name of the variable of event status}
 
 \item{\dots}{optional parameters}
 }

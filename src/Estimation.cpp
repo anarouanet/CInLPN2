@@ -2201,15 +2201,18 @@ bool compFun1(int i) {
 //' @param Xsurv2 design matrix for second event
 //' @param zitr min and max of ordinal outcomes
 //' @param ide vector of observed values for ordinal outcomes
-//' @param modA_mat_predGK_t design matrix for computing predictions of Y on [0;ti] in Gauss Konrod for all subject
-//' @param modA_mat_predGK_t0 design matrix for computing predictions of Y on [0;t0i] in Gauss Konrod for all subject
-//' @param pt_GK_t Gauss-Konrod nodes for integration on [0;ti] for all subject
-//' @param pt_GK_t0 Gauss-Konrod nodes for integration on [0;t0i] for all subject
+//' @param paras_k marker-specific number of transformation parameters
+//' @param sequence quasi-random sequence of QMC
+//' @param type_int type of QMC
+//' @param ind_seq_i QMC
+//' @param MCnr number of QMC replicates to compute the integral over random effects
+//' @param nmes number of repeated measurements
+//' @param ii individual considered
+//' 
 //' @return double 
 //' @export
 //' 
 // [[Rcpp::export]]
-
 
 double Loglik(int K, int nD, arma::vec& mapping, arma::vec& paraOpt, arma::vec& paraFixe, arma::vec& posfix, 
               arma::vec& paras_k, arma::mat& sequence, int type_int, arma::vec& ind_seq_i, int MCnr,  arma::vec& nmes, arma::vec& m_is,

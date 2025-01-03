@@ -15,13 +15,18 @@
 #' @param epsb threshold for the convergence criterion on the likelihood, default value is 1.e-4
 #' @param epsd threshold for the convergence criterion on the derivatives, default value is 1.e-3
 #' @param print.info to print information during the liklihood optimization, default value is FALSE
+#' @param cholesky logical indicating if the variance covariance matrix is parameterized using the cholesky (TRUE, by default) or the correlation (FALSE)
+#' @param MCnr number of QMC replicates to compute the integral over random effects
+#' @param MCnr2 number of QMC replicates to compute the integral over random effects in the Louis Variance
+#' @param nmes number of repeated measurements
+#' @param data_surv dataset for survival model
+#' @param predict_ui boolean indicating if bayesian estimates of random effects should be computed (FALSE by default)
 #'
 #' @return DynNet object
 #' 
 #' @import marqLevAlg randtoolbox foreach doParallel
-
 DynNet.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesky = FALSE, DeltaT=1.0, MCnr = NULL, MCnr2=NULL, nmes = NULL, data_surv = NULL, paras, 
-                          maxiter = 500, nproc = 1, epsa =0.0001, epsb = 0.0001,epsd= 0.001, print.info = FALSE){
+                          maxiter = 500, nproc = 1, epsa =0.0001, epsb = 0.0001,epsd= 0.001, print.info = FALSE, predict_ui = FALSE){
   cl <- match.call()
   #  non parall Optimisation 
   # package loading
@@ -245,10 +250,10 @@ DynNet.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesky
     #                  nb_paraDw= data$nb_paraDw, tau = data$tau, tau_is=data$tau_is))    
   }
 
-  pred=TRUE
+
   ui=rep(0,sum(data$q)+sum(data$q0))
   #if(pred & (data$nE>0 || any(if_link==2))){
-    if(pred ){
+    if(predict_ui ){
     # temp <- Loglik2(K = K, nD = nD, mapping =  mapping.to.LP, paraOpt = paras$paraOpt,  paraFixe = paras$paraFixe, posfix = paras$posfix, paras_k = paras$npara_k,
     #                sequence = as.matrix(paras$sequence), type_int = paras$type_int, ind_seq_i = paras$ind_seq_i, MCnr = MCnr, nmes = nmes,
     #                m_is = data$m_i, Mod_MatrixY = data$Mod.MatrixY, Mod_MatrixYprim = data$Mod.MatrixYprim, df=data$df,
@@ -264,7 +269,6 @@ DynNet.estim <- function(K, nD, mapping.to.LP, data, if_link = if_link, cholesky
     ui_hat <- matrix(NA,length(data$m_i),sum(data$q)+sum(data$q0))
     maxiter=100
     for(i in 1:length(data$m_i)){
-      cat("i: ",i,"\n")
       optim_ui<- try(marqLevAlg::marqLevAlg(b = ui, paraOpt = paras$paraOpt, fn = Loglik2, nproc = nproc, .packages = NULL, epsa=epsa, epsb=epsb, epsd=epsd,
                                          maxiter=maxiter, print.info = F,  minimize = FALSE,
                                          DeltaT=DeltaT, paraFixe = paras$paraFixe, posfix = paras$posfix,

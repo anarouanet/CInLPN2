@@ -11,7 +11,7 @@ predict0.DynNet(object, newdata, TimeDiscretization = TRUE, MCnr = 10, ...)
 
 \item{newdata}{dataset}
 
-\item{TimeDiscretization}{a boolean indicating if the inital time have to be discretized. When setting to FALSE, It allows to avoid discretization when running univarite model during parameter initialization.}
+\item{TimeDiscretization}{a boolean indicating if the initial time has to be discretized (TRUE by default). When setting to FALSE, it allows to avoid discretization when running univariate model during parameter initialization.}
 
 \item{MCnr}{an integer that gives the number of Monte Carlo iterations}
 

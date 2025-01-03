@@ -49,13 +49,29 @@ the temporal influences between latent processes}
 
 \item{knots}{indicates position of knots used to transform outcomes}
 
+\item{zitr}{min and max of ordinal outcomes}
+
+\item{ide}{vector of observed values for ordinal outcomes}
+
 \item{outcomes}{names of the outcomes}
 
 \item{nD}{number of latent processes}
 
 \item{Time}{indicates the name of the covariate representing the time}
 
+\item{Survdata}{dataset for survival model}
+
+\item{basehaz}{type of baseline hazard function}
+
+\item{fixed.survival.models}{specification of fixed effects for survival model (without interactions)}
+
+\item{interactionY.survival.models}{specification of interactions in survival models}
+
 \item{DeltaT}{indicates the discretization step}
+
+\item{assoc}{specification of association between longitudinal and survival models}
+
+\item{truncation}{boolean for delayed entry}
 }
 \value{
 a list

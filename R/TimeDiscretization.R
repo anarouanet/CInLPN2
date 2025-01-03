@@ -70,9 +70,14 @@ f_TempsDiscr <- function(Time, Delta){
 #' function that discretized a vector of time with a given delta.
 #'
 #' @param rdata input data which time point has to be discretized
+#' @param subject subject identifiant
+#' @param fixed_X0.models specification of fixed effects for baseline level in longitudinal models
+#' @param randoms_X0.models specification of random effects for baseline level in longitudinal models
+#' @param fixed_DeltaX.models specification of fixed effects for slope in longitudinal models
+#' @param randoms_DeltaX.models specification of random effects for slope in longitudinal models
+#' @param mod_trans.model specification of transition matrix between latent processes
 #' @param outcomes a vector of outcomes names
 #' @param predictors independent variables  to be be included in the modeling
-#' @param subject subject identifiant
 #' @param Time colname indicating the time
 #' @param Delta discretized time step 
 #'

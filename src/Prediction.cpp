@@ -780,6 +780,7 @@ Predictions for overall individuals
 //' @param z model.matrix for change's random effects submodel
 //' @param q0 a vector of number of random effects on each initial latent process level
 //' @param q a vector of number of random effects on each change latent process over time
+//' @param cholesky logical indicating if the variance covariance matrix is parameterized using the cholesky (TRUE) or the correlation (FALSE, by default)
 //' @param if_link indicates if non linear link is used to transform an outcome
 //' @param tau a vector of integers indicating times (including maximum time)
 //' @param tau_is a vector of integers indicating times for individuals
@@ -791,6 +792,8 @@ Predictions for overall individuals
 //' @param knots indicates position of knots used to transform outcomes
 //' @param degree indicates degree of the basis of splines
 //' @param epsPred convergence criteria for prediction using MC method//' 
+//' @param ui_hat matrix of bayesian estimates of random effects
+//' @param nE number of survival events
 //' @return a matrix
 //' @export
 //' 

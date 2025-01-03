@@ -22,7 +22,8 @@ DynNet.estim(
   epsa = 1e-04,
   epsb = 1e-04,
   epsd = 0.001,
-  print.info = FALSE
+  print.info = FALSE,
+  predict_ui = FALSE
 )
 }
 \arguments{
@@ -37,7 +38,17 @@ outcomes and latents processes}
 
 \item{if_link}{indicates if non linear link is used to transform an outcome}
 
+\item{cholesky}{logical indicating if the variance covariance matrix is parameterized using the cholesky (TRUE, by default) or the correlation (FALSE)}
+
 \item{DeltaT}{indicates the discretization step}
+
+\item{MCnr}{number of QMC replicates to compute the integral over random effects}
+
+\item{MCnr2}{number of QMC replicates to compute the integral over random effects in the Louis Variance}
+
+\item{nmes}{number of repeated measurements}
+
+\item{data_surv}{dataset for survival model}
 
 \item{paras}{initial values for parameters}
 
@@ -52,6 +63,8 @@ outcomes and latents processes}
 \item{epsd}{threshold for the convergence criterion on the derivatives, default value is 1.e-3}
 
 \item{print.info}{to print information during the liklihood optimization, default value is FALSE}
+
+\item{predict_ui}{boolean indicating if bayesian estimates of random effects should be computed (FALSE by default)}
 }
 \value{
 DynNet object

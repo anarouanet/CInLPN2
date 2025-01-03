@@ -92,6 +92,10 @@
 #' @param Tentry name of the variable of entry time
 #' @param Event name of the variable of event time
 #' @param StatusEvent name of the variable of event status
+#' @param basehaz type of baseline hazard function
+#' @param seed seed for random generator
+#' @param TimeDiscretization a boolean indicating if the initial time has to be discretized (TRUE by default). When setting to FALSE, it allows to avoid discretization when running univariate model during parameter initialization.
+#' @param predict_ui boolean indicating if bayesian estimates of random effects should be computed (FALSE by default)
 #' @param  \dots other optional arguments
 #' @details The vector of initial values paras.ini includes: the regression parameters on the initial level;
 #' the regression parameters on the slope; 
@@ -230,7 +234,7 @@
 
 DynNet <- function(structural.model, measurement.model, parameters, 
                    option, Time, Tentry ="Tentry", Event = "Event", StatusEvent = "StatusEvent", basehaz = NULL, subject, data, seed=NULL, 
-                   TimeDiscretization = TRUE, cholesky=FALSE,...){
+                   TimeDiscretization = TRUE, cholesky=FALSE, predict_ui = FALSE,...){
 
   cl <- match.call()
   ptm <- proc.time()  
@@ -376,7 +380,7 @@ DynNet <- function(structural.model, measurement.model, parameters,
   
   ### for DeltaLP
   # if(missing(fixed_DeltaX)) stop("The argument fixed_DeltaX must be specified in any model")
-  if(class(fixed_DeltaX)!="formula") stop("The argument fixed_DeltaX must be a formula")
+  if(inherits(fixed_DeltaX)!="formula") stop("The argument fixed_DeltaX must be a formula")
   
   ### outcomes and latent processes ####
   outcome <- as.character(attr(terms(fixed_DeltaX),"variables"))[2]
@@ -411,7 +415,7 @@ DynNet <- function(structural.model, measurement.model, parameters,
     fixed_X0<- ~1
     fixed_X0.models <- rep("1",nD)
   }
-  if(class(fixed_X0)!="formula") stop("The argument fixed_X0 must be a formula")
+  if(inherits(fixed_X0)!="formula") stop("The argument fixed_X0 must be a formula")
   
   fixed_X0.models =strsplit(gsub("[[:space:]]","",as.character(fixed_X0)),"~")[[2]]
   fixed_X0.models<- as.vector(strsplit(fixed_X0.models,"[|]")[[1]]) 
@@ -427,7 +431,7 @@ DynNet <- function(structural.model, measurement.model, parameters,
     if(is.null(fixed.survival)){
       fixed.survival<- ~1
     }else{
-      if(class(fixed.survival)!="formula") stop("The argument fixed.survival must be a formula") 
+      if(inherits(fixed.survival)!="formula") stop("The argument fixed.survival must be a formula") 
     }
 
     fixed.survival.models <- strsplit(gsub("[[:space:]]","",as.character(fixed.survival)),"~")[[2]]
@@ -459,7 +463,7 @@ DynNet <- function(structural.model, measurement.model, parameters,
   if(survival){
     
     if(!is.null(interactionY.survival)){
-      if(class(interactionY.survival)!="formula") stop("The argument interactionY.survival must be a formula") 
+      if(inherits(interactionY.survival)!="formula") stop("The argument interactionY.survival must be a formula") 
       interactionY.survival.models <- strsplit(gsub("[[:space:]]","",as.character(interactionY.survival)),"~")[[2]]
       intYsurv <- (as.vector(strsplit(interactionY.survival.models,"[|*+]")[[1]]))
       interactionY.survival.models <- as.vector(strsplit(interactionY.survival.models,"[|]")[[1]]) 
@@ -478,7 +482,7 @@ DynNet <- function(structural.model, measurement.model, parameters,
     randoms_DeltaX<- ~1
     randoms_DeltaX.models <- rep("1",nD)
   }
-  if(class(randoms_DeltaX)!="formula") stop("The argument random must be a formula")
+  if(inherits(randoms_DeltaX)!="formula") stop("The argument random must be a formula")
   randoms_DeltaX.model=strsplit(gsub("[[:space:]]","",as.character(randoms_DeltaX)),"~")[[2]]
   randoms_DeltaX.models<-strsplit(randoms_DeltaX.model,"[|]")[[1]]    
   
@@ -486,7 +490,7 @@ DynNet <- function(structural.model, measurement.model, parameters,
   if(missing(mod_trans)){
     mod_trans <- ~ 1 # constant transition matrix
   } 
-  if(class(mod_trans)!="formula") stop("The argument mod_trans must be a formula")
+  if(inherits(mod_trans)!="formula") stop("The argument mod_trans must be a formula")
   mod_trans.model=strsplit(gsub("[[:space:]]","",as.character(mod_trans)),"~")[[2]]
   
   if(nD!=length(fixed_X0.models)){
@@ -593,7 +597,7 @@ DynNet <- function(structural.model, measurement.model, parameters,
   est <- DynNet.default(fixed_X0.models = fixed_X0.models, fixed_DeltaX.models = fixed_DeltaX.models, randoms_X0.models = randoms_X0.models, 
                         randoms_DeltaX.models = randoms_DeltaX.models, mod_trans.model = mod_trans.model, DeltaT = DeltaT , outcomes = outcomes,
                         nD = nD, mapping.to.LP = mapping.to.LP, link = link, knots = knots, subject = subject, data = data, Time = Time, 
-                        Survdata = Survdata, basehaz = basehaz, knots_surv = knots_surv, assoc = assoc, truncation = truncation, 
+                        predict_ui = predict_ui, Survdata = Survdata, basehaz = basehaz, knots_surv = knots_surv, assoc = assoc, truncation = truncation, 
                         fixed.survival.models = fixed.survival.models, interactionY.survival.models = interactionY.survival.models,
                         makepred = option$makepred, MCnr = option$MCnr, MCnr2 = option$MCnr2, type_int = option$type_int, sequence = sequence, ind_seq_i = ind_seq_i, nmes = nmes, cholesky = cholesky,
                         paras.ini= paras.ini, paraFixeUser = paraFixeUser, indexparaFixeUser = indexparaFixeUser,  

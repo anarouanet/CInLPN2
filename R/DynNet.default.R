@@ -199,8 +199,8 @@ DynNet.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mode
   #   # fitted value and correlation matrix
   #   m <- length(data$tau)
   res$fitted.values <- NULL
-  
-  if(makepred & res$conv==1){
+
+  if(makepred & res$conv==1 & max(if_link)<2 & data_F$nE ==0 ){
     ptm2 <- proc.time() 
     cat("Computation of the predictions for the observed marker(s) \n")
     cat(paste("based on Newton Raphson algorithm (criterion: eps=1.e-9) and Monte Carlo integration with N=",MCnr),"replicates \n")
@@ -215,14 +215,13 @@ DynNet.default <- function(fixed_X0.models, fixed_DeltaX.models, randoms_X0.mode
     res$SubjectSpecific_Predict <- data_F$id_and_Time
     col <- colnames(res$Marginal_Predict)
     # colSS <- colnames(res$SubjectSpecific_Predict)
-    
-    ui_hat = matrix(0,length(data_F$m_i),sum(data_F$q0)+sum(data_F$q))
-    Predict <- pred(K = K, nD = nD, mapping = mapping.to.LP, paras = res$coefficients,
+
+    Predict <- pred_bis(K = K, nD = nD, mapping = mapping.to.LP, paras = res$coefficients,
                     m_is= data_F$m_i, Mod_MatrixY = data_F$Mod.MatrixY, df= data_F$df,
                     x = data_F$x, z = data_F$z, q = data_F$q, cholesky = cholesky, nb_paraD = data_F$nb_paraD, x0 = data_F$x0, z0 = data_F$z0,
                     q0 = data_F$q0, if_link = if_link, tau = data_F$tau,
                     tau_is=data_F$tau_is, modA_mat = data_F$modA_mat, DeltaT=DeltaT, 
-                    MCnr = MCnr, minY=data_F$minY, maxY=data_F$maxY, knots=data_F$knots, data_F$degree, epsPred = 1.e-9, ui_hat = ui_hat)
+                    MCnr = MCnr, minY=data_F$minY, maxY=data_F$maxY, knots=data_F$knots, data_F$degree, epsPred = 1.e-9)
     
     kk <- 1
     for(k in 1: K){

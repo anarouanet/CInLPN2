@@ -926,6 +926,7 @@ arma::mat pred(int K, int nD, arma::vec& mapping, arma::vec& paras, arma::vec& m
     mat G_mat_prod_A_0_to_tau = GmatprodAstotau(nD, vec_alpha_ij, tau, 0, DeltaT, modA_mat(span(n*m,((n+1)*m-1)), span(0,(L-1))));
     mat G_mat_A_0_to_tau_i = GmatA0totaui(nD, vec_alpha_ij, tau, DeltaT, modA_mat(span(n*m,((n+1)*m-1)), span(0,(L-1))));
 
+    Rcout << " if_link "<<if_link.t() << " nE "<<nE <<endl;
     if(max(if_link)<2 && nE==0){
       pred_Y.rows(p,(p+m_is[n]-1)) = predi(K, nD, matrixP, m_is(n), tau, tau_is(span(p,(p+m_is(n)-1))), Ytild(span(p,(p+m_is(n)-1)), span(0,(K-1))),
                   x0(span(n*nD,(n+1)*nD-1), span(0,(ncol_x0-1))), z0(span(n*nD,(n+1)*nD-1), span(0,(ncol_z0-1))),
@@ -948,6 +949,186 @@ arma::mat pred(int K, int nD, arma::vec& mapping, arma::vec& paras, arma::vec& m
 
   return(pred_Y);
 }
+
+//==============================================================================================================================
+/* ******************************************************
+ Predictions for overall individuals
+ */
+//===========================================================================================
+//' Function that computes the predictions (marginal and subject-specific) for individuals
+ //'  
+ //' @param K an integer indicating the number of markers
+ //' @param nD an integer indicating the number of latent processes
+ //' @param mapping indicates which outcome measured which latent process, it is a mapping table between
+ //' outcomes and latents processes
+ //' @param paras values of model parameters
+ //' @param m_is vector of numbers of visit occasions for individuals
+ //' @param Mod_MatrixY model.matrix from markers transformation submodels
+ //' @param df vector of numbers of parameters for each transformation model
+ //' @param nb_paraD number of paramerters of the variance-covariance matrix of random effects
+ //' @param x0 model.matrix for baseline's fixed submodel
+ //' @param x model.matrix for change's fixed submodel
+ //' @param z0 model.matrix for baseline's random effects submodel
+ //' @param z model.matrix for change's random effects submodel
+ //' @param q0 a vector of number of random effects on each initial latent process level
+ //' @param q a vector of number of random effects on each change latent process over time
+ //' @param cholesky logical indicating if the variance covariance matrix is parameterized using the cholesky (TRUE) or the correlation (FALSE, by default)
+ //' @param if_link indicates if non linear link is used to transform an outcome
+ //' @param tau a vector of integers indicating times (including maximum time)
+ //' @param tau_is a vector of integers indicating times for individuals
+ //' @param modA_mat model.matrix for elements of the transistion matrix
+ //' @param DeltaT double that indicates the discretization step  
+ //' @param MCnr an integer that indicates the number of sample for MC method  
+ //' @param minY a vector of minima of outcomes
+ //' @param maxY a vector of maxima of outcomes
+ //' @param knots indicates position of knots used to transform outcomes
+ //' @param degree indicates degree of the basis of splines
+ //' @param epsPred convergence criteria for prediction using MC method//' 
+ //' @param ui_hat matrix of bayesian estimates of random effects
+ //' @param nE number of survival events
+ //' @return a matrix
+ //' @export
+ //' 
+ // [[Rcpp::export]]
+ arma::mat pred_bis(int K, int nD, arma::vec& mapping, arma::vec& paras, arma::vec& m_is,
+                arma::mat& Mod_MatrixY, arma::vec df, arma::mat& x, arma::mat& z, arma::vec& q, bool cholesky,
+                int nb_paraD, arma::mat& x0, arma::mat& z0, arma::vec& q0, arma::vec if_link, arma::vec tau,
+                arma::vec& tau_is, arma::mat& modA_mat, double DeltaT, int MCnr, arma::vec minY, arma::vec maxY,
+                List& knots, arma::vec degree, double epsPred){
+   
+   // appel de fonctions externe R
+   Rcpp::Environment base("package:DynNet");
+   Rcpp::Function f = base["f_trSpline"];
+   
+   //Rprintf("Begining of predictions n \n");
+   mat pred_Y = zeros(sum(m_is),7*K);
+   arma::mat matrixP = zeros(K,nD);
+   for(int k = 0; k<K; k++){
+     matrixP(k,(mapping(k)-1)) = 1.e0;
+   }
+   
+   int m = tau.size();
+   int N = m_is.size();
+   int p=0; //loop variables
+   int ncol_x = (int)x.n_cols; // number of parameters for the mean slope (DeltaX)
+   int ncol_x0 = (int)x0.n_cols; // number of parameters for mean of processes at baseline (X0)
+   int ncol_z = (int)z.n_cols; // number of parameters for randoms effects on the slope
+   int ncol_z0 = (int)z0.n_cols; // number of parameters for randoms effects on baseline processes values
+   int L = modA_mat.n_cols; // number of parameters for the transition matrix A
+   
+   //Identification of groups of parameters
+   int ipara =0;
+   colvec alpha_mu0 = paras(span(ipara,ipara+ncol_x0-1));
+   ipara += ncol_x0;
+   colvec alpha_mu = paras(span(ipara,ipara+ncol_x-1));
+   ipara += ncol_x;
+   colvec alpha_D = paras(span(ipara,ipara + nb_paraD-1));
+   ipara += nb_paraD;
+   vec vec_alpha_ij = paras(span(ipara,ipara+L*nD*nD-1));
+   ipara += L*nD*nD;
+   vec paraSig = paras(span(ipara,ipara+K-1));
+   ipara += K;
+   int nbParaTransformY = Mod_MatrixY.n_cols;
+   colvec ParaTransformY = paras(span(ipara,ipara+nbParaTransformY-1));
+   ipara += nbParaTransformY;
+   
+   int nb_RE = sum(sum(q0)+sum(q));
+   Mat<double> matD;
+   // alpha_D contains initial parameters (corr)
+   if(cholesky==false){
+     mat prmea = zeros(nb_RE, nb_RE);
+     int ii=0;
+     for(int i=0; i<nb_RE;i++){
+       for(int j=0; j<=i;j++){
+         prmea(i,j)=alpha_D(ii);
+         ii++;
+       }
+     }
+     
+     mat DI=zeros(nb_RE, nb_RE);
+     DI.diag() = prmea.diag();
+     prmea = prmea + prmea.t() - DI;
+     
+     colvec sea = abs(prmea.diag());
+     mat corr = (exp(prmea)-1)/(exp(prmea)+1);
+     for(int i=0; i<nb_RE;i++)
+       corr(i,i)=1;
+     
+     matD = corr;
+     for(int i=0; i<nb_RE;i++)
+       matD.col(i)=matD.col(i)*sea(i);
+     for(int i=0; i<nb_RE;i++)
+       matD.row(i)=matD.row(i)*sea(i);
+     
+   }else{
+     matD = DparChol(nb_RE, alpha_D);
+   }
+   
+   int n_cols_matD = matD.n_cols;
+   mat matDw = matD(span(0,nD-1),span(0,nD-1));
+   mat matDw_u = DeltaT*matD(span(0,nD-1),span(nD,n_cols_matD-1));
+   mat matDu = DeltaT*matD(span(nD,n_cols_matD-1),span(nD,n_cols_matD-1))*DeltaT;
+   mat Sig = KmatDiag(paraSig); // noice
+   
+   
+   Mat<double> Ytild = zeros(Mod_MatrixY.n_rows,K);
+   Mat<double> GrilleYtild = zeros(N,K);
+   Mat<double> GrilleY = zeros(N,K);
+   int kk = 0;
+   int kkp = 0;
+   for(int k=0; k<K;k++){
+     
+     for(int l=0; l<N; l++){
+       GrilleY(l,k) = minY[k] + (maxY[k]-minY[k])*(l/N);
+     }
+     
+     if(if_link[k] == 1){
+       colvec ParamTransformYk = exp(ParaTransformY(span(kk, (kk+df[k]-1))));
+       ParamTransformYk[0] = log(ParamTransformYk[0]);
+       Ytild.col(k) = Mod_MatrixY.cols(kk, (kk+df[k]-1))*ParamTransformYk;
+       vec knots_k = as<vec>(knots[k]);
+       vec GrilleY_colk = GrilleY.col(k);
+       mat res_tr = as<arma::mat>(wrap(f(Rcpp::_["y"] = GrilleY_colk, Rcpp::_["minY"] = as_scalar(minY[k]),
+                                         Rcpp::_["maxY"] = maxY[k], Rcpp::_["knots"] = knots_k,
+                                         Rcpp::_["degree"] = as_scalar(degree[k]), Rcpp::_["paras"] = ParamTransformYk)));
+       GrilleYtild.col(k) = res_tr.col(0);
+       kk += df[k];
+       kkp += df[k]-1;
+     }
+     else if(if_link[k] == 0){
+       colvec ParamTransformYk = ParaTransformY(span(kk, (kk+df[k]-1)));
+       ParamTransformYk[0] = - ParamTransformYk[0]/ParamTransformYk[1];
+       ParamTransformYk[1] = 1.e0/ParamTransformYk[1];
+       
+       Ytild.col(k) = Mod_MatrixY.cols(kk, (kk+df[k]-1))*ParamTransformYk;
+       GrilleYtild.col(k) = (GrilleY.col(k)-ParamTransformYk[0])/ParamTransformYk[1];
+       kk += df[k];
+       kkp += df[k]-1;
+     }else{//thresholds
+       colvec ParamTransformYk = ParaTransformY(span(kk, (kk+df[k]-1)));
+       Ytild.col(k) = Mod_MatrixY.cols(kk, (kk+df[k]-1))*ParamTransformYk;
+       GrilleYtild.col(k) = (GrilleY.col(k)-ParamTransformYk[0])/ParamTransformYk[1];
+       kk += df[k];
+       kkp += df[k]-1;
+     }
+   }
+   // predictions=============================================
+   for(int n= 0; n < N; n++ ){
+     //Creation of matrix G_mat_prod_A_0_to_tau that contains all products  A(j) from t_j a Tmax: t_j \in 0, Tmax
+     mat G_mat_prod_A_0_to_tau = GmatprodAstotau(nD, vec_alpha_ij, tau, 0, DeltaT, modA_mat(span(n*m,((n+1)*m-1)), span(0,(L-1))));
+     mat G_mat_A_0_to_tau_i = GmatA0totaui(nD, vec_alpha_ij, tau, DeltaT, modA_mat(span(n*m,((n+1)*m-1)), span(0,(L-1))));
+     
+       pred_Y.rows(p,(p+m_is[n]-1)) = predi(K, nD, matrixP, m_is(n), tau, tau_is(span(p,(p+m_is(n)-1))), Ytild(span(p,(p+m_is(n)-1)), span(0,(K-1))),
+                   x0(span(n*nD,(n+1)*nD-1), span(0,(ncol_x0-1))), z0(span(n*nD,(n+1)*nD-1), span(0,(ncol_z0-1))),
+                   x(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_x-1))), z(span(n*nD*m,((n+1)*nD*m-1)), span(0,(ncol_z-1))),
+                   alpha_mu0, alpha_mu, matDw, matDw_u, matDu, Sig, G_mat_A_0_to_tau_i, G_mat_prod_A_0_to_tau, DeltaT,
+                   GrilleY, GrilleYtild, ParaTransformY, if_link, df, minY, maxY, knots, degree, MCnr, epsPred);
+     
+     p += m_is[n];
+   }
+   
+   return(pred_Y);
+ }
 
 
 arma::mat predi0(int K, int nD, arma::mat matrixP, int m_i, arma::vec tau, arma::vec tau_i,

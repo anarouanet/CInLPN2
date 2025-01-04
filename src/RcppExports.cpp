@@ -158,6 +158,42 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// pred_bis
+arma::mat pred_bis(int K, int nD, arma::vec& mapping, arma::vec& paras, arma::vec& m_is, arma::mat& Mod_MatrixY, arma::vec df, arma::mat& x, arma::mat& z, arma::vec& q, bool cholesky, int nb_paraD, arma::mat& x0, arma::mat& z0, arma::vec& q0, arma::vec if_link, arma::vec tau, arma::vec& tau_is, arma::mat& modA_mat, double DeltaT, int MCnr, arma::vec minY, arma::vec maxY, List& knots, arma::vec degree, double epsPred);
+RcppExport SEXP _DynNet_pred_bis(SEXP KSEXP, SEXP nDSEXP, SEXP mappingSEXP, SEXP parasSEXP, SEXP m_isSEXP, SEXP Mod_MatrixYSEXP, SEXP dfSEXP, SEXP xSEXP, SEXP zSEXP, SEXP qSEXP, SEXP choleskySEXP, SEXP nb_paraDSEXP, SEXP x0SEXP, SEXP z0SEXP, SEXP q0SEXP, SEXP if_linkSEXP, SEXP tauSEXP, SEXP tau_isSEXP, SEXP modA_matSEXP, SEXP DeltaTSEXP, SEXP MCnrSEXP, SEXP minYSEXP, SEXP maxYSEXP, SEXP knotsSEXP, SEXP degreeSEXP, SEXP epsPredSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type K(KSEXP);
+    Rcpp::traits::input_parameter< int >::type nD(nDSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type mapping(mappingSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type paras(parasSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type m_is(m_isSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Mod_MatrixY(Mod_MatrixYSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type df(dfSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type z(zSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type q(qSEXP);
+    Rcpp::traits::input_parameter< bool >::type cholesky(choleskySEXP);
+    Rcpp::traits::input_parameter< int >::type nb_paraD(nb_paraDSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type x0(x0SEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type z0(z0SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type q0(q0SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type if_link(if_linkSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type tau_is(tau_isSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type modA_mat(modA_matSEXP);
+    Rcpp::traits::input_parameter< double >::type DeltaT(DeltaTSEXP);
+    Rcpp::traits::input_parameter< int >::type MCnr(MCnrSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type minY(minYSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type maxY(maxYSEXP);
+    Rcpp::traits::input_parameter< List& >::type knots(knotsSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type degree(degreeSEXP);
+    Rcpp::traits::input_parameter< double >::type epsPred(epsPredSEXP);
+    rcpp_result_gen = Rcpp::wrap(pred_bis(K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, cholesky, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred));
+    return rcpp_result_gen;
+END_RCPP
+}
 // pred0
 arma::mat pred0(int K, int nD, arma::vec& mapping, arma::vec& paras, arma::vec& m_is, arma::mat& Mod_MatrixY, arma::vec df, arma::mat& x, arma::mat& z, arma::vec& q, int nb_paraD, arma::mat& x0, arma::mat& z0, arma::vec& q0, arma::vec if_link, arma::vec tau, arma::vec& tau_is, arma::mat& modA_mat, double DeltaT, int MCnr, arma::vec minY, arma::vec maxY, List& knots, arma::vec degree, double epsPred);
 RcppExport SEXP _DynNet_pred0(SEXP KSEXP, SEXP nDSEXP, SEXP mappingSEXP, SEXP parasSEXP, SEXP m_isSEXP, SEXP Mod_MatrixYSEXP, SEXP dfSEXP, SEXP xSEXP, SEXP zSEXP, SEXP qSEXP, SEXP nb_paraDSEXP, SEXP x0SEXP, SEXP z0SEXP, SEXP q0SEXP, SEXP if_linkSEXP, SEXP tauSEXP, SEXP tau_isSEXP, SEXP modA_matSEXP, SEXP DeltaTSEXP, SEXP MCnrSEXP, SEXP minYSEXP, SEXP maxYSEXP, SEXP knotsSEXP, SEXP degreeSEXP, SEXP epsPredSEXP) {
@@ -481,6 +517,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_DynNet_Loglik", (DL_FUNC) &_DynNet_Loglik, 44},
     {"_DynNet_Loglik2", (DL_FUNC) &_DynNet_Loglik2, 45},
     {"_DynNet_pred", (DL_FUNC) &_DynNet_pred, 28},
+    {"_DynNet_pred_bis", (DL_FUNC) &_DynNet_pred_bis, 26},
     {"_DynNet_pred0", (DL_FUNC) &_DynNet_pred0, 25},
     {"_DynNet_vectorise", (DL_FUNC) &_DynNet_vectorise, 1},
     {"_DynNet_KmatDiag", (DL_FUNC) &_DynNet_KmatDiag, 1},

@@ -75,7 +75,9 @@ DynNet(
 \item{\code{Fixed.para.values}}{ indicates the values associated to the index of parameters to be constrained. }
 }}
 
-\item{option}{a list of 7 arguments for the optimization procedure: \describe{
+\item{option}{a list of arguments for the optimization procedure: \describe{
+
+\item{\code{maxiter}}{ maximum number of iterations}
 
 \item{\code{epsa}}{ threshold for the convergence criterion on the parameters}
 

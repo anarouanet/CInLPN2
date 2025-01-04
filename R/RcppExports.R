@@ -70,6 +70,9 @@ Loglik2 <- function(K, nD, mapping, paraOpt, paraFixe, posfix, paras_k, sequence
 NULL
 
 #' Function that computes the predictions (marginal and subject-specific) for individuals
+NULL
+
+#' Function that computes the predictions (marginal and subject-specific) for individuals
 #'  
 #' @param K an integer indicating the number of markers
 #' @param nD an integer indicating the number of latent processes
@@ -105,6 +108,10 @@ NULL
 #' 
 pred <- function(K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, cholesky, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred, ui_hat, nE = 0L) {
     .Call(`_DynNet_pred`, K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, cholesky, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred, ui_hat, nE)
+}
+
+pred_bis <- function(K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, cholesky, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred) {
+    .Call(`_DynNet_pred_bis`, K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, cholesky, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred)
 }
 
 pred0 <- function(K, nD, mapping, paras, m_is, Mod_MatrixY, df, x, z, q, nb_paraD, x0, z0, q0, if_link, tau, tau_is, modA_mat, DeltaT, MCnr, minY, maxY, knots, degree, epsPred) {
